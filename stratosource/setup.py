@@ -23,6 +23,11 @@ STANDARDCHKSETTINGS='rally.enabled'
 STANDARDTXTSETTINGS='rally.login,email.host,email.from'
 STANDARDPASSWORDS='rally.password'
 
+s = ConfigSetting(key='calendar.host', value='localhost', allow_delete=False, masked=False)
+s.save()
+s = ConfigSetting(key='uuid',value=uuid.uuid1(), allow_delete=False, masked=False)
+s.save()
+
 for name in STANDARDTXTSETTINGS.split(','):
   s = ConfigSetting(key=name, value='', allow_delete=False, masked=False)
   s.save()
@@ -35,10 +40,6 @@ for name in STANDARDPASSWORDS.split(','):
   s = ConfigSetting(key=name, value='', allow_delete=False, masked=True)
   s.save()
   
-s = ConfigSetting(key='calendar.host', value='localhost', allow_delete=False, masked=False)
-s.save()
-s = ConfigSettings(key='uuid',value=uuid.uuid1(), allow_delete=False, masked=False)
-s.save()
 
 #try:
 #    unReleased = Release.objects.get(name='Unreleased')

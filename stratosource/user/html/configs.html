@@ -65,8 +65,8 @@
                             <td scope="row">Configuration Wizards</td>
                             <td>
                                 <ul>
-                                    {% if rally_enabled %}
-                                    <li><a href="/rally_projects/">Select Rally Projects</a></li>
+                                    {% if rally_enabled or agilezen_enabled %}
+                                    <li><a href="/rally_projects/">Select Projects</a></li>
                                     {% endif %}
                                 </ul>
                             </td>

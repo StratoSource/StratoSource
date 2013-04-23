@@ -34,7 +34,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     #(r'^admin/', include(admin.site.urls)),
-
+    (r'^djadmin/', include(admin.site.urls)),
 
     (r'^$', 'stratosource.user.views.home'),
     (r'^configs/', 'stratosource.user.views.configs'),
@@ -94,6 +94,5 @@ urlpatterns = patterns('',
     (r'^branch_admin_form_action', 'stratosource.user.admin_views.branch_form_action'),
     (r'^newrepo/', 'stratosource.user.admin_views.newrepo'),
     (r'^editrepo/(\d+)$', 'stratosource.user.admin_views.editrepo'),
-    (r'^repo_admin_form_action', 'stratosource.user.admin_views.repo_form_action'),
-    
+    (r'^repo_form_action', 'stratosource.user.admin_views.repo_form_action'),
 )

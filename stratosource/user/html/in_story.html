@@ -29,7 +29,7 @@
 
         <div id="content-main">
             <div class="module ObjectsList" style="padding: 5px;">
-                <b>{{story.rally_id}} Description {% if story.rally_id != '' %}(<a href="https://rally1.rallydev.com/slm/rally.sp#/search?keywords={{ story.rally_id }}" target="_blank">See Details</a>){% endif %}</b>
+                <b>{{story.rally_id}} Description {% if story.rally_id != '' %}(<a href="{{ story.url }}" target="_blank">See Details</a>){% endif %}</b> 
                 <br/><br/>{{story.name}}
                 <br/><br/>
             </div>

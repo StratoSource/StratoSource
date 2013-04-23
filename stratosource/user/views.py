@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
+
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -25,10 +26,10 @@ from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse
 from stratosource.admin.models import DeploymentPushStatus, DeploymentPackage, Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser, Repo
 from stratosource.user import rallyintegration
+from stratosource.user import agilezenintegration
 from stratosource.admin.management import ConfigCache, Deployment, labels
 import logging
 import subprocess
-
 
 logger = logging.getLogger('console')
 namestl = {
@@ -78,13 +79,13 @@ def configs(request):
         ConfigCache.refresh()
         allsettings = ConfigSetting.objects.all();
 
-    data = {'settings': allsettings}
+    data = {'settings': allsettings.order_by('key')}
     for setting in allsettings:
         if setting.type == 'check':
             data[setting.key.replace('.','_')] = setting.value == '1'
         else:
             data[setting.key.replace('.','_')] = setting.value
-
+    
     return render_to_response('configs.html', data, context_instance=RequestContext(request))
 
 def home(request):
@@ -218,7 +219,7 @@ def export_labels_form(request):
     repo = Repo.objects.get(id=repo_idlist[0])
     ssfile = labels.generateLabelSpreadsheet(repo, release_id)
     response = HttpResponse(ssfile, mimetype='application/xls')
-    response['Content-Disposition'] = 'attachment; filename="labels.xls"'
+    response['Content-Disposition'] = 'attachment; filename="%s_labels.xls"' % repo.name
     return response
 
 
@@ -398,7 +399,8 @@ def stories(request):
             stories = Story.objects.filter(id__in=ids)
             for s in stories.all():
                 if s not in release.stories.all():
-                    print 'adding ' + s.name
+                    #this print was causing a unicode issue adding a story, so commented out
+                    #print 'adding ' + s.name
                     release.stories.add(s)
         release.save()
         return redirect('/release/' + str(release.id))
@@ -412,7 +414,10 @@ def stories(request):
         story.delete()
 
     if request.method == u'GET' and request.GET.__contains__('refresh'):
-        rallyintegration.refresh()
+        if ConfigCache.get_config_value('agilezen.enabled') == '1':
+            agilezenintegration.refresh()
+        if ConfigCache.get_config_value('rally.enabled') == '1':
+            rallyintegration.refresh()
         
     releaseid = ''
     in_release = {}
@@ -439,7 +444,8 @@ def stories(request):
         stories = stories.filter(sprint=sprint)
     stories = stories.order_by('sprint', 'rally_id', 'name')
     stories.select_related()
-    data = {'stories': stories, 'rally_refresh' : ConfigCache.get_config_value('rally.enabled') == '1', 'releaseid': releaseid, 'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
+    stories_refresh_enabled = (ConfigCache.get_config_value('rally.enabled') == '1') or (ConfigCache.get_config_value('agilezen.enabled') == '1')
+    data = {'stories': stories, 'rally_refresh' : stories_refresh_enabled, 'releaseid': releaseid, 'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
     return render_to_response('stories.html', data, context_instance=RequestContext(request))
 
 def instory(request, story_id):
@@ -521,7 +527,16 @@ def rally_projects(request):
          ConfigCache.store_config_value('rally.pickedprojects', projectConfValue)
          return redirect('/configs/')
 
-    projects = rallyintegration.get_projects(True)
+    projects = []
+    if ConfigCache.get_config_value('rally.enabled') == '1':
+        projlist = rallyintegration.get_projects(True)
+        for project in projlist:
+            projects.append( project )
+            
+    if ConfigCache.get_config_value('agilezen.enabled') == '1':
+        projlist = agilezenintegration.get_projects(True)
+        for project in projlist:
+            projects.append( project )
 
     data = {'projects': projects}
     return render_to_response('rally_projects.html', data, context_instance=RequestContext(request))

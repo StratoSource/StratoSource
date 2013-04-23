@@ -22,7 +22,7 @@
         <div id="content-main">
             <form id="storyForm" method="post">{% csrf_token %}
                 <div>
-                    <strong>Filter By Sprint:</strong>
+                    <strong>Filter By:</strong>
                     <select name="cboSprints" id="cboSprints" onchange="refreshFilter();">
                         <option value="">-- All Sprints --</option>
                         {% for sprintName in sprintList %}
@@ -43,8 +43,8 @@
                         </caption>
                             <tr>
                                 <th scope="row" class="align_center">Select</th>
-                                <th>Rally ID</th>
-                                <th>Sprint</th>
+                                <th>Story ID</th>
+                                <th>Sprint/Project ID - Deadline</th>
                                 <th>Name</th>
                                 {% if not releaseid %}<th colspan="2" align="center">Actions</th>{% endif %}
                             </tr>
@@ -64,7 +64,7 @@
                                 </td>
                                 {% if not releaseid %}
                                 <td>
-                                    <a href="https://rally1.rallydev.com/slm/rally.sp#/search?keywords={{ story.rally_id }}" target="_blank">Details</a>
+                                    <a href="{{ story.url }}" target="_blank">Details</a>
                                 </td>
                                 <td align="center">
                                     <a href="/stories?delete={{ story.id }}">Delete</a>

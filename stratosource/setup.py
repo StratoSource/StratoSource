@@ -19,9 +19,9 @@ from stratosource.admin.models import ConfigSetting
 from django.core.exceptions import ObjectDoesNotExist
 import uuid
 
-STANDARDCHKSETTINGS='rally.enabled'
+STANDARDCHKSETTINGS='rally.enabled,agilezen.enabled'
 STANDARDTXTSETTINGS='rally.login,email.host,email.from'
-STANDARDPASSWORDS='rally.password'
+STANDARDPASSWORDS='rally.password,agilezen.apikey'
 
 s = ConfigSetting(key='calendar.host', value='localhost', allow_delete=False, masked=False)
 s.save()

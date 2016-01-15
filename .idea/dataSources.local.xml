@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="Django default" uuid="90f4e0bd-d9a2-4813-8589-364ced3d88b3">
+      <user-name>fte0</user-name>
+      <user-password>dfccdfdedfcfdf9a</user-password>
+      <schema-pattern>stratosource.*</schema-pattern>
+      <default-schemas>stratosource.*</default-schemas>
+    </data-source>
+  </component>
+</project>

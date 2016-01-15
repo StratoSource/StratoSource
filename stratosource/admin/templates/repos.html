@@ -1,0 +1,35 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a>
+&rsaquo;
+Repositories
+
+{% endblock %}
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module">
+                <table summary="Repos available">
+                    <caption><a href="" class="section">Repositories</a></caption>
+                    {% for repo in repos %}
+                    <tr scope="row" style="text-align: left;">
+                        <td>
+                        <a href="/branches/{{repo.id}}">
+                          {{ repo.name|upper }}
+                        </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+{% endblock %}
+

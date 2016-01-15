@@ -1,0 +1,69 @@
+
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+Home
+{% endblock %}
+
+{% block jscript %}
+
+<script language="javascript">
+
+function submitSearch() {
+    var search = $("#txtSearch").val();
+    var repo = $("#selectedRepo").val();
+    var branch = $("#selectedBranch").val();
+    document.location = '?go=true&searchText=' + escape(search) + '&selectedBranch=' + branch + '&selectedRepo=' + repo + document.location.hash;
+}
+
+function refreshBranches() {
+    var search = $("#txtSearch").val();
+    var repo = $("#selectedRepo").val();
+    document.location = '?searchText=' + escape(search) + '&selectedRepo=' + repo + document.location.hash;
+}
+
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="content" class="colMS">
+        <div id="content-main">
+
+			Repo: <select name="cboRepo" id="selectedRepo" onchange="refreshBranches();">
+				{% for repo in repos %}
+					<option value="{{ repo.name }}" {% if repo.name == selectedRepo %}selected{% endif %} >{{ repo.name }}</option>
+				{% endfor %}
+			</select> &nbsp;&nbsp;
+			Branch: <select name="cboBranch" id="selectedBranch">
+				{% for branch in branches %}
+					<option value="{{ branch.repo.name }}" {% if branch.name == selectedBranch %}selected{% endif %} >{{ branch.name }}</option>
+				{% endfor %}
+			</select>&nbsp;&nbsp;
+
+			Text: <input type="text" id="txtSearch" id="txtSearch" size="50" value="{{ searchText }}"/>
+
+			<input type="button" onclick="submitSearch();" value="Search">
+			<hr />
+			<br />
+			{% if results|length > 0 %}
+				<div style="height:100px; text-align: left">
+				{% for sectionname,section in results.iteritems %}
+                        <h3 class="sectionHeader">{{sectionname}}</h3> <br />
+				{% for result in section %}
+					{% ifchanged result.filename %}
+                        <b>{{result.filename}}</b>
+                    {% endifchanged %}
+                    <pre>     {{result.match }}</pre>
+				{% endfor %}
+				{% endfor %}
+				</div>
+			{% endif %}
+
+		</div>
+    </div>
+
+
+{% endblock %}

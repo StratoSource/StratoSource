@@ -1,0 +1,261 @@
+/* 
+    Document   : stratosource1.0
+    Created on : Sep 28, 2010, 8:49:00 AM
+    Author     : tkruger
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+#header {
+    background: url("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/dot-luv/images/ui-bg_diagonals-thick_15_0b3e6f_40x40.png") repeat scroll 50% 50% #5C9CCC;
+}
+
+.ui-widget-header {
+    background: url("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/dot-luv/images/ui-bg_diagonals-thick_15_0b3e6f_40x40.png") repeat scroll 50% 50% #5C9CCC;
+}
+
+#branding h1 {
+    font-size: 22pt;
+    color: #FFCC44;
+    text-shadow:0.1em 0.1em 0.1em black;
+}
+
+body {
+    background:none repeat scroll 0 0 #ddddee;
+}
+
+.module {
+    background:none repeat scroll 0 0 #eeeeff;
+}
+
+.section {
+    color: white;
+    font-size: 12pt;
+    font-weight:bold;
+    margin:0;
+    padding:2px 5px 3px;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
+}
+
+.sectionBase {
+    background: #07223F;
+    padding:0px 5px 0px;
+    font-size:11px;
+}
+
+.betalabel {
+    color:#E3E4FA;
+    font-size: 11pt;
+    line-height: 22pt;
+    vertical-align: top;
+    margin-left: 3px;
+}
+
+thead th, th {
+    text-align: left;
+    background:url('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/dot-luv/images/ui-bg_dots-small_20_333333_2x2.png');
+    filter:alpha(opacity=60);
+    opacity:0.60;
+    color: white;
+}
+
+tbody tr, tr, .whitearea {
+    border-bottom-style: solid;
+    border-bottom-color: #dddddd;
+    border-bottom-width: 2px;
+    background-color: white;
+}
+
+table {
+    width: 100%;
+}
+
+.dashboard .module table th {
+    width: auto;
+}
+
+td, th {
+    vertical-align:middle;
+    white-space: nowrap;
+}
+
+.ActionColumn {
+    width: 120px;
+    display: block;
+}
+
+.ReleasesList {
+    vertical-align: middle;
+    width: 100%;
+}
+
+.ObjectsList {
+    vertical-align: middle;
+    width: 100%;
+    padding: 4px;
+}
+
+.dashboard #content {
+    width: 98%;
+}
+
+#content-main {
+}
+
+.ui-widget-overlay {
+    opacity:0.9;
+}
+
+.trow {
+    display:table-row;
+}
+
+.tcell {
+    display:table-cell;
+    text-align: left;
+}
+
+.tobody {
+    display:table;
+}
+
+.label {
+    text-align: right;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.biggesttext {
+    font-size: 12pt;
+    line-height: 15pt;
+}
+
+.biggertext {
+    font-size: 10pt;
+    line-height: 15pt;
+}
+
+.smalltext {
+    font-size: 8pt;
+}
+
+.sectionHeader {
+    background: #4585C1;
+    color:white;
+    font-weight:bold;
+    margin:0;
+    padding:2px 5px 3px;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
+}
+
+.sectionHeader a:link, .sectionHeader a:visited {
+    color:white;
+    text-decoration: none;
+}
+
+
+.sectionHeaderTitle {
+    float: left;
+    margin: 2px;
+}
+
+
+.sectionActions {
+    float: right;
+    margin: 2px;
+    vertical-align: middle;
+    color: white;
+    font-size: 9pt;
+    font-weight:bold;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
+}
+
+.sectionActions a:link, .sectionActions a:visited, .sectionHeaderActions a:link, .sectionHeaderActions a:visited {
+    color: white;
+    font-size: 8pt;
+    font-weight:bold;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
+}
+
+.sectionHeaderActions {
+    color: white;
+    font-size: 8pt;
+    font-weight:bold;
+    text-align:left;
+    text-shadow:0.1em 0.1em 0.2em black;
+    float: right;
+    margin: 2px;
+    margin-top: 4px;    
+    vertical-align: middle;   
+}
+
+.sectionHeaderActions input{
+    margin-top: -1px;
+}
+
+.actionBar {
+    margin: 5px;
+    padding-top: 4px;
+}
+
+.actionBar input{
+    margin-top: -2px;
+}
+
+input, textarea, select, .form-row p {
+    margin: 0px;
+}
+
+.line_item_e {
+    background-color: #ffcccc;
+    color: darkred;
+    font-weight: bold;
+    padding: 3px;
+}
+
+.line_item_e a:link, .line_item_e a:visited{
+    color: darkred;
+}
+
+.line_item_p {
+    background-color: #ccffcc;
+    font-weight: normal;
+    color: #555555;
+    padding: 3px;
+}
+
+.line_item_p a:link, .line_item_p a:visited{
+    font-weight: normal;
+    color: #555555;
+}
+
+.line_item_c {
+    font-weight: bold;
+    padding: 3px;
+}
+
+.line_item_r {
+
+}
+
+.module caption, .section, .sectionBase{
+    background: #265889;
+}
+
+.align_center {
+    text-align:center;
+    vertical-align: middle;
+    padding: 2px;
+}
+
+#ui-datepicker-div {
+    display:none;
+}

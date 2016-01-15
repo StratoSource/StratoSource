@@ -1,0 +1,116 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{ release_package.release.id }}">{{ release_package.release.name }}</a> -> Create Release Package for {{ release_package.release.name }}
+{% endblock %}
+
+{% block jscript %}
+    <script src="/static/js/cs_release_management1.0.js" type="text/javascript"></script>
+    <script src="/static/js/cs_releases1.0.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <form id="releaseNotes" name="releaseNotes" method="POST">{% csrf_token %}
+                <div class="module">
+                    <div class="section">
+                            <span class="section">Release Package {{release_package.name}}</span>
+                            <span class="sectionActions">
+                                <a href="/release_push_package/{{release_package.id}}">Deploy to...</a>
+                            </span>
+                    </div>
+                </div>
+                <div class="module ObjectsList" style="max-width: 600px;">
+                    <h3 class="sectionHeader">Release Attempts</h3>
+                    <table>
+                        <tr>
+                            <th>Date</th>
+                            <th>Target Environment</th>
+                            <th>Status / Result:</th>
+                            <th>Action</th>
+                        </tr>
+                    {% for ra in release_attempts %}
+                        <tr>
+                            <td>{{ra.date_attempted}}</td>
+                            <td>{{ra.target_environment.repo.name|capfirst}} - {{ra.target_environment.name|capfirst}}</td>
+                            <td>
+                            {% if ra.result == 'n' %}New{% endif %}
+                            {% if ra.result == 'i' %}In Progress{% endif %}
+                            {% if ra.result == 's' %}Successful{% endif %}
+                            {% if ra.result == 'f' %}Failed{% endif %}
+                            </td>
+                            <td><a href="/release_push_status/{{ra.id}}">View</a></td>
+                        </tr>
+                    {% endfor %}
+                    </table>
+                </div>
+                <div class="module ObjectsList">
+                    {% for object in release_package.deployable_objects.all %}
+                    {% ifchanged object.type %}
+                    {% if not forloop.first %}
+                        </table>
+                        <br/>
+                    </div>
+                    {% endif %}
+                    <h3 class="sectionHeader">{{ object.type|title }}</h3>
+                    <div id="{{ object.type|title }}List">
+                        <table>
+                            <tr>
+                                <th>Object Name</th>
+                                <th>Element Type</th>
+                                <th>Element Name</th>
+                                <th>Stories</th>
+                            </tr>
+                    {% endifchanged %}
+                            <tr>
+                                <td>
+                                   {% ifchanged object.filename %}<strong><a href="/object/{{object.id}}" target="_blank">{{ object.filename }}</a></strong>{% endifchanged %}
+                                </td>
+                                <td>
+                                    {% ifchanged %}
+                                        {% if object.el_type %}
+                                            {{ object.el_type|title }}
+                                        {% endif %}
+                                        {% if object.el_subtype %}
+                                            /{{ object.el_subtype|title }}
+                                        {% endif %}
+                                    {% endifchanged %}
+                                </td>
+                                <td>
+                                    {% if object.el_name %}
+                                        {{ object.el_name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% for story in object.pending_stories.all %}
+                                        <a href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                    {% empty %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                    {% if forloop.last %}
+                        </table>
+                        <br/>
+                    </div>
+                    {% endif %}
+                    {% empty %}
+                    <div>
+                        <table>
+                            <tr>
+                                <td scope="row" colspan="6">
+                                    <strong>No objects pending.</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+        <br class="clear" />
+    </div>
+{% endblock %}

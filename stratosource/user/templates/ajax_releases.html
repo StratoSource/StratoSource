@@ -1,0 +1,42 @@
+                    {% for release in releases %}
+                        <tr id="releasesList{{forloop.counter}}">
+                            <td scope="row">
+                                <span id="relNameRO{{ release.id }}">
+                                    <a href="/release/{{release.id}}">{{ release.name }}</a>
+                                </span>
+                                <span id="relName{{ release.id }}" style="display: none;">
+                                    <input name="txtRelName{{ release.id }}" type="text" id="txtRelName{{ release.id }}" value="{{ release.name }}"/>
+                                </span>
+                            </td>
+                            <td> {{ release.released }} </td>
+                            <td> 
+                                {% if not release.released %}
+                                <span id="relDateRO{{ release.id }}">{{ release.est_release_date }}</span>
+                                <span id="relDate{{ release.id }}" style="display: none;">
+                                    <input name="estRelDate{{ release.id }}" type="text" onchange="calChanged = true;" id="estRelDate{{ release.id }}" value="{{ release.est_release_date }}" readonly>
+                                </span>
+                                {% else %}
+                                    {{ release.est_release_date }}
+                                {% endif %}
+                            </td>
+                            <td> {{ release.release_date }}  </td>
+                            <td align="right"> 
+                                {% if not release.released %}
+                                    <input id="edit{{ release.id }}" type="submit" value="Edit" onclick="editReleaseStart('{{release.id}}'); return false;">
+                                    <input id="save{{ release.id }}" style="display:none;" type="submit" value="Save" onclick="saveRelease('{{ release.id }}', '{{ branch|addslashes }}'); return false;">
+                                    <input id="cancel{{ release.id }}" style="display:none;" type="submit" value="Cancel" onclick="cancelRelease(); return false;">
+                                    <input type="submit" value="Release" onclick="markReleased('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}')">
+                                    <input type="submit" value="Delete" onclick="deleteRelease('{{ release.id }}', '{{ release.name|addslashes }}', '{{ branch|addslashes }}')">
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <script type="text/javascript">
+                            $(function() {
+                                    $( "#estRelDate{{ release.id }}" ).datepicker({ dateFormat: 'M. dd, yy' });
+                            });
+                        </script>
+                    {% empty %}
+                        <tr id="releasesListE">
+                            <td scope="row" colspan="5" align="center"><strong>No Released Defined</strong></td>
+                        </tr>
+                    {% endfor %}

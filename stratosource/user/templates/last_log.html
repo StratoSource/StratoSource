@@ -1,0 +1,24 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a href="/admin">Admin</a> -> Log for for {{branch.name|upper}}
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="section">Last Log for {{branch.name|upper}}</div>
+            <div class="module" style="padding:15px;">
+                {% autoescape off %}
+                    {{ log }}
+                {% endautoescape %}
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

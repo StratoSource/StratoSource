@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a>
+&rsaquo;
+<a href="/repos">Repositories</a>
+&rsaquo;
+Environments
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module">
+                <table>
+                    <caption><a href="" class="section">Branches</a></caption>
+                    {% for branch in branches %}
+                        <tr>
+                            <td scope="row" style="text-align: left;">
+                                <a href="/commits/{{branch.id}}">
+                                  {{ branch.name }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

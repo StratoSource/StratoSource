@@ -1,0 +1,99 @@
+<style>
+    .header {
+        font-size:11pt;
+        font-weight:bold;
+        margin-bottom:5px;
+    }
+    th {
+        font-size:10pt;
+        font-weight:bold;
+    }
+    td {
+        font-size:10pt;
+    }
+</style>
+<div>
+    <div style="text-align:center;">
+        <div class="header">Unit Test run on {{ batch.branch.name|upper }} started at {{ batch.batch_time }}</div>
+        <table style="width:50%; margin-left:5px; margin-left: auto; margin-right: auto;">
+            <tr style="background-color:lightgray;">
+                <th>Tests Run</th>
+                <th>Tests Failures</th>
+                <th>Total Runtime</th>
+            </tr>
+            <tr style="text-align:center;">
+                <td>{{ batch.tests }}</td>
+                <td>{{ batch.failures }}</td>
+                <td>{{ batch.runtime }} Seconds</td>
+            </tr>
+        </table>
+    </div>
+    {% if failures %}
+    <br/>
+    <div>
+        <div class="header" style="color:red;">Failures</div>
+        <table style="width:100%; margin-left:5px;">
+            <tr style="background-color:lightgray;">
+                <th scope="row">Class.Method</th>
+                <th>Message</th>
+            </tr>
+            {% for result in failures %}
+            <tr>
+                <td scope="row" nowrap style="width: 30%;">
+                    <a href="https://{{result.test_run.branch.api_pod}}.salesforce.com/{{ result.test_run.apex_class_id }}">{{ result.test_run.class_name }}.{{ result.method_name }}</a>
+                </td>
+                <td style="width: 50%;">
+                    {{ result.message }}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td scope="row" colspan="2">
+                    No Test Failures
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+    <br/>
+    <div>
+        <div class="header">Longest Running Tests</div>
+        <table style="width:100%; margin-left:5px;">
+            <tr style="background-color:lightgray;">
+                <th scope="row">Class.Method</th>
+                <th>Runtime</th>
+            </tr>
+            {% for result in long_runners %}
+            <tr>
+                <td scope="row" nowrap style="width: 30%;">
+                    <a href="https://{{result.test_run.branch.api_pod}}.salesforce.com/{{ result.test_run.apex_class_id }}">{{ result.test_run.class_name }}.{{ result.method_name }}</a>
+                </td>
+                <td style="width: 50%;">
+                    {{ result.runtime }} Seconds
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <br/>
+    <div>
+        <div class="header">Longest Running Classes</div>
+        <table style="width:100%; margin-left:5px;">
+            <tr style="background-color:lightgray;">
+                <th scope="row">Class.Method</th>
+                <th>Runtime</th>
+            </tr>
+            {% for run in long_runner_classes %}
+            <tr>
+                <td scope="row" nowrap style="width: 30%;">
+                    <a href="https://{{ run.branch.api_pod}}.salesforce.com/{{ run.apex_class_id }}">{{ run.class_name }}</a>
+                </td>
+                <td style="width: 50%;">
+                    {{ run.runtime }} Seconds
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>

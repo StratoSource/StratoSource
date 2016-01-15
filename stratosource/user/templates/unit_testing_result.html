@@ -1,0 +1,50 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a href="/unit_testing_results/">Unit Test Results</a> -> Unit Test Results for Run from {{ run.batch_time }}
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module ObjectsList">
+                <table>
+                        <tr>
+                            <th scope="row">Class.Method</th>
+                            <th>Runtime</th>
+                            <th>Result</th>
+                            <th>Message</th>
+                        </tr>
+                        {% for result in results %}
+                        <tr>
+                            <td scope="row" nowrap style="width: 30%;">
+                                {{ run.class_name }}.{{ result.method_name }}
+                            </td>
+                            <td>
+                                {{ result.runtime }}
+                            </td>                            
+                            <td>
+                                {{ result.outcome }}
+                            </td>
+                            <td style="width: 50%;">
+                                {{ result.message }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td scope="row" colspan="5">
+                                <strong>No Tests included in this class</strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

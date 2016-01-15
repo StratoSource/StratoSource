@@ -1,0 +1,57 @@
+
+{% extends 'layout.html' %}
+
+{% block jscript %}
+        <script type="text/javascript">
+            if (document.location.search != null && document.location.search.indexOf('sendReport') > -1){
+                document.location = document.location.pathname + document.location.hash;
+            }
+
+            function toggleList(id){
+                if (!jQuery('#' + id + 'List').is(":visible") ){
+                    jQuery('#' + id + 'List').load('/ajax/unit_testing_result_list/' + id);
+                }
+                toggle(id + 'List');
+            }
+            
+            $(document).ready(function() {
+                var sections = getSections();
+                for (i in sections){
+                    id = sections[i];
+                    if (id.indexOf('List') == id.length - 4){
+                        recordId = id.substring(0,id.length - 4);
+                        jQuery('#' + id).load('/ajax/unit_testing_result_list/' + recordId);
+                    }
+                }
+            });
+        </script>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> Unit Test Results
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">{{ hash }}
+            <div class="module ObjectsList">
+            {% for batch in batches %}
+                <h3 class="sectionHeader">
+                    <a href="#" onclick="toggleList('{{ batch.id }}'); toggle('max{{ batch.id }}'); toggle('min{{ batch.id }}'); return false;"><img id="min{{ batch.id }}" src="/static/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ batch.id }}" src="/static/images/maximize.png" height="20" width="20"/> Unit Test Batch on {{batch.branch.name|upper}} started at {{ batch.batch_time }}</a>
+                    <span class="sectionHeaderActions"><a href="#" onclick="document.location = document.location.pathname + '?sendReport={{batch.id}}' + document.location.hash; return false;">Resend Results Report</a><!--<a onclick="return confirm('Are you sure?');" href="?delete={{ batch.id }}" style="display:inline;">Delete Run</a>--></span>
+                </h3>
+                <div  class="module biggertext" style="padding:3px; background: white;">{{ batch.tests }} Tests Run, {{ batch.failures }} Failed, {{ batch.runtime }} Seconds total System Runtime</div>
+                <div id="{{ batch.id }}List" style="display:none;">
+                </div>
+            {% empty %}
+                <div>No test runs have occurred.</div>
+            {% endfor %}
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

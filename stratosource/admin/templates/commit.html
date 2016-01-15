@@ -1,0 +1,56 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a>
+&rsaquo;
+<a href="/repos">Repositories</a>
+&rsaquo;
+<a href="/branches/{{commit.branch.repo.id}}">Environments ({{ commit.branch.repo.name }}) </a>
+&rsaquo;
+<a href="/commits/{{commit.branch.id}}">{{ commit.branch.name }} </a>
+&rsaquo;
+{{ commit.hash }}
+{% endblock %}
+
+{% block content %}
+
+    {% regroup deltas by type as type_list  %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module">
+            {% for type in type_list %}
+
+                <table style="width:50%;">
+                    <caption><a href="" class="section">{{ type.grouper|title }}</a></caption>
+                    {% for delta in type.list %}
+                        <tr>
+                            <td scope="row">
+                                {% ifchanged %}
+                                    {{ delta.filename }}
+                                {% endifchanged %}
+                            </td>
+                            <td>
+                                {% if delta.el_name %}
+                                    {{ delta.el_name }}
+                                {% endif %}
+                            </td>
+                            <td style="width: 50px;"> {{ delta.getDeltaType }} </td>
+                        </tr>
+                    {% endfor %}
+
+                </table>
+                {% empty %}
+                    <h3>no changes</h3>
+            {% endfor %}
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}
+
+

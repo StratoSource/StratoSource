@@ -1,0 +1,61 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> Manage Releases
+{% endblock %}
+
+{% block jscript %}
+    <script src="/static/js/cs_releases1.0.js" type="text/javascript"></script>
+{% endblock %}
+
+
+
+{% block content %}
+
+    <div id="content" class="colMS">
+        <div id="content-main">
+            <div class="module">
+                <table style="width: 100%;">
+                    <caption><a href="" class="section">Releases</a></caption>
+                    <tr id="{{ branch.name|upper }}headers">
+                        <th scope="row">Release Name</th>
+                        <th> Released? </th>
+                        <th> Scheduled For </th>
+                        <th> Released On </th>
+                        <th> Action </th>
+                    </tr>
+                    <tr id="releasesList1">
+                        <td scope="row" colspan="5">
+                           <img src="/static/images/loading_throbber.gif" alt="Loading..."/>
+                        </td>
+                    </tr>
+                    <tr id="createReleaseLink">
+                        <td scope="row" colspan="5">
+                            <a href="#" onclick="newRelease(''); return false;">
+                              Create New
+                            </a>
+                        </td>
+                    </tr>
+                    <tr id="createRelease" style="display:none;">
+                        <td scope="row"><input name="relName" id="relName" type="text"/></td>
+                        <td> - </td>
+                        <td><input name="estRelDate" type="text" id="estRelDate" readonly></td>
+                        <td> - </td>
+                        <td><input type="submit" value="Create" onclick="createRelease('');"> <input type="submit" value="Cancel" onclick="cancelCreate('');"></td>
+                    </tr>
+                </table>
+            </div>
+            <br class="clear" />
+            <script type="text/javascript">
+                $(function() {
+                        $( "#estRelDate{{ branch.name|upper }}" ).datepicker({ dateFormat: 'M. dd, yy' });
+                });
+
+                refreshReleases('{{ branch.name|upper }}');
+            </script>
+        </div>
+    </div>
+
+
+{% endblock %}

@@ -1,0 +1,69 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a id="admin_menu_link" href="/admin/">Admin Menu</a> -> Repo -> {{ type }}
+{% endblock %}
+
+{% block content %}
+
+<script type="text/javascript">
+    $(function() {
+        $('#cancelButton').click(function() {
+            window.location = $('#admin_menu_link').attr('href');
+        });
+    });
+</script>
+
+
+    <div id="content" class="colMS">
+        <div id="content-main">
+            <div class="module">
+                <form action="/{{action}}" method="post">{% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    <table border="0" width="60%">
+                        <tr>
+                            <td width="20%" align="right">
+                                <label for="id_repo">Name:</label>
+                                {{ form.name.errors }}
+                            </td>
+                            <td>
+                                {{ form.name }}
+                            </td>
+                            <td>
+                                Source code repository name/alias
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_name">Path:</label>
+                                {{ form.location.errors }}
+                            </td>
+                            <td>
+                                {{ form.location }}
+                            </td>
+                            <td>
+                                Absolute path to the git repository
+                            </td>
+                        </tr>
+
+                    </table>
+
+                    <p>
+                        <br />
+                        <input name="action" type="submit" value="Save" />
+                        <input id="cancelButton" type="button" value="Cancel" />
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<br />
+
+
+
+{% endblock %}

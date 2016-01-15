@@ -1,0 +1,47 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> {{object.type}}/<strong>{{object.filename}}</strong>
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module">
+                <table>
+                    <caption><a href="" class="section">Object Change History</a></caption>
+                        <tr>
+                            <th>Branch</th>
+                            <th scope="row">Element Type</th>
+                            <th>Element Name</th>
+                            <th>Change Type</th>
+                            <th>Commit</th>
+                        </tr>
+                    {% for delta in deltas %}
+                        <tr>
+                            <td scope="row">{% ifchanged delta.commit.branch.name %}<strong>{{ delta.commit.branch.name|upper }}</strong>{% endifchanged %}</td>
+                            <td>
+                                {{ delta.object.el_type|title }}
+                                {% if delta.object.el_subtype %}
+                                - {{ delta.object.el_subtype|title }}
+                                {% endif %}
+                            </td>
+                            <td> {{ delta.object.el_name }} </td>
+                            <td> {{ delta.getDeltaType|title }} </td>
+                            <td> <a href="/cgit/{{ delta.commit.branch.name }}/diff/unpackaged/{{ delta.object.type }}/{{ delta.object.filename }}?id={{ delta.commit.hash }}">{{ delta.commit.date_added }} - <strong>{{ delta.commit.comment }}</strong></a></td>
+                        </tr>
+                    {% empty %}
+                        No Changes has been made to this object.
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

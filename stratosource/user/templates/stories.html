@@ -1,0 +1,89 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> Manage Stories
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript">
+        function refreshFilter(){
+            var releaseid = $("#releaseid").val();
+            var sprint = $("#cboSprints").val();
+            document.location = '?releaseid=' + releaseid + '&sprint=' + sprint;
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <form id="storyForm" method="post">{% csrf_token %}
+                <div>
+                    <strong>Filter By:</strong>
+                    <select name="cboSprints" id="cboSprints" onchange="refreshFilter();">
+                        <option value="">-- All Sprints --</option>
+                        {% for sprintName in sprintList %}
+                            <option value="{{ sprintName }}" {% if sprintName == sprint %}selected{% endif %}>{{sprintName}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br/>
+                <div class="module ObjectsList">
+                    <input type="hidden" id="releaseid" name="releaseid" value="{{ releaseid }}"/>
+                    <table>
+                        <caption>
+                            <span><a href="" class="section">Stories</a></span>
+                            <span class="sectionActions">
+                                {% if releaseid %}<a href="#" onclick="document.getElementById('storyForm').submit(); return false;">Syncronize Selected Stories to Release</a>{% endif %}
+                                {% if not releaseid and rally_refresh %}<a href="/stories?refresh=true">Refresh</a>{% endif %}
+                            </span>
+                        </caption>
+                            <tr>
+                                <th scope="row" class="align_center">Select</th>
+                                <th>Story ID</th>
+                                <th>Sprint/Project ID - Deadline</th>
+                                <th>Name</th>
+                                {% if not releaseid %}<th colspan="2" align="center">Actions</th>{% endif %}
+                            </tr>
+                        {% for story in stories %}
+                            <tr>
+                                <td scope="row" class="align_center">
+                                    <input type="checkbox" name="storyId" id="chkStory{{story.id}}" value="{{story.id}}" {% if story.id in in_release %}checked{% endif %}/>
+                                </td>
+                                <td nowrap>
+                                    <a href="/instory/{{ story.id }}">{{ story.rally_id }}</a>
+                                </td>
+                                <td>
+                                    {{ story.sprint }}
+                                </td>
+                                <td>
+                                    {{ story.name }}
+                                </td>
+                                {% if not releaseid %}
+                                <td>
+                                    <a href="{{ story.url }}" target="_blank">Details</a>
+                                </td>
+                                <td align="center">
+                                    <a href="/stories?delete={{ story.id }}">Delete</a>
+                                </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td scope="row" colspan="5">
+                                    <strong>No Stories found.</strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </form>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

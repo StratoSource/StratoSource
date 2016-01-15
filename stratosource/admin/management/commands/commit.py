@@ -1,0 +1,109 @@
+#    Copyright 2010, 2011 Red Hat Inc.
+#
+#    This file is part of StratoSource.
+#
+#    StratoSource is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    StratoSource is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
+#    
+from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import ObjectDoesNotExist
+from stratosource.models import Branch, Commit
+import subprocess
+from datetime import datetime
+import os
+
+
+__author__="masmith"
+__date__ ="$Sep 22, 2010 2:11:52 PM$"
+
+class Command(BaseCommand):
+
+    def parse_commits(self, branch, start_date):
+        cwd = os.getcwd()
+        try:
+            os.chdir(branch.repo.location)
+            subprocess.check_call(["git","checkout",branch.name])
+            subprocess.check_call(["git","reset","--hard","{0}".format(branch.name)])
+            p = subprocess.Popen(['git', 'log'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            (r,w) = (p.stdin,p.stdout)
+            commits = []
+            hash = ""
+            author = ""
+            commitdate = ""
+            comment = ""
+            for line in r:
+                line = line.rstrip()
+                if line.startswith("commit "):
+                    if len(hash) > 0:
+                        if commitdate >= start_date:
+                            map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
+                            commits.append(map)
+                        hash = ""
+                        author = ""
+                        commitdate = ""
+                        comment = ""
+                    hash = line[7:]
+                elif line.startswith("Author: "):
+                    author = line[8:]
+                elif line.startswith("Date:  "):
+                    commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
+#                    commitdate = line[8:]
+                elif len(line) > 4:
+                    comment += line.strip()
+            if len(hash) > 0:
+                map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
+                commits.append(map)
+            r.close()
+            w.close()
+            print('commits = ' + str(len(commits)))
+            return commits
+        finally:
+            os.chdir(cwd)
+
+
+    def add_arguments(self, parser):
+        parser.add_argument('repo', help='repository name')
+        parser.add_argument('branch', help='branch name')
+
+    def handle(self, *args, **options):
+
+        br = Branch.objects.get(repo__name__exact=options['repo'], name__exact=options['branch'])
+        if not br: raise CommandError("invalid repo/branch")
+
+#        if len(args) == 3:
+#            start_date = datetime.strptime(args[2], '%m-%d-%Y')
+#        else:
+        start_date = datetime(2000, 1, 1, 0, 0)
+
+        commits = self.parse_commits(br, start_date)
+        commits.reverse()       # !! must be in reverse chronological order from oldest to newest
+        prev_commit = None
+        for acommit in commits:
+            try:
+                existing = Commit.objects.get(hash__exact=acommit['hash'])
+                if existing:
+                    prev_commit = acommit
+                    continue
+            except ObjectDoesNotExist:
+                pass
+
+            print('adding commit', acommit['hash'], 'for branch', br.name)
+            if prev_commit: print('prev hash = ' + prev_commit['hash'])
+            newcommit = Commit()
+            newcommit.branch = br
+            newcommit.hash = acommit['hash']
+            if prev_commit: newcommit.prev_hash = prev_commit['hash']
+            newcommit.comment = acommit['comment']
+            newcommit.date_added = acommit['date'] # datetime.strptime(acommit['date'][:-6], '%a %b %d %H:%M:%S %Y')
+            newcommit.save()
+            prev_commit = acommit

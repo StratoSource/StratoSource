@@ -1,0 +1,239 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> 
+{% if branch_name %}
+<a href="/unreleased/{{repo_name}}/{{branch_name}}">Unreleased Code for {{branch_name|upper}}</a>
+{% else %}
+<a href="/stories">Manage Stories</a>
+{% endif %}
+-> {{story.rally_id}}
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript">
+        release_id = null;
+        story_id = '{{story.id}}';
+        $(document).ready(function() {
+            refreshTasks();      
+        });
+    </script>
+    <script src="/static/js/cs_release_management1.0.js" type="text/javascript"></script>
+    <script src="/static/js/cs_releases1.0.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module ObjectsList" style="padding: 5px;">
+                <b>{{story.rally_id}} Description {% if story.rally_id != '' %}(<a href="{{ story.url }}" target="_blank">See Details</a>){% endif %}</b> 
+                <br/><br/>{{story.name}}
+                <br/><br/>
+            </div>
+            <br/>
+            <div class="module">
+                <div class="section">
+                        <span class="section">Release Tasks</span>
+                </div>
+                <div style="padding: 10px;">
+                    <table style="min-width:500px;" id="sortable">
+                        <thead>
+                            <tr>
+                                <th class="align_center">Type</th>
+                                <th style="width:100%;" scope="row">Task</th>
+                                <th class="align_center">Assigned To</th>
+                                {% for branch in all_branches %}
+                                <th class="align_center" style="padding-left: 5px;padding-right: 5px;">Done on:<br/>{{ branch.repo.name|upper }}-{{ branch.name|upper }}</th>
+                                {% endfor %}
+                                <th class="align_center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskList">
+                            <tr><td><img src="/static/images/loading_throbber.gif" alt="Loading..."/></td></tr>
+                        </tbody>
+                    </table>
+                    <table style="min-width:500px;">
+                        <tr>
+                            <td>
+                                <textarea id="taskName" name="taskName" cols="100" rows="2"></textarea>
+                                <input type="button" onclick="addTask();" value="Add"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br/>
+            {% if releases|length > 0 %}
+            <div class="module">
+                <div class="section">
+                        <span class="section">In Releases</span>
+                </div>
+                <div style="padding: 10px;">
+                    <ul>
+                        {% for release in releases %}
+                        <li><a href="/release/{{release.id}}">{{release.name}} - Estimated Release Date: {{release.est_release_date}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <br/>
+            {% endif %}
+            <div class="module ObjectsList">
+                <table>
+                    <caption><a href="" class="section">Objects Pending Deployment</a></caption>
+
+                    {% for branch in branches %}
+                        <tr>
+                            <td scope="row" colspan="3">
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr class="sectionHeader">
+                            <td scope="row" colspan="3">
+                                <span class="sectionHeaderTitle">Environment: {{ branch.name|upper }}</span>
+                                <span class="sectionHeaderActions"><a onclick="if(!confirm('Are you sure you want to mark {{ branch.name|upper }} as released?')) return false;" href="?release={{ branch.name }}">Mark Code Released in {{ branch.name|upper }}</a></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Object</th>
+                            <th>Also In Story</th>
+                            <th>Actions</th>
+                        </tr>
+                    {% for object in objects %}
+                        {% if object.branch.id = branch.id %}
+                        <tr class="line_item_{{ object.release_status }}">
+                            <td scope="row" nowrap>
+                                <a href="/object/{{object.id}}" target="_blank">{{ object.type|title|addslashes }}/{{ object.filename|addslashes }}{% if object.el_type %}: {{ object.el_type|title|addslashes }}{% endif %}{% if object.el_subtype %}/{{ object.el_subtype|title|addslashes }}{% endif %}{% if object.el_name %}: {{ object.el_name|addslashes }}{% endif %}</a>
+                            </td>
+                            <td align="center">
+                                {% for depstory in object.pending_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for depstory in object.released_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td align="center">
+                                <a href="?remove=true&assoc={{ object.id }}">Remove from {{story.rally_id}}</a>
+                            </td>
+                        </tr>
+                        {%endif%}
+                    {% endfor %}
+                    {% for translation in translations %}
+                        {% if translation.branch.id = branch.id %}
+                        <tr class="line_item_{{ translation.release_status }}">
+                            <td scope="row" nowrap>
+                                <a href="/translation/{{translation.id}}" target="_blank">Translation/{{ translation.label|title }} ({{ translation.locale }})</a>
+                            </td>
+                            <td align="center">
+                                {% for depstory in translation.pending_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for depstory in translation.released_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td align="center">
+                                <a href="?remove=true&tassoc={{ translation.id }}">Remove from {{story.rally_id}}</a>
+                            </td>
+                        </tr>
+                        {%endif%}
+                    {% endfor %}
+
+                    {% empty %}
+                        <tr>
+                            <td scope="row" colspan="3">
+                                No <strong>undeployed</strong> objects in story.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <br/>
+                <table>
+                    <caption><a href="" class="section">Previously Deployed Objects</a></caption>
+                    {% for branch in dep_branches %}
+                        <tr>
+                            <td scope="row" colspan="3">
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr class="sectionHeader">
+                            <td scope="row" colspan="3">
+                                <span class="sectionHeaderTitle">Environment: {{ branch.name|upper }}</span>
+                                <span class="sectionHeaderActions"><a onclick="if(!confirm('Are you sure you want to mark {{ object.branch.name|upper }} as released?')) return false;" href="?release={{ object.branch.name }}">Mark Code Released in {{ object.branch.name|upper }}</a></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Object</th>
+                            <th>Also in Story</th>
+                        </tr>
+                    {% for object in dep_objects %}
+                        {% if object.branch.id = branch.id %}
+                        <tr>
+                            <td>
+                                <a href="/object/{{object.id}}" target="_blank">{{ object.type|title|addslashes }}/{{ object.filename|addslashes }}{% if object.el_type %}: {{ object.el_type|title|addslashes }}{% endif %}{% if object.el_subtype %}/{{ object.el_subtype|title|addslashes }}{% endif %}{% if object.el_name %}: {{ object.el_name|addslashes }}{% endif %}</a>
+                            </td>
+                            <td align="center">
+                                {% for depstory in object.pending_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for depstory in object.released_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                    {% for translation in dep_translations %}
+                        {% if translation.branch.id = branch.id %}
+                        <tr class="line_item_{{ translation.release_status }}">
+                            <td scope="row" nowrap>
+                                <a href="/translation/{{translation.id}}" target="_blank">Translation/{{ translation.label|title }} ({{ translation.locale }})</a>
+                            </td>
+                            <td align="center">
+                                {% for depstory in translation.pending_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for depstory in translation.released_stories.all %}
+                                    {% if depstory.id != story.id %}
+                                    <a href="/instory/{{depstory.id}}?branch_name={{branch_name}}" title="{{ depstory.name }}">{{ depstory.rally_id }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {%endif%}
+                    {% endfor %}
+
+                    {% empty %}
+                        <tr>
+                            <td scope="row" colspan="2">
+                                No <strong>deployed</strong> objects in story.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

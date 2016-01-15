@@ -1,0 +1,27 @@
+                    <table>
+                            <tr>
+                                <th scope="row">Test Class</th>
+                                <th>Result</th>
+                                <th>Actions</th>
+                            </tr>
+                        {% for run in runs %}                    
+                            <tr>
+                                <td scope="row" nowrap style="width: 40%;">
+                                    <a href="/unit_testing_result/{{ run.id }}">{{ run.class_name }}</a>
+                                </td>
+                                <td>
+                                    {% if run.successful %}
+                                        {{ run.outcome }}
+                                    {% else %}
+                                        <font color="red"><b>{{ run.outcome }}</b></font>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/unit_testing_result/{{ run.id }}" style="display:inline">Detailed Results</a>|
+                                    <a href="https://{{run.branch.api_pod}}.salesforce.com/{{ run.apex_class_id }}" target="sfTest" style="display:inline; margin-left:3px;">Go To Class</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3">No tests included.</td></tr>
+                        {% endfor %}
+                    </table>

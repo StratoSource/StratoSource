@@ -1,0 +1,140 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a href="/unit_testing_admin/" id="unit_test_schedule_list_link">Unit Test Config</a> -> Create/Edit a Unit Test Run Schedule
+{% endblock %}
+
+{% block content %}
+
+<script type="text/javascript">
+    $(function() {
+        $('#cancelButton').click(function() {
+            window.location = $('#unit_test_schedule_list_link').attr('href');
+        });
+    });
+</script>
+
+
+    <div id="content" class="colMS">
+        <div id="content-main">
+            <div class="module">
+
+                <form action="/{{action}}" method="post">{% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    <table border="0">
+                        <tr>
+                            <td align="right">
+                                <label for="id_name">Branch Name:</label>
+                                {{ form.branch.errors }}
+                            </td>
+                            <td>
+                                {{ form.branch }}
+                            </td>
+                            <td>
+                                Pick which branch / instance this unit test run is for
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">Report Email:</label>
+                                {{ form.results_email_address.errors }}
+                            </td>
+                            <td>
+                                {{ form.results_email_address }}
+                            </td>
+                            <td>
+                                Which email address to send reports to
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">Report ONLY on Failures:</label>
+                                {{ form.email_only_failures.errors }}
+                            </td>
+                            <td>
+                                {{ form.email_only_failures }}
+                            </td>
+                            <td>
+                                Email out reports even if there are NO failures
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">cron Enabled:</label>
+                                {{ form.cron_enabled.errors }}
+                            </td>
+                            <td>
+                                {{ form.cron_enabled }}
+                            </td>
+                            <td>
+                                Whether or not this schedule is active
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">cron Type:</label>
+                                {{ form.cron_type.errors }}
+                            </td>
+                            <td>
+                                {{ form.cron_type }}
+                            </td>
+                            <td>
+                                Type of cron job. You can manually change
+                                the cron job yourself for finer levels of control.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_interval">cron Interval:</label>
+                                {{ form.cron_interval.errors }}
+                            </td>
+                            <td>
+                                {{ form.cron_interval }}
+                            </td>
+                            <td>
+                                How often to run <br />
+                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
+                                ex. if type=Hourly, Interval=1 then run every hour<br />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_start">cron Start:</label>
+                                {{ form.cron_start.errors }}
+                            </td>
+                            <td>
+                                {{ form.cron_start }}
+                            </td>
+                            <td>
+                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
+                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
+                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
+                            </td>
+                        </tr>
+
+
+                    </table>
+
+                    <p>
+                        <br />
+                        <input name="action" type="submit" value="Save" />
+                        <input id="cancelButton" type="button" value="Cancel" />
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<br />
+
+
+{% endblock %}

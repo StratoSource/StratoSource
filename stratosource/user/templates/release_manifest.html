@@ -1,0 +1,219 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{release.id}}">{{ release.name }}</a> ->
+Manifest for "{{release.name|upper}}"
+{% endblock %}
+
+
+{% block jscript %}
+    <script type="text/javascript">
+        release_id = '{{ release.id }}';
+        story_id = null;
+        $(document).ready(function() {
+            loadTaskListReadOnly();        
+        });
+        
+        function refresh(){
+            document.location = '/manifest/{{release.id}}?branch=' + jQuery("#cboFromBranch").val();
+        }
+    </script>
+    <script src="/static/js/cs_release_management1.0.js" type="text/javascript"></script>
+    <script src="/static/js/cs_releases1.0.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+
+            <div class="section">
+                <span class="section">Manifest for "{{release.name}}"</span>
+                <span class="sectionActions">
+                <!-- Hiding until package deployment is ready
+                    {% if null != branch.id %}
+                    <a href="/release_create_package/{{release.id}}?sourceBranchId={{branch.id}}">Create Deployment Package</a>
+                    {% endif %}
+                -->
+                </span>
+            </div>
+            <br/>
+
+            <div class="section">
+                <span class="section">Release Notes</span>
+            </div>
+
+            <div class="module" style="padding:15px;">
+                {% autoescape off %}
+                    {{ release.release_notes }}
+                {% endautoescape %}
+            </div>
+            <br/>
+            <div class="section">
+                    <span class="section">Release Tasks</span>
+            </div>
+            <div class="module" style="padding:15px;">
+                <table style="min-width:500px;" id="sortable">
+                    <thead>
+                        <tr>
+                            <th class="align_center">Type</th>
+                            <th style="width:100%;" scope="row">Task</th>
+                            <th class="align_center">From Story</th>
+                            <th class="align_center">Assigned To</th>
+                            {% for branch in branches %}
+                            <th class="align_center" style="padding-left: 5px;padding-right: 5px;">Done on:<br/>{{ branch.repo.name|upper }}-{{ branch.name|upper }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody id="taskList">
+                        <tr><td colspan="7"><img src="/static/images/loading_throbber.gif" alt="Loading..."/></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <div class="section">
+                <span class="section">Manifest of Changed Objects in {{release.name}}</span>
+                <span class="sectionActions">
+                    {% if null != branch.id %}
+                    <a href="/export_labels_form?release_id={{release.id}}&repocb={{branch.repo.id}}">Export Labels</a>
+                    {% endif %}
+                    <!-- Hiding until package deployment is ready
+                    {% if null != branch.id %}
+                    <a href="/release_create_package/{{release.id}}?sourceBranchId={{branch.id}}">Create Deployment Package</a>
+                    {% endif %}
+                    -->
+                </span>
+            </div>
+            <table style="font-weight:bold;">
+                <tr>
+                    <td scope="row" style="text-align:right; width: 50%; font-size: 10pt;">Environment:</td>
+                    <td style="width: 50%;">
+                        <form id="branchForm" name="branchForm" method="GET">{% csrf_token %}
+                            <select name="cboFromBranch" id="cboFromBranch" onchange="refresh();">
+                                <option value="none">-- Select a Branch --</option>
+                                {% for br in branches %}
+                                <option value="{{br.id}}" {% if br.id == branch.id %} selected {% endif %}>{{br.repo.name|capfirst}} - {{br.name|capfirst}}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+                {% if null == branch.id %}
+                <tr>
+                    <td colspan="2" style="text-align:center; font-size: 12pt;"><br/>Please select an environment to see deployable objects or to create a deployment package.<br/><br/></td>
+                </tr>
+                {% endif %}
+            </table>
+            {% if null != branch.id %}
+            <div class="module ObjectsList">
+                {% for object in manifest %}
+                {% ifchanged object.type %}
+                {% if not forloop.first %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
+                <h3 class="sectionHeader">{{ object.type|title }}</h3>
+                <div id="{{ object.type|title }}List">
+                    <table>
+                        <tr>
+                            <th scope="row">Object Name</th>
+                            <th>Element Type</th>
+                            <th>Element Name</th>
+                            <th>Stories</th>
+                        </tr>
+                {% endifchanged %}
+                        <tr class="line_item_p">
+                            <td>
+                               {% ifchanged object.filename %}<strong><a href="/object/{{object.id}}" target="_blank">{{ object.filename }}</a></strong>{% endifchanged %}
+                            </td>
+                            <td>
+                                {% ifchanged %}
+                                    {% if object.el_type %}
+                                        {{ object.el_type|title }}
+                                    {% endif %}
+                                    {% if object.el_subtype %}
+                                        /{{ object.el_subtype|title }}
+                                    {% endif %}
+                                {% endifchanged %}
+                            </td>
+                            <td>
+                                {% if object.el_name %}
+                                    {{ object.el_name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for story in object.stories %}
+                                   <a class="{{story.status}}" href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                {% empty %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                {% if forloop.last %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div>
+                    <table>
+                        <tr>
+                            <td scope="row" colspan="6">
+                                <strong>No objects pending.</strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                {% endfor %}
+                {% if translations|length > 0 %}
+                <h3 class="sectionHeader">Translations</h3>
+                <div id="TranslationsList">
+                    <table>
+                        <tr>
+                            <th scope="row">Label</th>
+                            <th>Locale</th>
+                            <th>Stories</th>
+                        </tr>
+                {% for translation in translations %}
+                        <tr class="line_item_{{ translation.release_status }}">
+                            <td>
+                               {% ifchanged translation.label %}<strong><a href="/translation/{{translation.id}}" target="_blank">{{ translation.label }}</a></strong>{% endifchanged %}
+                            </td>
+                            <td>
+                                {{ translation.locale }}
+                            </td>
+                            <td>
+                                {% for story in translation.pending_stories.all %}
+                                    <a href="/instory/{{story.id}}?branch_name={{branch_name}}" title="{{ story.name }}">{{ story.rally_id }}</a>
+                                {% empty %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                {% if forloop.last %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div>
+                    <table>
+                        <tr>
+                            <td scope="row" colspan="6">
+                                <strong>No translations pending.</strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        </div>
+        {% endif %}
+        <br class="clear" />
+    </div>
+
+
+
+{% endblock %}

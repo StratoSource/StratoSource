@@ -1,0 +1,42 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<a href="/">Home</a>
+&rsaquo;
+<a href="/repos">Repositories</a>
+&rsaquo;
+<a href="/branches/{{branch.repo.id}}">Environments ({{ branch.repo.name }}) </a>
+&rsaquo;
+{{ branch.name }}
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="content" class="colMS">
+
+        <div id="content-main">
+            <div class="module">
+                <table>
+                    <caption><a href="" class="section">Commits</a></caption>
+                    {% for commit in commits %}
+                        <tr>
+                            <td scope="row">
+                                <a href="/commit/{{commit.id}}">
+                                  {{ commit.date_added }}
+                                </a>
+                            </td>
+                            <td> {{ commit.comment }} </td>
+                            <td> +{{ commit.adds }}/-{{ commit.dels }}/{{ commit.updt }} </td>
+                        </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
+
+
+{% endblock %}

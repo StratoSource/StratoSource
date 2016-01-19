@@ -182,6 +182,7 @@
                             </td>
                         </tr>
 
+                        <tr><td span="2"><b>Configuration-specific CRON refresh</br> <hr /></td></tr>
                         <tr>
                             <td align="right">
                                 <label for="id_cron_type">cron Enabled:</label>
@@ -197,7 +198,52 @@
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_type">cron Type:</label>
+                                <label>Code cron type:</label>
+                                {{ form.code_cron_type.errors }}
+                            </td>
+                            <td>
+                                {{ form.code_cron_type }}
+                            </td>
+                            <td>
+                                Type of cron job (Hourly only supported at this time). You can manually change
+                                the cron job yourself for finer levels of control.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label>Code cron interval:</label>
+                                {{ form.code_cron_interval.errors }}
+                            </td>
+                            <td>
+                                {{ form.code_cron_interval }}
+                            </td>
+                            <td>
+                                How often to run <br />
+                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
+                                ex. if type=Hourly, Interval=1 then run every hour<br />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">
+                                <label>Code cron start:</label>
+                                {{ form.code_cron_start.errors }}
+                            </td>
+                            <td>
+                                {{ form.code_cron_start }}
+                            </td>
+                            <td>
+                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
+                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
+                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
+                            </td>
+                        </tr>
+
+                        <tr><td span="2"><b>Code-specific CRON refresh</b <hr /></td></tr>
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">Config cron type:</label>
                                 {{ form.cron_type.errors }}
                             </td>
                             <td>
@@ -211,7 +257,7 @@
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_interval">cron Interval:</label>
+                                <label for="id_cron_interval">Config cron interval:</label>
                                 {{ form.cron_interval.errors }}
                             </td>
                             <td>
@@ -226,7 +272,7 @@
 
                         <tr>
                             <td align="right">
-                                <label for="id_cron_start">cron Start:</label>
+                                <label for="id_cron_start">Config cron start:</label>
                                 {{ form.cron_start.errors }}
                             </td>
                             <td>
@@ -239,9 +285,11 @@
                             </td>
                         </tr>
 
+
+
                         <tr>
                             <td align="right">
-                                <label for="id_cron_start">UI Order:</label>
+                                <label>UI Order:</label>
                                 {{ form.order.errors }}
                             </td>
                             <td>

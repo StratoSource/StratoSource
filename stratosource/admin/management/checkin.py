@@ -53,53 +53,50 @@ def perform_checkin(repodir, zipfile, branch):
 
     os.chdir(repodir)
 
-#    logging.basicConfig(filename=os.path.join('../checkin.log'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    log = logging.getLogger('checkin')
-    log.setLevel(logging.DEBUG)
-
     logger.debug('Starting checkin...')
-    log.info("Starting checkin")
-    log.info("repodir " + repodir)
-    log.info("zipfile " + zipfile)
-    log.info("branch " + branch.name)
+    logger.info("Starting checkin")
+    logger.info("repodir " + repodir)
+    logger.info("zipfile " + zipfile)
+    logger.info("branch " + branch.name)
 
     logger.debug('checkout')
     os.system('git reset --hard ' + branch.name + ' >>' + CMDLOG)
 
-    logger.debug('checking deletes')
-    log.info("Getting list of deleted files")
-    os.system('git reset --hard %s >> %s' % (branch.name, CMDLOG))
-    os.system('rm -rf %s/*' % repodir)
+#    logger.debug('checking deletes')
+#    logger.info("Getting list of deleted files")
+#    os.system('git reset --hard %s >> %s' % (branch.name, CMDLOG))
+#    os.system('rm -rf %s/*' % repodir)
+
     os.system('unzip -o -qq %s >> %s' % (zipfile, CMDLOG))
 
-    p = Popen(['git','status'], stdin=PIPE, stdout=PIPE)
-    (r, w) = (p.stdin, p.stdout)
-    rm_list = []
-    for line in r:
-        line = line.rstrip()
-        if 'deleted:' in line:
-            ix = string.find(line, 'deleted:') + 10
-            path = line[ix:].strip()
-            rm_list.append(path)
-    r.close()
-    w.close()
-    log.info("found %d file(s) to remove" % len(rm_list))
+#    p = Popen(['git','status'], stdin=PIPE, stdout=PIPE)
+#    (r, w) = (p.stdin, p.stdout)
+#    rm_list = []
+#    for line in r:
+#        line = line.rstrip()
+#        if 'deleted:' in line:
+#            ix = string.find(line, 'deleted:') + 10
+#            path = line[ix:].strip()
+#            rm_list.append(path)
+#    r.close()
+#    w.close()
+#    log.info("found %d file(s) to remove" % len(rm_list))
 
-    log.info("Resetting repo back to HEAD")
-    os.system('git reset --hard %s >> %s' % (branch.name,CMDLOG))
-    os.system('unzip -o -qq %s >> %s' % (zipfile,CMDLOG))
+#    log.info("Resetting repo back to HEAD")
+#    os.system('git reset --hard %s >> %s' % (branch.name,CMDLOG))
+#    os.system('unzip -o -qq %s >> %s' % (zipfile,CMDLOG))
 
-    for name in rm_list:
-        os.system('git rm "%s"' % name)
-        log.info("Deleted " + name)
+#    for name in rm_list:
+#        os.system('git rm "%s"' % name)
+#        log.info("Deleted " + name)
 
-    log.info("Laying down changes")
+#    logger.info("Laying down changes")
 
-    os.system('git add * >> %s' % CMDLOG)
+#    os.system('git add * >> %s' % CMDLOG)
     os.system('git commit -m "incremental snapshot for %s on `date`" >> %s' % (branch.name, CMDLOG))
 
 
-    log.info("Completed checkin")
+    logger.info("Completed checkin")
 
 ##### DEFUNCT #####
 @transaction.atomic
@@ -141,7 +138,7 @@ def save_userchanges(branch, classes, triggers, pages):
     return batch_time
  
 @transaction.atomic
-def save_objectchanges(branch, batch_time, chgmap):
+def save_objectchanges(branch, batch_time, chgmap, fetchtype):
     logger = logging.getLogger('download')
     logger.info('Saving object change audit trail')
     userdict = dict([(user.name, user) for user in SalesforceUser.objects.all()])
@@ -149,6 +146,13 @@ def save_objectchanges(branch, batch_time, chgmap):
     inserted = 0
     for aType in chgmap.keys():
         logger.debug('Type: %s' % aType)
+        if fetchtype == 'code':
+            if not aType in ['ApexClass','ApexTrigger','ApexPage','ApexComponent']:
+                continue
+        elif fetchtype == 'config':
+            if aType in ['ApexClass','ApexTrigger','ApexPage','ApexComponent']:
+                continue
+
         thirtyDays = datetime.timedelta(days = 30)
         thirtyDaysAgo = datetime.now() - thirtyDays
         for change in chgmap[aType]:

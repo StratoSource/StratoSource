@@ -71,7 +71,7 @@ urlpatterns = [
 
     # admin menu support
     url(r'^admin/', 'stratosource.user.admin_views.adminMenu'),
-    url(r'^lastlog/(\d+)$', 'stratosource.user.admin_views.last_log'),
+    url(r'^lastlog/(\d+)/(.*)$', 'stratosource.user.admin_views.last_log'),
     url(r'^newbranch/', 'stratosource.user.admin_views.newbranch'),
     url(r'^editbranch/(\d+)$', 'stratosource.user.admin_views.editbranch'),
     url(r'^repo_admin_form_action', 'stratosource.user.admin_views.repo_form_action'),

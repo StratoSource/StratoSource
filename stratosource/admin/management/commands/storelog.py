@@ -32,6 +32,7 @@ class Command(BaseCommand):
         parser.add_argument('repo', help='repository name')
         parser.add_argument('branch', help='branch name')
         parser.add_argument('file', help='file name')
+        parser.add_argument('logtype', help='log type (code or config)')
         parser.add_argument('runstatus', help='run status')
 
     def handle(self, *args, **options):
@@ -46,9 +47,10 @@ class Command(BaseCommand):
         brlog = BranchLog()
         
         try:
-            brlog = BranchLog.objects.get(branch=br)
+            brlog = BranchLog.objects.get(branch=br, logtype=options['logtype'])
         except ObjectDoesNotExist:
             brlog.branch = br
+            brlog.logtype = options['logtype']
 
         lastlog = 'From ' + options['file'] + '<br/>'
         

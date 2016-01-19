@@ -1,0 +1,6 @@
+#repo.url=sfrepo
+#repo.path=/var/sfrepo/test/.git
+#repo.desc=the master foo repository
+#repo.owner=fooman@example.com
+#repo.readme=info/web/about.html
+

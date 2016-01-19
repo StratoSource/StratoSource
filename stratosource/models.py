@@ -86,16 +86,22 @@ class Branch(models.Model):
     api_auth =  models.CharField(max_length=50, blank=True, null=True)
     api_store = models.CharField(max_length=100, default='/tmp')
     api_assets= models.CharField(max_length=500,
-        default='EntitlementTemplate,HomePageComponent,ArticleType,ApexPage,ApexClass,ApexTrigger,ApexComponent,'+
-                'CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
-                'CustomSite,CustomTab,DataCategoryGroup,HomePageLayout,Layout,Portal,Profile,RecordType,'+
-                'RemoteSiteSetting,ReportType,Scontrol,StaticResource,Workflow')
+        default='CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
+                'CustomSite,CustomTab,Layout,Portal,Profile,'+
+                'RemoteSiteSetting,ReportType,Workflow')
     enabled = models.BooleanField(default=True)
-    cron_enabled = models.BooleanField(default=True)
+    cron_enabled = models.BooleanField(default=False)
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
     run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
+
+    code_run_Status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
+    code_cron_enabled = models.BooleanField(default=True)
+    code_cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
+    code_run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
+    code_cron_interval = models.IntegerField(default=1)
+    code_cron_start = models.CharField(max_length=5, default='0')
 
     def __unicode__(self):
         return self.repo.name + " - " + self.name    
@@ -106,6 +112,7 @@ class BranchLog(models.Model):
 
     lastlog = models.CharField(max_length=20000)
     branch =  models.ForeignKey(Branch)
+    logtype = models.CharField(max_length=6, blank=False, null=False)
 
 class Story(models.Model):
     class Meta:

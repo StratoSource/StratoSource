@@ -34,6 +34,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('repo', help='repository name')
         parser.add_argument('branch', help='branch name')
+        parser.add_argument('type', help='type of download (config or code)')
 
     def handle(self, *args, **options):
 
@@ -54,14 +55,18 @@ class Command(BaseCommand):
         types = [aType.strip() for aType in br.api_assets.split(',')]
 
         stamp = str(int(time.time()))
-        filename = os.path.join(path, 'retrieve_{0}.zip'.format(stamp))
+        filename = os.path.join(path, '{0}_fetch_{1}.zip'.format(options['type'], stamp))
 
         self.logger.info('fetching audit data..')
         chgmap = agent.retrieve_changesaudit(types, br.api_pod)
 
-        self.logger.info('retrieving from %s:%s for %s' % (br.repo.name, br.name, br.api_assets))
-        agent.retrieve_meta(types, br.api_pod, filename)
-        agent.close()
+        self.logger.info('retrieving %s from %s:%s for %s' % (options['type'], br.repo.name, br.name, br.api_assets))
+        if options['type'] == 'code':
+            agent.retrieve_code(br.api_pod, filename)
+            agent.close()
+        elif options['type'] == 'config':
+            agent.retrieve_meta(types, br.api_pod, filename)
+            agent.close()
         self.logger.info('finished download')
 
         if not downloadOnly:
@@ -69,6 +74,6 @@ class Command(BaseCommand):
             perform_checkin(br.repo.location, filename, br)
             batch_time = datetime.datetime.now()
             self.logger.debug('saving audit...')
-            save_objectchanges(br, batch_time, chgmap)
+            save_objectchanges(br, batch_time, chgmap, options['type'])
             os.remove(filename)
 

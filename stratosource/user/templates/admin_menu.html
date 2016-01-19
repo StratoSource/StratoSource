@@ -54,22 +54,33 @@
                 <th scope="row" style="width: 20%;">Repo Branch Name</th>
                 <th style="width: 20%;">Associated Repo</th>
                 <th style="width: 20%;">Salesforce Login</th>
-                <th style="width: 20%;">Logs</th>
-                <th style="width: 20%;">Action</th>
+                <th style="width: 20%;">Config Logs</th>
+                <th style="width: 20%;">Config Action</th>
+                <th style="width: 20%;">Code Logs</th>
+                <th style="width: 20%;">Code Action</th>
             </tr>
             {% for branch in branches %}
                 <tr>
                     <td><input type="checkbox" name="branchcb" value="{{ branch.id }}"/> &nbsp; <a href="/editbranch/{{ branch.id }}">{{ branch.name }}</a></td>
                     <td>{{ branch.repo.name }}</td>
                     <td>{{ branch.api_user }}</td>
-                    <td><a href="/lastlog/{{ branch.id }}">Last Run</a></td>
+                    <td><a href="/lastlog/{{ branch.id }}/config">Last Config Run</a></td>
                     {% if branch.run_status == 'r'%}
                         <td>Running</td>
                     {% else %}
                         <td>
                             {% if branch.run_status == 'e'%}Error On Last Run: {% endif %}
-                            <a onclick="return confirm('This will start a manual snapshot of your repository, are you sure you want to do this?');" href="/admin/?snapshot=true&branch_id={{ branch.id }}">Snapshot Now</a>
+                            <a onclick="return confirm('This will start a manual snapshot of your repository, are you sure you want to do this?');" href="/admin/?snapshot=true&type=config&branch_id={{ branch.id }}">Snapshot Now</a>
                         </td>                            
+                    {% endif %}
+                    <td><a href="/lastlog/{{ branch.id }}/code">Last Code Run</a></td>
+                    {% if branch.code_run_status == 'r'%}
+                        <td>Running</td>
+                    {% else %}
+                        <td>
+                            {% if branch.code_run_status == 'e'%}Error On Last Run: {% endif %}
+                            <a onclick="return confirm('This will start a manual snapshot of your repository, are you sure you want to do this?');" href="/admin/?snapshot=true&type=code&branch_id={{ branch.id }}">Snapshot Now</a>
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}

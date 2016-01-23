@@ -273,8 +273,8 @@ def createCrontab(branch):
         else:
             interval_str = '*'
         cronline = "%s %s * * * %s %s %s >/tmp/cronjob.out 2>&1" % (
-        branch.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'config_cronjob.sh'), branch.repo.name,
-        branch.name)
+            branch.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'config_cronjob.sh'), branch.repo.name,
+            branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
@@ -286,8 +286,8 @@ def createCrontab(branch):
         else:
             interval_str = '*'
         cronline = "%s %s * * * %s %s %s >/tmp/cronjob.out 2>&1" % (
-        branch.code_cron_start, interval_str, os.path.join(settings.BASE_DIR, 'code_cronjob.sh'), branch.repo.name,
-        branch.name)
+            branch.code_cron_start, interval_str, os.path.join(settings.BASE_DIR, 'code_cronjob.sh'), branch.repo.name,
+            branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
@@ -356,7 +356,7 @@ def adminMenu(request):
                     brlog.logtype = snaptype
                 brlog.last_log = 'Started'
                 brlog.save()
-                branch.run_status = 'r'
+                branch.code_run_status = 'r'
                 branch.save()
                 return redirect("/admin/?success=true")
             return redirect("/admin/?failed=true")

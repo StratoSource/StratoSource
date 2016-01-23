@@ -130,7 +130,7 @@ class Command(BaseCommand):
             print '%d: sleeping...' % timer
             time.sleep(60)
             timer -= 1
-        UnitTestRunUtil.processRun(self.utb.id)
+        UnitTestRunUtil.process_run(self.utb.id)
 
 
     def processCompletedQueueItem(self, queueItem):

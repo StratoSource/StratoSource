@@ -182,14 +182,14 @@
                             </td>
                         </tr>
 
-                        <tr><td span="2"><b>Configuration-specific CRON refresh</br> <hr /></td></tr>
+                        <tr><td span="2"><b>Code-specific CRON refresh</br> <hr /></td></tr>
                         <tr>
                             <td align="right">
                                 <label for="id_cron_type">cron Enabled:</label>
-                                {{ form.cron_enabled.errors }}
+                                {{ form.code_cron_enabled.errors }}
                             </td>
                             <td>
-                                {{ form.cron_enabled }}
+                                {{ form.code_cron_enabled }}
                             </td>
                             <td>
                                 Whether or not we should schedule snapshots of this environment.
@@ -240,7 +240,19 @@
                             </td>
                         </tr>
 
-                        <tr><td span="2"><b>Code-specific CRON refresh</b <hr /></td></tr>
+                        <tr><td span="2"><b>Configuration-specific CRON refresh</b <hr /></td></tr>
+                        <tr>
+                            <td align="right">
+                                <label for="id_cron_type">cron Enabled:</label>
+                                {{ form.cron_enabled.errors }}
+                            </td>
+                            <td>
+                                {{ form.cron_enabled }}
+                            </td>
+                            <td>
+                                Whether or not we should schedule snapshots of this environment.
+                            </td>
+                        </tr>
                         <tr>
                             <td align="right">
                                 <label for="id_cron_type">Config cron type:</label>

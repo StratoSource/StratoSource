@@ -18,7 +18,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 
-from stratosource.admin.management.labels import generateLabelSpreadsheet
+from stratosource.management.labels import generateLabelSpreadsheet
 from stratosource.models import Release, Repo, DeployableObject
 from pyExcelerator.Workbook import *
 

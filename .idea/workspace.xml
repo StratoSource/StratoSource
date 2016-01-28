@@ -2,14 +2,36 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9679a456-6b33-4694-b89a-4aa2a3eb1032" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/notify.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/stratosource/conf/logging.conf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/stratosource/conf/metadata19.wsdl" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/stratosource/conf/metadata23.wsdl" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/stratosource/conf/partner20.0.wsdl" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/stratosource/conf/partner23.wsdl" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/CSBase.py" afterPath="$PROJECT_DIR$/stratosource/management/CSBase.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/ConfigCache.py" afterPath="$PROJECT_DIR$/stratosource/management/ConfigCache.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/Deployment.py" afterPath="$PROJECT_DIR$/stratosource/management/Deployment.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/LoginError.py" afterPath="$PROJECT_DIR$/stratosource/management/LoginError.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/SalesforceAgent.py" afterPath="$PROJECT_DIR$/stratosource/management/SalesforceAgent.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/UnitTestRunUtil.py" afterPath="$PROJECT_DIR$/stratosource/management/UnitTestRunUtil.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/Utils.py" afterPath="$PROJECT_DIR$/stratosource/management/Utils.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/__init__.py" afterPath="$PROJECT_DIR$/stratosource/management/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/checkin.py" afterPath="$PROJECT_DIR$/stratosource/management/checkin.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/__init__.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/commit.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/commit.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/deploy.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/deploy.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/download.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/download.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/fixer.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/fixer.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/ircbot.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/ircbot.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/labels.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/labels.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/runtests.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/runtests.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/sfdiff.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/sfdiff.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/storelog.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/storelog.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/syncagilezen.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/syncagilezen.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/syncrally.py" afterPath="$PROJECT_DIR$/stratosource/management/commands/syncrally.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/labels.py" afterPath="$PROJECT_DIR$/stratosource/management/labels.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stratosource/admin/management/mq.py" afterPath="$PROJECT_DIR$/stratosource/management/mq.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratosource/admin/management/UnitTestRunUtil.py" afterPath="$PROJECT_DIR$/stratosource/admin/management/UnitTestRunUtil.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratosource/admin/management/commands/runtests.py" afterPath="$PROJECT_DIR$/stratosource/admin/management/commands/runtests.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratosource/user/admin_views.py" afterPath="$PROJECT_DIR$/stratosource/user/admin_views.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratosource/user/templates/admin_menu.html" afterPath="$PROJECT_DIR$/stratosource/user/templates/admin_menu.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratosource/user/templates/editbranch.html" afterPath="$PROJECT_DIR$/stratosource/user/templates/editbranch.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratosource/user/unit_testing_views.py" afterPath="$PROJECT_DIR$/stratosource/user/unit_testing_views.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ss2/settings.py" afterPath="$PROJECT_DIR$/ss2/settings.py" />
     </list>
     <ignored path="ss2.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -34,69 +56,53 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="checkin.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stratosource/admin/management/checkin.py">
+      <file leaf-file-name="download.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stratosource/management/commands/download.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="69" column="58" selection-start-line="69" selection-start-column="58" selection-end-line="69" selection-end-column="58" />
+              <caret line="64" column="112" selection-start-line="64" selection-start-column="112" selection-end-line="64" selection-end-column="112" />
+              <folding>
+                <element signature="e#753#818#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SalesforceAgent.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stratosource/management/SalesforceAgent.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="169" column="82" selection-start-line="169" selection-start-column="82" selection-end-line="169" selection-end-column="82" />
+              <folding>
+                <element signature="e#749#778#0" expanded="true" />
+                <marker date="1453943167919" expanded="true" signature="4031:4094" placeholder="select Id, N... Folder" />
+                <marker date="1453943167919" expanded="true" signature="8193:8358" placeholder="select Id, N... missing_value" />
+                <marker date="1453943167919" expanded="true" signature="8432:8575" placeholder="select Id, N... missing_value" />
+                <marker date="1453943167919" expanded="true" signature="8830:8999" placeholder="select Id, N... EmailTemplate" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ss2/settings.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="126" column="19" selection-start-line="126" selection-start-column="19" selection-end-line="126" selection-end-column="19" />
+              <folding>
+                <element signature="e#376#385#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="checkin.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/stratosource/management/checkin.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.7599668">
+              <caret line="157" column="61" selection-start-line="157" selection-start-column="61" selection-end-line="157" selection-end-column="61" />
               <folding>
                 <element signature="e#754#768#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="sfdiff.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/sfdiff.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="73" column="0" selection-start-line="73" selection-start-column="0" selection-end-line="73" selection-end-column="0" />
-              <folding>
-                <element signature="e#754#819#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stratosource/models.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="admin_menu.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stratosource/user/templates/admin_menu.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-13.75">
-              <caret line="31" column="67" selection-start-line="31" selection-start-column="67" selection-end-line="31" selection-end-column="67" />
-              <folding>
-                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="download.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/download.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="73" column="59" selection-start-line="73" selection-start-column="59" selection-end-line="73" selection-end-column="59" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="admin_views.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/stratosource/user/admin_views.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2740864">
-              <caret line="334" column="44" selection-start-line="334" selection-start-column="44" selection-end-line="334" selection-end-column="44" />
-              <folding>
-                <element signature="e#754#778#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -131,7 +137,6 @@
         <option value="$PROJECT_DIR$/stratosource/admin/management/SalesforceAgent.py" />
         <option value="$PROJECT_DIR$/stratosource/admin/management/CSBase.py" />
         <option value="$PROJECT_DIR$/stratosource/admin/management/Utils.py" />
-        <option value="$PROJECT_DIR$/ss2/settings.py" />
         <option value="$PROJECT_DIR$/stratosource/models.py" />
         <option value="$PROJECT_DIR$/stratosource/admin/management/commands/storelog.py" />
         <option value="$PROJECT_DIR$/ss2/urls.py" />
@@ -143,6 +148,17 @@
         <option value="$PROJECT_DIR$/stratosource/user/unit_testing_views.py" />
         <option value="$PROJECT_DIR$/stratosource/admin/management/UnitTestRunUtil.py" />
         <option value="$PROJECT_DIR$/stratosource/user/admin_views.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/commands/deploy.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/commands/labels.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/commands/sfdiff.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/Utils.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/UnitTestRunUtil.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/Deployment.py" />
+        <option value="$PROJECT_DIR$/ss2/settings.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/commands/download.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/CSBase.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/SalesforceAgent.py" />
+        <option value="$PROJECT_DIR$/stratosource/management/checkin.py" />
       </list>
     </option>
   </component>
@@ -377,7 +393,29 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="admin">
+            <PATH_ELEMENT USER_OBJECT="management">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="ss2">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="stratosource">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="management">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="commands">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -396,10 +434,6 @@
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
             <PATH_ELEMENT USER_OBJECT="admin">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="management">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -751,29 +785,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/deploy.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2786753">
-          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/fixer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.024232633">
-          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="3" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/ircbot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23021002">
-          <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3.4/site-packages/django/core/management/base.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33279485">
@@ -817,31 +828,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/labels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6542811">
-          <caret line="54" column="18" selection-start-line="54" selection-start-column="18" selection-end-line="54" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/LoginError.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stratosource/user/rallyintegration.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3114618">
           <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/Deployment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.091362126">
-          <caret line="173" column="0" selection-start-line="173" selection-start-column="0" selection-end-line="173" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -902,59 +892,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/mq.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41112956">
-          <caret line="33" column="11" selection-start-line="33" selection-start-column="11" selection-end-line="33" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stratosource/user/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.39534885">
           <caret line="452" column="27" selection-start-line="452" selection-start-column="27" selection-end-line="452" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/syncrally.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3114618">
-          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/syncagilezen.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21179402">
-          <caret line="17" column="51" selection-start-line="17" selection-start-column="51" selection-end-line="17" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/labels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3114618">
-          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/CSBase.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3488372">
-          <caret line="28" column="49" selection-start-line="28" selection-start-column="49" selection-end-line="28" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/Utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5232558">
-          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/ConfigCache.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.30070755">
-          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -981,13 +922,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/SalesforceAgent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.20754717">
-          <caret line="157" column="8" selection-start-line="157" selection-start-column="8" selection-end-line="157" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stratosource/user/crontab.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -996,51 +930,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ss2/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="52" column="52" selection-start-line="52" selection-start-column="52" selection-end-line="52" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/storelog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9021226">
-          <caret line="61" column="0" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/commit.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4068396">
-          <caret line="28" column="27" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ss2/urls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7346698">
           <caret line="73" column="33" selection-start-line="73" selection-start-column="33" selection-end-line="73" selection-end-column="33" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/download.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="73" column="59" selection-start-line="73" selection-start-column="59" selection-end-line="73" selection-end-column="59" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/checkin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="69" column="58" selection-start-line="69" selection-start-column="58" selection-end-line="69" selection-end-column="58" />
-          <folding>
-            <element signature="e#754#768#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1084,24 +978,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/user/templates/admin_menu.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-13.75">
-          <caret line="31" column="67" selection-start-line="31" selection-start-column="67" selection-end-line="31" selection-end-column="67" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stratosource/user/unit_testing_views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.77574754">
@@ -1112,32 +988,214 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/UnitTestRunUtil.py">
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/deploy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.14950167">
-          <caret line="12" column="49" selection-start-line="12" selection-start-column="49" selection-end-line="12" selection-end-column="49" />
+        <state vertical-scroll-proportion="0.28654486">
+          <caret line="23" column="18" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/fixer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#754#787#0" expanded="true" />
+            <element signature="e#0#65#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stratosource/admin/management/commands/sfdiff.py">
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/labels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.24916944">
+          <caret line="20" column="18" selection-start-line="20" selection-start-column="18" selection-end-line="20" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/sfdiff.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.28654486">
+          <caret line="23" column="29" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/storelog.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="73" column="0" selection-start-line="73" selection-start-column="0" selection-end-line="73" selection-end-column="0" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#754#819#0" expanded="true" />
+            <element signature="e#753#818#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/syncagilezen.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#753#804#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/syncrally.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#753#804#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/UnitTestRunUtil.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.29900333">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/mq.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/LoginError.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/labels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/Deployment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2475083">
+          <caret line="20" column="18" selection-start-line="20" selection-start-column="18" selection-end-line="20" selection-end-column="18" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/stratosource/user/admin_views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2740864">
-          <caret line="334" column="44" selection-start-line="334" selection-start-column="44" selection-end-line="334" selection-end-column="44" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="336" column="28" selection-start-line="336" selection-start-column="28" selection-end-line="336" selection-end-column="28" />
           <folding>
             <element signature="e#754#778#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/ConfigCache.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/user/templates/admin_menu.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.27966103">
+          <caret line="31" column="67" selection-start-line="31" selection-start-column="67" selection-end-line="31" selection-end-column="67" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/commit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#753#818#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.12126246">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ss2/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="126" column="19" selection-start-line="126" selection-start-column="19" selection-end-line="126" selection-end-column="19" />
+          <folding>
+            <element signature="e#376#385#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/CSBase.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33637872">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/Utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#753#795#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/commands/download.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="64" column="112" selection-start-line="64" selection-start-column="112" selection-end-line="64" selection-end-column="112" />
+          <folding>
+            <element signature="e#753#818#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/SalesforceAgent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="169" column="82" selection-start-line="169" selection-start-column="82" selection-end-line="169" selection-end-column="82" />
+          <folding>
+            <element signature="e#749#778#0" expanded="true" />
+            <marker date="1453943167919" expanded="true" signature="4031:4094" placeholder="select Id, N... Folder" />
+            <marker date="1453943167919" expanded="true" signature="8193:8358" placeholder="select Id, N... missing_value" />
+            <marker date="1453943167919" expanded="true" signature="8432:8575" placeholder="select Id, N... missing_value" />
+            <marker date="1453943167919" expanded="true" signature="8830:8999" placeholder="select Id, N... EmailTemplate" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratosource/management/checkin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7599668">
+          <caret line="157" column="61" selection-start-line="157" selection-start-column="61" selection-end-line="157" selection-end-column="61" />
+          <folding>
+            <element signature="e#754#768#0" expanded="true" />
           </folding>
         </state>
       </provider>

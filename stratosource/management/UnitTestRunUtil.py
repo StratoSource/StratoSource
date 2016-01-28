@@ -22,7 +22,7 @@ from django.core import mail
 from django.template import Context
 from django.template.loader import get_template
 from stratosource.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule
-from stratosource.admin.management import ConfigCache
+from stratosource.management import ConfigCache
 from django.core.exceptions import ObjectDoesNotExist
 import logging
 

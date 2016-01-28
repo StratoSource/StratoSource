@@ -20,8 +20,7 @@ import logging
 import logging.config
 import os
 import datetime
-import string
-from subprocess import PIPE, Popen
+import pytz
 
 from django.db import transaction
 from stratosource.models import Branch, UserChange, SalesforceUser
@@ -154,9 +153,10 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 continue
 
         thirtyDays = datetime.timedelta(days = 30)
-        thirtyDaysAgo = datetime.now() - thirtyDays
+        thirtyDaysAgo = datetime.datetime.now(pytz.utc) - thirtyDays
         for change in chgmap[aType]:
-            if change.lastModifiedDate < thirtyDaysAgo:
+            ch = change.lastModifiedDate.astimezone(pytz.utc)
+            if ch < thirtyDaysAgo:
                 # not interested in old changes, just slows down the process
                 continue
 

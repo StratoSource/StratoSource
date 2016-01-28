@@ -156,11 +156,11 @@ class SalesforceAgent:
         return props
 
     def retrieve_changesaudit(self, types, pod):
-        supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','Workflow','ApprovalProcess']
-        self.logger.info('loading changes for %s' % ','.join(supportedtypelist))
+        supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','ApexComponent','Workflow','ApprovalProcess']
 
         # get intersection of requested types and those we support
         typelist = list(set(supportedtypelist) & set(types))
+        self.logger.info('loading changes for %s' % ','.join(typelist))
         for atype in typelist:
             if atype == 'CustomObject': typelist.append('CustomField')
         results = {}

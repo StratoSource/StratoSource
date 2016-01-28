@@ -24,7 +24,7 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
-from stratosource.admin.management.mq import MQClient
+from stratosource.management.mq import MQClient
 from stratosource.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, \
     UserChange
 

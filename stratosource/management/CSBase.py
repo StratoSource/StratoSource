@@ -27,7 +27,7 @@ from ss2 import settings
 ##
 _CSHOME=settings.BASE_DIR
 CSCONF_DIR=os.path.join(_CSHOME, 'stratosource', 'conf')
-CS_SF_API_VERSION = '29.0'
+CS_SF_API_VERSION = '35.0'
 
 
 

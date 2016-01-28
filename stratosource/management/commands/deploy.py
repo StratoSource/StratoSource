@@ -19,9 +19,9 @@ import logging
 import logging.config
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
-from stratosource.admin.models import Story, Branch, DeployableObject
-from stratosource.admin.management import Utils
-from stratosource.admin.management import Deployment
+from stratosource.models import Story, Branch, DeployableObject
+from stratosource.management import Utils
+from stratosource.management import Deployment
 import subprocess
 import os
 from zipfile import ZipFile

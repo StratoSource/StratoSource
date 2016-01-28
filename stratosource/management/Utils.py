@@ -15,11 +15,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
-from stratosource.admin.management import CSBase
+from stratosource.management import CSBase
 import os
 import logging
-from stratosource.admin.management.SalesforceAgent import SalesforceAgent
-from stratosource.admin.management import ConfigCache
+from stratosource.management.SalesforceAgent import SalesforceAgent
+from stratosource.management import ConfigCache
 
 
 __author__="mark"

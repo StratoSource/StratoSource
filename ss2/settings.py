@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 
 PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
 
@@ -129,8 +130,9 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
             'formatter': 'simple'
         },
         'mail_admins': {
@@ -148,9 +150,9 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'myproject.custom': {
-            'handlers': ['console', 'mail_admins'],
-            'level': 'INFO'
+        'console': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
         }
     }
 }

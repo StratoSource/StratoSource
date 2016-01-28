@@ -18,7 +18,7 @@
 import logging
 import logging.config
 from stratosource.models import Story, Branch, DeployableObject
-from stratosource.admin.management import Utils
+from stratosource.management import Utils
 import subprocess
 import os
 from zipfile import ZipFile

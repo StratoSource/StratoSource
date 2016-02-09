@@ -23,10 +23,10 @@ function onexit()
 
     if [ $exit_status -eq "99" ]
         then
-        python manage.py storelog $REPO $BRANCH $LOG_NAME d
+        python manage.py storelog $REPO $BRANCH $LOG_NAME code d
         exit 0
     fi
-    python manage.py storelog $REPO $BRANCH $LOG_NAME e
+    python manage.py storelog $REPO $BRANCH $LOG_NAME code e
     exit $exit_status
     
     
@@ -35,6 +35,7 @@ function onexit()
 echo Starting Code Snapshot of $REPO $BRANCH >>$LOG_NAME 2>&1
 
 cd $BASEDIR >>$LOG_NAME 2>&1
+echo Starting pre-cronjob.sh >>$LOG_NAME 2>&1
 ./pre-cronjob.sh $REPO $BRANCH code >>$LOG_NAME 2>&1
 
 python manage.py storelog $REPO $BRANCH $LOG_NAME code r

@@ -138,7 +138,6 @@ def save_userchanges(branch, classes, triggers, pages):
  
 @transaction.atomic
 def save_objectchanges(branch, batch_time, chgmap, fetchtype):
-    logger = logging.getLogger('download')
     logger.info('Saving object change audit trail')
     userdict = dict([(user.name, user) for user in SalesforceUser.objects.all()])
 
@@ -154,6 +153,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
 
         thirtyDays = datetime.timedelta(days = 30)
         thirtyDaysAgo = datetime.datetime.now(pytz.utc) - thirtyDays
+        logger.debug('time window=' + thirtyDaysAgo.isoformat())
         for change in chgmap[aType]:
             ch = change.lastModifiedDate.astimezone(pytz.utc)
             if ch < thirtyDaysAgo:
@@ -162,7 +162,8 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
 
             if userdict.has_key(change.lastModifiedByName):
                 theUser = userdict[change.lastModifiedByName]
-                if theUser.lastActive < change.lastModifiedDate:
+                logger.debug(change)
+                if theUser.lastActive == None or theUser.lastActive < change.lastModifiedDate:
                     theUser.lastActive = change.lastModifiedDate
                     theUser.save()
             else:
@@ -172,6 +173,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 theUser.lastActive = change.lastModifiedDate
                 theUser.save()
                 userdict[theUser.name] = theUser
+                logger.debug('new salesforce user: ' + theUser.name)
 
             fullName = change.fullName
             if SFAPIAssetMap.has_key(aType):
@@ -197,8 +199,9 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 inserted += 1
                 logger.debug('Not found, inserting %s' % fullName)
 
+            logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
             if recent.last_update < change.lastModifiedDate:
-                logger.debug('changed: userid=%s userid=%s  last_update=%s lastModified=%s' % (recent.sfuser.userid, theUser.userid, recent.last_update, change.lastModifiedDate))
+                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (theUser.userid, recent.last_update, change.lastModifiedDate))
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id

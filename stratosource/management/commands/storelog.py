@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if len(args) < 4: raise CommandError('usage: <repo name> <branch> <file> <run_status>')
+        #if len(args) < 4: raise CommandError('usage: <repo name> <branch> <file> <run_status>')
 
         br = Branch.objects.get(repo__name__exact=options['repo'], name__exact=options['branch'])
         if not br: raise CommandError("invalid repo/branch")

@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
-from stratosource.admin.management import ConfigCache
+from stratosource.management import ConfigCache
 from stratosource.models import Story
 from ss2 import settings
 from operator import attrgetter

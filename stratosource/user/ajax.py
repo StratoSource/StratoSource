@@ -24,7 +24,7 @@ from django.template import RequestContext
 import json
 from django.db import transaction
 from django.db.models import Q
-from stratosource.user import calendar
+#from stratosource.user import calendar
 import logging
 import traceback
 
@@ -42,14 +42,14 @@ def createrelease(request):
             release.save()
             results = {'success':True}
 
-            calendar.addCalendarReleaseEvent(release.id, release.name, reldate)
+#            calendar.addCalendarReleaseEvent(release.id, release.name, reldate)
 
         except Exception as ex:
             results = {'success':False, 'error':ex}
 
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def updaterelease(request):
     results = {'success':False}
@@ -69,7 +69,7 @@ def updaterelease(request):
             name = request.GET['name']
             release.name = name
 
-            calendar.updateCalendarReleaseEvent(release.id, release.name, reldate)
+#            calendar.updateCalendarReleaseEvent(release.id, release.name, reldate)
 
             release.save()
             results = {'success':True}
@@ -79,14 +79,14 @@ def updaterelease(request):
             results = {'success':False, 'error':ex}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def deleterelease(request):
     results = {'success':False}
 
     if request.method == u'GET':
         try:
-            calendar.removeCalendarReleaseEvent(request.GET['id'])
+#            calendar.removeCalendarReleaseEvent(request.GET['id'])
 
             release = Release.objects.get(id=request.GET['id'])
             release.delete()
@@ -95,7 +95,7 @@ def deleterelease(request):
             results = {'success':False, 'error':ex}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def markreleased(request):
     results = {'success':False}
@@ -139,7 +139,7 @@ def markreleased(request):
             results = {'success':False, 'error':ex.message}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def releases(request):
     if request.method == u'GET':
@@ -171,7 +171,7 @@ def ignoreitem(request, object_id):
         results = {'success':False, 'error':ex}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def ignoretranslation(request, trans_id):
     results = {'success':False}
@@ -196,7 +196,7 @@ def ignoretranslation(request, trans_id):
         results = {'success':False, 'error':ex}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 @transaction.atomic
 def ignoreselected(request):
@@ -225,7 +225,7 @@ def ignoreselected(request):
         results = {'success':False, 'error':ex}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def getstories(request):
     results = {'success':False}
@@ -251,7 +251,7 @@ def getstories(request):
         results = {'success':False, 'error':ex.message}
 
     jso= json.dumps(results)
-    return HttpResponse(jso, mimetype='application/json')
+    return HttpResponse(jso, content_type='application/json')
 
 def getsprints(request):
     results = {'success':False}
@@ -268,7 +268,7 @@ def getsprints(request):
         results = {'success':False, 'error':ex.message}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 
 def addtostory(request):
@@ -338,7 +338,7 @@ def addtostory(request):
             results = {'success':False, 'error':'ERROR: ' + tb}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
 
 def get_release_tasks(request, type, id):
     if type == 'r':
@@ -385,7 +385,7 @@ def add_release_task(request):
         results = {'success':False, 'error':ex.message}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')
+    return HttpResponse(js, content_type='application/json')
     
 def edit_release_task(request):
     task_id = request.GET['task_id']
@@ -433,7 +433,7 @@ def edit_release_task(request):
     results = {'success':True}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')    
+    return HttpResponse(js, content_type='application/json')    
 
 @transaction.atomic
 def reorder_release_tasks(request):
@@ -449,7 +449,7 @@ def reorder_release_tasks(request):
     results = {'success':True}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')    
+    return HttpResponse(js, content_type='application/json')    
 
 def delete_release_task(request):
     release_id = request.GET['rel_id']
@@ -461,4 +461,4 @@ def delete_release_task(request):
     results = {'success':True}
 
     js = json.dumps(results)
-    return HttpResponse(js, mimetype='application/json')    
+    return HttpResponse(js, content_type='application/json')    

@@ -95,6 +95,7 @@ class Branch(models.Model):
     run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
+    keep_archive = models.BooleanField(default=False)
 
     code_run_Status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     code_cron_enabled = models.BooleanField(default=True)
@@ -102,6 +103,7 @@ class Branch(models.Model):
     code_run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     code_cron_interval = models.IntegerField(default=1)
     code_cron_start = models.CharField(max_length=5, default='0')
+    code_keep_archive = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.repo.name + " - " + self.name    

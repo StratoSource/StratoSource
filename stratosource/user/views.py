@@ -26,7 +26,7 @@ from django.http import HttpResponse
 from stratosource.models import DeploymentPushStatus, DeploymentPackage, Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser, Repo
 from stratosource.user import rallyintegration
 from stratosource.user import agilezenintegration
-from stratosource.admin.management import ConfigCache, Deployment, labels
+from stratosource.management import ConfigCache, Deployment, labels
 import logging
 
 

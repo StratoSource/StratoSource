@@ -25,7 +25,7 @@ import logging
 import os
 import httplib, urllib
 import json
-from mq import MQClient
+#from mq import MQClient
 
 __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
@@ -91,7 +91,7 @@ class SalesforceAgent:
         try:
             self.login_result = self.partner.service.login(user, password)
         except suds.WebFault as sf:
-            MQClient().publish(str(sf), level='error').close()
+#            MQClient().publish(str(sf), level='error').close()
             raise LoginError(str(sf))
         self.sid = self.partner.factory.create('SessionHeader')
         self.sid.sessionId = self.login_result.sessionId

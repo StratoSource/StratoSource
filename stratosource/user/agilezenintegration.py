@@ -17,7 +17,7 @@
 #    
 
 import requests
-from stratosource.admin.management import ConfigCache
+from stratosource.management import ConfigCache
 from stratosource.models import Story
 import logging
 from django.db import transaction

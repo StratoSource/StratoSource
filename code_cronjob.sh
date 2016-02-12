@@ -43,7 +43,7 @@ python manage.py storelog $REPO $BRANCH $LOG_NAME code r
 python manage.py download $REPO $BRANCH code >>$LOG_NAME 2>&1
 python manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
-python manage.py commit  $REPO $BRANCH code >>$LOG_NAME 2>&1
+python manage.py commit  $REPO $BRANCH >>$LOG_NAME 2>&1
 python manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
 python manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1

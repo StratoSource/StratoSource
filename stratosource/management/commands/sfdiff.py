@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 import os
 import sys
@@ -24,7 +24,9 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
-from stratosource.management.mq import MQClient
+from tzlocal import get_localzone
+
+#from stratosource.management.mq import MQClient
 from stratosource.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, \
     UserChange
 
@@ -36,6 +38,8 @@ CODE_BASE = 'unpackaged'
 
 documentCache = {}
 mapCache = {}
+
+logger = logging.getLogger('console')
 
 
 class NewObjectException(Exception):
@@ -104,7 +108,7 @@ def getDiffNames(left, right):
         if len(entry) > 1 and not entry.endswith('.xml'):
             parts = entry.split('/')
             type = parts[1]
-            print 'type=' + type
+            #print 'type=' + type
             a, b = os.path.split(entry)
             # base,type = os.path.split(a)
             if not map.has_key(type): map[type] = []
@@ -297,7 +301,7 @@ def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype=N
 
 
 def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtype=None):
-    global mqclient
+#    global mqclient
 
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
@@ -307,10 +311,10 @@ def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtyp
         delta.commit = commit
         delta.delta_type = delta_type
         delta.save()
-        if not delta.user_change is None:
-            mqclient.publish({'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
-                              'dtype': delta_type, 'type': type, 'item': item,
-                              'last_update': delta.user_change.last_update.isoformat()})
+#        if not delta.user_change is None:
+#            mqclient.publish({'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
+#                              'dtype': delta_type, 'type': type, 'item': item,
+#                              'last_update': delta.user_change.last_update.isoformat()})
 
 
 def getLastChange(objectName, el_type, el_name):
@@ -329,7 +333,6 @@ def getLastChange(objectName, el_type, el_name):
     lastchangelist = list(UserChange.objects.filter(branch=working_branch, apex_name=fullName).order_by('-last_update'))
     if len(lastchangelist) > 0:
         return lastchangelist[0]
-    logger.debug('** Audit record not found for %s' % fullName)
     return None
 
 
@@ -617,7 +620,7 @@ def analyzeCommit(branch, commit):
     rFileCache = createFileCache(rhash, omap, branch.name)
 
     for otype, olist in omap.items():
-        logger.debug("Type: %s" % otype)
+#        logger.debug("Type: %s" % otype)
         if otype == 'objects':
             analyzeObjectChanges(olist, lFileCache, rFileCache, 'fields', commit)
             analyzeObjectChanges(olist, lFileCache, rFileCache, 'validationRules', commit)
@@ -665,23 +668,23 @@ def analyzeCommit(branch, commit):
                 delta.commit = commit
                 delta.user_change = getLastChange(listitem, None, None)
                 if delta.user_change is None:
-                    print '** Audit record not found for %s' % listitem
+                    logger.debug('** Audit record not found for %s' % listitem)
                 else:
                     # print 'audit record found!'
                     pass
                 delta.delta_type = delta_type
                 delta.save()
-                if not delta.user_change is None:
-                    print 'user %s' % (delta.user_change.sfuser.name,)
-                    print 'commit %s' % (commit,)
-                    print 'dtype %s' % (delta_type,)
-                    print 'otype %s' % (otype,)
-                    print 'item %s' % (listitem,)
+#                if not delta.user_change is None:
+#                    print 'user %s' % (delta.user_change.sfuser.name,)
+#                    print 'commit %s' % (commit,)
+#                    print 'dtype %s' % (delta_type,)
+#                    print 'otype %s' % (otype,)
+#                    print 'item %s' % (listitem,)
 
-                    mqclient.publish(
-                            {'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
-                             'dtype': delta_type, 'type': otype, 'item': listitem,
-                             'last_update': delta.user_change.last_update.isoformat()})
+#                    mqclient.publish(
+#                            {'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
+#                             'dtype': delta_type, 'type': otype, 'item': listitem,
+#                             'last_update': delta.user_change.last_update.isoformat()})
 
     commit.status = 'c'
     commit.save()
@@ -714,19 +717,19 @@ class Command(BaseCommand):
         parser.add_argument('branch', help='branch name')
 
     def handle(self, *args, **options):
-        global documentCache, logger, mqclient
+        global documentCache
 
         repo = Repo.objects.get(name__exact=options['repo'])
         branch = Branch.objects.get(repo=repo, name__exact=options['branch'])
 
-        mqclient = MQClient(exch='delta')
-
-        logger = logging.getLogger('sfdiff')
+#        mqclient = MQClient(exch='delta')
 
         #        if len(args) == 3:
         #            start_date = datetime.strptime(args[2], '%m-%d-%Y')
         #        else:
-        start_date = datetime(2000, 1, 1, 0, 0)
+        here_tz = get_localzone()
+
+        start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
 
         os.chdir(repo.location)
 

@@ -52,7 +52,6 @@ def perform_checkin(repodir, zipfile, branch):
 
     os.chdir(repodir)
 
-    logger.debug('Starting checkin...')
     logger.info("Starting checkin")
     logger.info("repodir " + repodir)
     logger.info("zipfile " + zipfile)
@@ -91,7 +90,7 @@ def perform_checkin(repodir, zipfile, branch):
 
 #    logger.info("Laying down changes")
 
-#    os.system('git add * >> %s' % CMDLOG)
+    os.system('git add * >> %s' % CMDLOG)
     os.system('git commit -m "incremental snapshot for %s on `date`" >> %s' % (branch.name, CMDLOG))
 
 
@@ -155,22 +154,22 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
         thirtyDaysAgo = datetime.datetime.now(pytz.utc) - thirtyDays
         logger.debug('time window=' + thirtyDaysAgo.isoformat())
         for change in chgmap[aType]:
-            ch = change.lastModifiedDate.astimezone(pytz.utc)
-            if ch < thirtyDaysAgo:
+            chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
+            if chdate_tz < thirtyDaysAgo:
                 # not interested in old changes, just slows down the process
                 continue
 
             if userdict.has_key(change.lastModifiedByName):
                 theUser = userdict[change.lastModifiedByName]
-                logger.debug(change)
-                if theUser.lastActive == None or theUser.lastActive < change.lastModifiedDate:
+                #logger.debug(change)
+                if theUser.lastActive == None or theUser.lastActive < chdate_tz:
                     theUser.lastActive = change.lastModifiedDate
                     theUser.save()
             else:
                 theUser = SalesforceUser()
                 theUser.userid = change.lastModifiedById[0:15]
                 theUser.name = change.lastModifiedByName
-                theUser.lastActive = change.lastModifiedDate
+                theUser.lastActive = chdate_tz
                 theUser.save()
                 userdict[theUser.name] = theUser
                 logger.debug('new salesforce user: ' + theUser.name)
@@ -192,27 +191,27 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 recent.apex_id = change.id
                 recent.sfuser = theUser
                 recent.apex_name = fullName
-                recent.last_update = change.lastModifiedDate
+                recent.last_update = chdate_tz
                 recent.batch_time = batch_time
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
                 logger.debug('Not found, inserting %s' % fullName)
 
-            logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
-            if recent.last_update < change.lastModifiedDate:
-                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (theUser.userid, recent.last_update, change.lastModifiedDate))
+            #logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
+            if recent.last_update < chdate_tz:
+                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (theUser.userid, recent.last_update, chdate_tz))
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id
                 recent.sfuser = theUser
                 recent.apex_name = fullName
-                recent.last_update = change.lastModifiedDate
+                recent.last_update = chdate_tz
                 recent.batch_time = batch_time
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
-                logger.debug('Changed, inserting %s' % fullName)
+                logger.debug('Changed, updating %s' % fullName)
 
     logger.info('Audited objects inserted: %d' % inserted)
 

@@ -19,14 +19,20 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
 from stratosource.models import Branch, Commit
 import subprocess
+import logging
 from datetime import datetime
 import os
+from tzlocal import get_localzone
 
 
 __author__="masmith"
 __date__ ="$Sep 22, 2010 2:11:52 PM$"
 
+logger = logging.getLogger('console')
+
+
 class Command(BaseCommand):
+
 
     def parse_commits(self, branch, start_date):
         cwd = os.getcwd()
@@ -34,20 +40,21 @@ class Command(BaseCommand):
             os.chdir(branch.repo.location)
             subprocess.check_call(["git","checkout",branch.name])
             subprocess.check_call(["git","reset","--hard","{0}".format(branch.name)])
-            p = subprocess.Popen(['git', 'log'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            (r,w) = (p.stdin,p.stdout)
+            p = subprocess.Popen(['git', 'log'], stdout=subprocess.PIPE)
             commits = []
             hash = ""
             author = ""
             commitdate = ""
             comment = ""
-            for line in r:
+            here_tz = get_localzone()
+            for line in p.stdout:
                 line = line.rstrip()
                 if line.startswith("commit "):
                     if len(hash) > 0:
                         if commitdate >= start_date:
                             map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
                             commits.append(map)
+                            if len(map) >= 10: break # no need to do more than 10 really
                         hash = ""
                         author = ""
                         commitdate = ""
@@ -57,15 +64,15 @@ class Command(BaseCommand):
                     author = line[8:]
                 elif line.startswith("Date:  "):
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
+                    commitdate = commitdate.replace(tzinfo=here_tz)
 #                    commitdate = line[8:]
                 elif len(line) > 4:
                     comment += line.strip()
             if len(hash) > 0:
                 map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
                 commits.append(map)
-            r.close()
-            w.close()
-            print('commits = ' + str(len(commits)))
+            p.stdout.close()
+            logger.info('commits = ' + str(len(commits)))
             return commits
         finally:
             os.chdir(cwd)
@@ -83,7 +90,10 @@ class Command(BaseCommand):
 #        if len(args) == 3:
 #            start_date = datetime.strptime(args[2], '%m-%d-%Y')
 #        else:
-        start_date = datetime(2000, 1, 1, 0, 0)
+
+        here_tz = get_localzone()
+
+        start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
 
         commits = self.parse_commits(br, start_date)
         commits.reverse()       # !! must be in reverse chronological order from oldest to newest
@@ -97,8 +107,8 @@ class Command(BaseCommand):
             except ObjectDoesNotExist:
                 pass
 
-            print('adding commit', acommit['hash'], 'for branch', br.name)
-            if prev_commit: print('prev hash = ' + prev_commit['hash'])
+            logger.info('adding commit %s for branch %s' % (acommit['hash'], br.name))
+            if prev_commit: logger.info('prev hash = ' + prev_commit['hash'])
             newcommit = Commit()
             newcommit.branch = br
             newcommit.hash = acommit['hash']

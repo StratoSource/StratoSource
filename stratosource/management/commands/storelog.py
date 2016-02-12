@@ -41,7 +41,10 @@ class Command(BaseCommand):
 
         br = Branch.objects.get(repo__name__exact=options['repo'], name__exact=options['branch'])
         if not br: raise CommandError("invalid repo/branch")
-        br.run_status = options['runstatus']
+        if options['logtype'] == 'code':
+            br.code_run_status = options['runstatus']
+        else:
+            br.run_status = options['runstatus']
         br.save()
         
         brlog = BranchLog()

@@ -32,7 +32,7 @@ def refresh():
     settings = {}
     setList = ConfigSetting.objects.all()
     for setting in setList:
-        logger.debug('Adding ' + setting.key)
+        #logger.debug('Adding ' + setting.key)
         settings[setting.key] = setting.value
     session['settings'] = settings
 
@@ -45,7 +45,7 @@ def get_uuid():
 
 def get_config_value(key):
     if not session.has_key('settings'):
-        logger.debug('Refreshing cache')
+        #logger.debug('Refreshing cache')
         refresh()
     settings = session['settings']
     if settings.has_key(key):

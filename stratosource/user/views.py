@@ -19,6 +19,8 @@
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
+
+from django.utils import timezone
 from django.utils.encoding import smart_str
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
@@ -492,13 +494,17 @@ def stories(request):
         sprint = request.GET['sprint']
 
     sprintList = []
-    sprints = Story.objects.values('sprint').filter(sprint__isnull=False).order_by('sprint').distinct()
+    oneYear = timedelta(days = 365)
+    oneYearAgo = timezone.now() - oneYear
+
+    sprints = Story.objects.values('sprint').filter(sprint__isnull=False,date_added__gte=oneYearAgo).order_by('sprint').distinct()
 
     for sprintName in sprints:
         if len(sprintName['sprint']) > 0 and not sprintList.__contains__(sprintName['sprint']):
             sprintList.append(sprintName['sprint'])
-        
-    stories = Story.objects.all()
+
+    stories = Story.objects.filter(date_added__gte=oneYearAgo)
+    #stories = Story.objects.all()
     if len(sprint) > 0:
         stories = stories.filter(sprint=sprint)
     stories = stories.order_by('sprint', 'rally_id', 'name')

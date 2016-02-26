@@ -23,7 +23,7 @@ import os
 from stratosource.models import Branch
 from stratosource.management import Utils
 from ss2.settings import LOGGING
-
+from ss2.settings import USE_TZ
 
 __author__="mark"
 __date__ ="$Sep 7, 2010 9:02:55 PM$"
@@ -50,6 +50,7 @@ class Command(BaseCommand):
 
         agent = Utils.getAgentForBranch(br, logger=logger)
 
+        logger.info('USE_TZ=' + str(USE_TZ))
         path = br.api_store
         if options['type'] == 'code':
             types = ['ApexClass','ApexTrigger','ApexPage','ApexComponent']

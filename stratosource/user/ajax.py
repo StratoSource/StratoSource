@@ -15,7 +15,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from django.utils import timezone
+
 from stratosource.models import Release, Story, Branch, DeployableObject, DeployableTranslation, ReleaseTask, SalesforceUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -256,8 +259,10 @@ def getstories(request):
 def getsprints(request):
     results = {'success':False}
     try:
+        threeMonths = timedelta(days = 90)
+        threeMonthsAgo = timezone.now() - threeMonths
         sprintList = ['None','All']
-        stories = Story.objects.values('sprint').filter(sprint__isnull=False).order_by('sprint').distinct()
+        stories = Story.objects.values('sprint').filter(sprint__isnull=False, date_added__gte=threeMonthsAgo).order_by('sprint').distinct()
 
         for story in stories:
             if len(story['sprint']) > 0 and not sprintList.__contains__(story['sprint']):

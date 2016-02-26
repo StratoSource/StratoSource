@@ -127,6 +127,7 @@ class Story(models.Model):
     release_date =      models.DateField(blank=True,null=True)
     released =          models.BooleanField(default=False)
     done_on_branches =  models.ManyToManyField(Branch)
+    date_added =        models.DateField(blank=False, null=False, default='now()')
 
     def __unicode__(self):
         return self.name + " " + self.rally_id

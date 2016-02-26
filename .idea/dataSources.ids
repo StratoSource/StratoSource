@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="dataSourceStorage">
   <data-source name="Django default" uuid="90f4e0bd-d9a2-4813-8589-364ced3d88b3">
-    <database-info product="MySQL" version="5.5.5-10.0.22-MariaDB-0ubuntu0.15.10.1" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.35 ( Revision: 5fb9c5849535c13917c2cf9baaece6ef9693ef27 )">
+    <database-info product="MySQL" version="5.5.5-10.0.23-MariaDB-0ubuntu0.15.10.1" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.35 ( Revision: 5fb9c5849535c13917c2cf9baaece6ef9693ef27 )">
       <extra-name-characters>#@</extra-name-characters>
       <identifier-quote-string>`</identifier-quote-string>
     </database-info>
     <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact"/>
-    <database-model serializer="dbm" rdbms="MYSQL" format-version="2.4">
+    <database-model serializer="dbm" rdbms="MYSQL" format-version="2.5">
       <schema id="1" name="stratosource"/>
       <table id="2" parent="1" name="admin_message"/>
       <table id="3" parent="1" name="auth_group"/>

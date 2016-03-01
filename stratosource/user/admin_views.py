@@ -306,7 +306,7 @@ def removeCrontab(branch):
     theItems = []
     for item in ctab:
         if item.raw_line.find(comment) > -1:
-            theItems.add(item)
+            theItems.append(item)
 
     for theItem in theItems:
         ctab.remove(theItem)

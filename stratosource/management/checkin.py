@@ -156,7 +156,8 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
         #thirtyDaysAgo = datetime.datetime.now(pytz.utc) - thirtyDays
         logger.debug('time window=' + thirtyDaysAgo.isoformat())
         for change in chgmap[aType]:
-            chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
+            #chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
+            chdate_tz = change.lastModifiedDate
             if chdate_tz < thirtyDaysAgo:
                 # not interested in old changes, just slows down the process
                 continue

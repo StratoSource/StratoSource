@@ -16,7 +16,8 @@
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.log import getLogger
+#from django.utils.log import getLogger
+import logging
 import time
 import datetime
 import os
@@ -28,7 +29,7 @@ from ss2.settings import USE_TZ
 __author__="mark"
 __date__ ="$Sep 7, 2010 9:02:55 PM$"
 
-logger = getLogger('console')
+logger = logging.getLogger('console')
 
 
 class Command(BaseCommand):

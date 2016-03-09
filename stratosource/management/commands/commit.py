@@ -46,7 +46,7 @@ class Command(BaseCommand):
             author = ""
             commitdate = ""
             comment = ""
-            here_tz = get_localzone()
+            #here_tz = get_localzone()
             for line in p.stdout:
                 line = line.rstrip()
                 if line.startswith("commit "):
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                     author = line[8:]
                 elif line.startswith("Date:  "):
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
-                    commitdate = commitdate.replace(tzinfo=here_tz)
+                    #commitdate = commitdate.replace(tzinfo=here_tz)
 #                    commitdate = line[8:]
                 elif len(line) > 4:
                     comment += line.strip()
@@ -91,9 +91,10 @@ class Command(BaseCommand):
 #            start_date = datetime.strptime(args[2], '%m-%d-%Y')
 #        else:
 
-        here_tz = get_localzone()
+        #here_tz = get_localzone()
 
-        start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
+        #start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
+        start_date = datetime(2000, 1, 1, 0, 0)
 
         commits = self.parse_commits(br, start_date)
         commits.reverse()       # !! must be in reverse chronological order from oldest to newest

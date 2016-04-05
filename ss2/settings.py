@@ -83,13 +83,14 @@ WSGI_APPLICATION = 'ss2.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'ss_fte0',                      # Or path to database file if using sqlite3.
-        'USER': 'fte0',                      # Not used with sqlite3.
-        'PASSWORD': 'fte0',                  # Not used with sqlite3.
-#        'NAME': 'stratosource',                      # Or path to database file if using sqlite3.
-#        'USER': 'stratosource',                      # Not used with sqlite3.
-#        'PASSWORD': 'stratosource',                  # Not used with sqlite3.
-        'HOST': '192.168.1.60',                      # Set to empty string for localhost. Not used with sqlite3.
+#        'NAME': 'ss_fte0',                      # Or path to database file if using sqlite3.
+#        'USER': 'fte0',                      # Not used with sqlite3.
+#        'PASSWORD': 'fte0',                  # Not used with sqlite3.
+        'NAME': 'stratosource',                      # Or path to database file if using sqlite3.
+        'USER': 'stratosource',                      # Not used with sqlite3.
+        'PASSWORD': 'stratosource',                  # Not used with sqlite3.
+#        'HOST': '192.168.1.60',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -100,13 +101,13 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

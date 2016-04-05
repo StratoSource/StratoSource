@@ -266,26 +266,26 @@ def removeCGitEntry(branch):
 
 def createCrontab(branch):
     ctab = CronTab()
-    if branch.cron_type == 'h':
+    if branch.cron_enabled and branch.cron_type == 'h':
         if branch.cron_interval > 1:
             interval_list = [str(x) for x in range(0, 23, branch.cron_interval)]
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/tmp/cronjob.out 2>&1" % (
+        cronline = "%s %s * * * %s %s %s >/tmp/config_cronjob.out 2>&1" % (
             branch.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'config_cronjob.sh'), branch.repo.name,
             branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
         ctab.add(item)
         ctab.write()
-    if branch.code_cron_type == 'h':
-        if branch.cron_interval > 1:
+    if branch.code_cron_enabled and branch.code_cron_type == 'h':
+        if branch.code_cron_interval > 1:
             interval_list = [str(x) for x in range(0, 23, branch.code_cron_interval)]
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/tmp/cronjob.out 2>&1" % (
+        cronline = "%s %s * * * %s %s %s >/tmp/code_cronjob.out 2>&1" % (
             branch.code_cron_start, interval_str, os.path.join(settings.BASE_DIR, 'code_cronjob.sh'), branch.repo.name,
             branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
@@ -306,7 +306,7 @@ def removeCrontab(branch):
     theItems = []
     for item in ctab:
         if item.raw_line.find(comment) > -1:
-            theItems.add(item)
+            theItems.append(item)
 
     for theItem in theItems:
         ctab.remove(theItem)

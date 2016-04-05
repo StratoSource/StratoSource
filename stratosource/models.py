@@ -97,7 +97,6 @@ class Branch(models.Model):
     cron_start = models.CharField(max_length=5, default='0')
     keep_archive = models.BooleanField(default=False)
 
-    code_run_Status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     code_cron_enabled = models.BooleanField(default=True)
     code_cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
     code_run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
@@ -127,6 +126,7 @@ class Story(models.Model):
     release_date =      models.DateField(blank=True,null=True)
     released =          models.BooleanField(default=False)
     done_on_branches =  models.ManyToManyField(Branch)
+    date_added =        models.DateField(blank=False, null=False, default='now()')
 
     def __unicode__(self):
         return self.name + " " + self.rally_id

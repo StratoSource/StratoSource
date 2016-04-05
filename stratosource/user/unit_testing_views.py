@@ -21,7 +21,7 @@ from django.shortcuts import render_to_response, redirect
 from django import forms
 from stratosource.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule
 from ss2 import settings
-from stratosource.admin.management import UnitTestRunUtil
+from stratosource.management import UnitTestRunUtil
 from crontab import CronTab, CronItem
 import logging
 import os

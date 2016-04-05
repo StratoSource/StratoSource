@@ -106,6 +106,7 @@ def getDiffNames(left, right):
         entry = entry.rstrip()
         if entry == '.gitignore': continue
         if len(entry) > 1 and not entry.endswith('.xml'):
+            logger.debug('  entry={0}'.format(entry))
             parts = entry.split('/')
             type = parts[1]
             #print 'type=' + type
@@ -252,12 +253,13 @@ def getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, resolve
 
 def createFileCache(hash, map, branch_name):
     logger.debug('cwd=' + os.getcwd())
-    tmpbranch = branch_name + '_sfdiff'
+#    tmpbranch = branch_name + '_sfdiff'
     subprocess.check_call(["git", "checkout", branch_name])
-    if branchExists(tmpbranch):
-        logger.debug('removing temp branch')
-        subprocess.check_call(["git", "branch", "-D", tmpbranch])
-    subprocess.check_call(["git", "checkout", "-b", tmpbranch, branch_name])
+#    if branchExists(tmpbranch):
+#        logger.debug('removing temp branch')
+#        subprocess.check_call(["git", "branch", "-D", tmpbranch])
+#    subprocess.check_call(["git", "checkout", "-b", tmpbranch, branch_name])
+    subprocess.check_call(["git", "checkout", branch_name])
     os.system('git reset --hard {0}'.format(hash))
     cache = {}
     for type, list in map.items():
@@ -674,6 +676,7 @@ def analyzeCommit(branch, commit):
                     pass
                 delta.delta_type = delta_type
                 delta.save()
+                logger.debug('  added delta for {0}'.format(listitem))
 #                if not delta.user_change is None:
 #                    print 'user %s' % (delta.user_change.sfuser.name,)
 #                    print 'commit %s' % (commit,)
@@ -729,7 +732,8 @@ class Command(BaseCommand):
         #        else:
         here_tz = get_localzone()
 
-        start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
+        #start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
+        start_date = datetime(2000, 1, 1, 0, 0)
 
         os.chdir(repo.location)
 

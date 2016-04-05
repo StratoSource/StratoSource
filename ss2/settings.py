@@ -115,14 +115,6 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '192.168.1.60:11211',
- 	'KEY_PREFIX': 'stratosource',
-    }
-}
-
 RALLY_REST_VERSION = '1.36'
 RALLY_SERVER = 'rally1.rallydev.com'
 

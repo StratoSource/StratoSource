@@ -669,11 +669,11 @@ def analyzeCommit(branch, commit):
                 delta.object = getDeployable(branch, listitem, otype, None, None, None)
                 delta.commit = commit
                 delta.user_change = getLastChange(listitem, None, None)
-                #if delta.user_change is None:
-                #    logger.debug('** Audit record not found for %s' % listitem)
-                #else:
+                if delta.user_change is None:
+                    logger.debug('** Audit record not found for %s' % listitem)
+                else:
                     # print 'audit record found!'
-                #    pass
+                    pass
                 delta.delta_type = delta_type
                 delta.save()
                 logger.debug('  added delta for {0}'.format(listitem))

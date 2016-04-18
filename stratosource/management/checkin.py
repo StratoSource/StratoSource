@@ -202,7 +202,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 logger.debug('Not found, inserting %s' % fullName)
 
             #logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
-            if recent.last_update < chdate_tz:
+            if recent.last_update is None or recent.last_update < chdate_tz:
                 logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (theUser.userid, recent.last_update, chdate_tz))
                 recent = UserChange()
                 recent.branch = branch

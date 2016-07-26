@@ -23,10 +23,10 @@ function onexit()
 
     if [ $exit_status -eq "99" ]
         then
-        python manage.py storelog $REPO $BRANCH $LOG_NAME d
+        python manage.py storelog $REPO $BRANCH $LOG_NAME config d
         exit 0
     fi
-    python manage.py storelog $REPO $BRANCH $LOG_NAME e
+    python manage.py storelog $REPO $BRANCH $LOG_NAME config e
     exit $exit_status
     
     

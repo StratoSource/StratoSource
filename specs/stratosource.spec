@@ -1,0 +1,142 @@
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+
+Name:           stratosource
+Version: 2.12.0
+Release: 0
+Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
+
+Group:          Applications/Internet
+License:        GPL
+URL:            http://www.StratoSource.com/
+Source0:        %{name}-%{version}-%{release}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+
+Requires:       python >= 2.7.5
+Requires:       python-suds >= 0.3.9
+Requires:       python-requests >= 0.11
+Requires:       python-pip >= 0.8
+Requires:       memcached >= 1.4.4
+Requires:       python-memcached >= 1.43
+Requires:       python-lxml >= 2.2.3
+Requires:       mysql
+Requires:       mariadb-server
+Requires:       httpd >= 2.2.15
+Requires:       mod_wsgi >= 3.1
+Requires:       mod_auth_kerb >= 5.4
+Requires:       MySQL-python >= 1.2.3
+Requires:       wget >= 1.12
+#Requires:       subversion >= 1.6.9
+Requires:       git >= 1.7.1
+Requires:       cgit >= 0.9
+Requires:       unzip
+#
+# Support for PHP-based calendar
+#
+#Requires:       php >= 5.3.3
+#Requires:       php-mysql >= 5.3.3
+#
+# Support for MQ
+#
+#Requires:       python-pika >= 0.9
+
+BuildArch:      noarch
+
+
+%description
+Process git repo dumps of salesforce assets and provide web UI for the results
+
+%prep
+%setup -q
+
+%install
+# create home dir if not exists
+mkdir -p %{buildroot}/usr/django
+
+# remove all existing files first
+rm -rf %{buildroot}/usr/django/stratosource
+
+# copy in all the files
+cp -R stratosource %{buildroot}/usr/django/
+cp -R resources %{buildroot}/usr/django/
+cp *cronjob.sh %{buildroot}/usr/django/
+cp notify.py %{buildroot}/usr/django/
+cp runmanage.sh %{buildroot}/usr/django/
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+echo 'configuring apache'
+
+eval grep django /etc/httpd/conf/httpd.conf
+# if apache not already configured for django, do it now
+if [ $? -eq 1 ]; then
+  SITEPKG=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
+  cat  < /usr/django/resources/httpd-append.conf >> /etc/httpd/conf/httpd.conf 
+  sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
+fi
+
+#
+# Calendaring support
+#
+#eval grep wdcalendar /etc/httpd/conf/httpd.conf
+#if [ $? -eq 1 ]; then
+#    echo "Alias /wdcalendar/ /var/www/html/wdcalendar/" >> /etc/httpd/conf/httpd.conf
+#fi
+#cp -R /usr/django/resources/wdcalendar /var/www/html
+
+echo 'configure mysql'
+# fix a bug in the mysql rpm installer that does not set correct permissions
+mysql_install_db
+chown -R mysql.mysql /var/lib/mysql
+touch /var/log/mysqld.log
+chown mysql:mysql /var/log/mysqld.log
+mkdir /var/run/mysqld
+chown mysql:mysql /var/run/mysqld
+
+echo 'configuring cgit'
+eval grep django /etc/cgitrc
+if [ $? -eq 1 ]; then
+  echo "include=/usr/django/stratosource/cgitrepo" >>/etc/cgitrc
+fi
+if [ ! -f /usr/django/cgitrepo ]; then
+  cp /usr/django/resources/cgitrepo /usr/django/stratosource
+  chmod 777 /usr/django/stratosource/cgitrepo
+fi
+
+echo 'installing django'
+pip install django
+
+echo 'installing pyexcelerator'
+pip install pyexcelerator
+
+echo 'installing pyral'
+pip install pyral
+
+# disable selinux
+sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
+
+# stratosource configuration requirements
+
+cp /usr/django/resources/my.cnf /etc
+cp /usr/django/resources/memcached /etc/sysconfig
+cp /usr/django/resources/django.wsgi /usr/django/stratosource
+mkdir /usr/django/logs
+chmod 777 /usr/django/logs
+mkdir /var/sfrepo
+chmod 777 /var/sfrepo
+
+echo 'restarting services'
+service memcached restart
+service httpd restart
+service mysqld restart
+
+%files
+%defattr(-,root,root,-)
+/usr/django/*
+
+%changelog
+* Thu Dec 18 2014 Mark Smith
+  - Updated spec to be more compatible with newer releases of dependencies
+* Fri Nov 5 2010 Mark Smith
+  - Initial work on spec

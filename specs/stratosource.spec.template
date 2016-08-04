@@ -57,6 +57,7 @@ rm -rf %{buildroot}/usr/django/stratosource
 
 # copy in all the files
 cp -R stratosource %{buildroot}/usr/django/
+cp -R ss2 %{buildroot}/usr/django/
 cp -R resources %{buildroot}/usr/django/
 cp *cronjob.sh %{buildroot}/usr/django/
 cp notify.py %{buildroot}/usr/django/
@@ -136,6 +137,8 @@ service mysqld restart
 /usr/django/*
 
 %changelog
+* Thu Aug 4 2016 Mark Smith
+  - Updated to support new Stratosource (ss2)
 * Thu Dec 18 2014 Mark Smith
   - Updated spec to be more compatible with newer releases of dependencies
 * Fri Nov 5 2010 Mark Smith

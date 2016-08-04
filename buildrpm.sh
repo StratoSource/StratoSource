@@ -2,7 +2,7 @@
 # Update version numbers here only
 ##
 MAJOR=2
-MINOR=12
+MINOR=13
 PATCH=0
 REL=0
 VERSION=$MAJOR.$MINOR.$PATCH

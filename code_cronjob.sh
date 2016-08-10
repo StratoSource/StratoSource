@@ -5,8 +5,8 @@
 # arg2 is the branch name
 #
 
-LOG_NAME=/tmp/$1_$2_$(date +%Y%M%d%H%M%S)_pull.log
-BASEDIR=$(dirname $0)
+LOG_NAME="/tmp/$1_$2_$(date +%Y%M%d%H%M%S)_pull.log"
+BASEDIR=$(dirname "$0")
 REPO=$1
 BRANCH=$2
 
@@ -16,7 +16,7 @@ trap onexit INT ERR
 
 function onexit()
 {    
-    cd $BASEDIR >>$LOG_NAME 2>&1
+    cd "$BASEDIR" >>$LOG_NAME 2>&1
     local exit_status=${1:-$?}
     
     echo Exiting with status $exit_status
@@ -34,7 +34,7 @@ function onexit()
 
 echo Starting Code Snapshot of $REPO $BRANCH >>$LOG_NAME 2>&1
 
-cd $BASEDIR >>$LOG_NAME 2>&1
+cd "$BASEDIR" >>$LOG_NAME 2>&1
 echo Starting pre-cronjob.sh >>$LOG_NAME 2>&1
 ./pre-cronjob.sh $REPO $BRANCH code >>$LOG_NAME 2>&1
 
@@ -49,7 +49,7 @@ python manage.py storelog $REPO $BRANCH $LOG_NAME code r
 python manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1
 python manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
-cd $BASEDIR >>$LOG_NAME 2>&1
+cd "$BASEDIR" >>$LOG_NAME 2>&1
 ./post-cronjob.sh $REPO $BRANCH code >>$LOG_NAME 2>&1
 
 rm $LOG_NAME

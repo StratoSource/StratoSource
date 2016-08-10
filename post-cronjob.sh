@@ -1,3 +1,4 @@
+#!/bin/bash
 
 ##
 # Place any custom postprocessing here after the snapshot is processed

@@ -13,7 +13,7 @@ trap onexit INT ERR
 
 function onexit()
 {    
-    cd $BASEDIR/stratosource >>$LOG_NAME 2>&1
+    cd "$BASEDIR"/stratosource >>$LOG_NAME 2>&1
     local exit_status=${1:-$?}
     
     echo Exiting with status $exit_status
@@ -29,12 +29,12 @@ function onexit()
     
 }
 
-cd $BASEDIR >>$LOG_NAME 2>&1
+cd "$BASEDIR" >>$LOG_NAME 2>&1
 
-cd $BASEDIR/stratosource >>$LOG_NAME 2>&1
+cd "$BASEDIR"/stratosource >>$LOG_NAME 2>&1
 
 #python manage.py storepushlog $PUSH_ID $LOG_NAME r
 
-cd $BASEDIR >>$LOG_NAME 2>&1
+cd "$BASEDIR" >>$LOG_NAME 2>&1
 
 onexit 99

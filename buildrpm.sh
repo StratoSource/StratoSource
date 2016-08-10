@@ -1,3 +1,4 @@
+#!/bin/bash
 ##
 # Update version numbers here only
 ##
@@ -13,6 +14,7 @@ rm -rf $NAME
 mkdir $NAME
 cp -R stratosource $NAME
 cp -R resources $NAME
+cp -R ss2 $NAME
 cp *cronjob.sh $NAME
 cp notify.py $NAME
 cp runmanage.sh $NAME

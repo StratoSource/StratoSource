@@ -14,7 +14,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
-#    
+#
+import pytz
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 import os
@@ -24,11 +25,7 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from lxml import etree
-from tzlocal import get_localzone
-
-#from stratosource.management.mq import MQClient
-from stratosource.models import Branch, Commit, Repo, Delta, DeployableTranslation, TranslationDelta, DeployableObject, \
-    UserChange
+import stratosource.models
 
 __author__ = "masmith"
 __date__ = "$Jul 26, 2010 2:23:44 PM$"
@@ -109,7 +106,7 @@ def getDiffNames(left, right):
             logger.debug('  entry={0}'.format(entry))
             parts = entry.split('/')
             type = parts[1]
-            #print 'type=' + type
+            # print 'type=' + type
             a, b = os.path.split(entry)
             # base,type = os.path.split(a)
             if not map.has_key(type): map[type] = []
@@ -234,7 +231,7 @@ def getAllFullNames(doc, elementName, tagname='fullName'):
         for node in nodes:
             el = node.find(fqfullname)
             if el is not None: allnames.append(el.text)
-        #        allnames = [node.find(fqfullname).text for node in nodes]
+        # allnames = [node.find(fqfullname).text for node in nodes]
         return allnames
     else:
         logger.debug('No nodes found for %s' % elementName)
@@ -253,12 +250,12 @@ def getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, resolve
 
 def createFileCache(hash, map, branch_name):
     logger.debug('cwd=' + os.getcwd())
-#    tmpbranch = branch_name + '_sfdiff'
+    #    tmpbranch = branch_name + '_sfdiff'
     subprocess.check_call(["git", "checkout", branch_name])
-#    if branchExists(tmpbranch):
-#        logger.debug('removing temp branch')
-#        subprocess.check_call(["git", "branch", "-D", tmpbranch])
-#    subprocess.check_call(["git", "checkout", "-b", tmpbranch, branch_name])
+    #    if branchExists(tmpbranch):
+    #        logger.debug('removing temp branch')
+    #        subprocess.check_call(["git", "branch", "-D", tmpbranch])
+    #    subprocess.check_call(["git", "checkout", "-b", tmpbranch, branch_name])
     subprocess.check_call(["git", "checkout", branch_name])
     os.system('git reset --hard {0}'.format(hash))
     cache = {}
@@ -283,15 +280,15 @@ def createFileCache(hash, map, branch_name):
 def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype=None):
     try:
         if el_type and el_name:
-            deployable = DeployableObject.objects.get(branch=branch, type__exact=objectType, filename__exact=objectName,
-                                                      el_type__exact=el_type, el_name__exact=el_name,
-                                                      el_subtype__exact=el_subtype,
-                                                      status__exact='a')
+            deployable = stratosource.models.DeployableObject.objects.get(branch=branch, type__exact=objectType, filename__exact=objectName,
+                                                                          el_type__exact=el_type, el_name__exact=el_name,
+                                                                          el_subtype__exact=el_subtype,
+                                                                          status__exact='a')
         else:
-            deployable = DeployableObject.objects.get(branch=branch, type__exact=objectType, filename__exact=objectName,
-                                                      status__exact='a')
+            deployable = stratosource.models.DeployableObject.objects.get(branch=branch, type__exact=objectType, filename__exact=objectName,
+                                                                          status__exact='a')
     except ObjectDoesNotExist:
-        deployable = DeployableObject()
+        deployable = stratosource.models.DeployableObject()
         deployable.type = objectType
         deployable.filename = objectName
         deployable.branch = branch
@@ -302,24 +299,26 @@ def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype=N
     return deployable
 
 
-def insertDeltas(commit, objectName, type, items, delta_type, el_type, el_subtype=None):
-#    global mqclient
+def insert_deltas(commit, objectName, type, items, delta_type, el_type, el_subtype=None):
+    #    global mqclient
 
     for item in items:
         deployable = getDeployable(commit.branch, objectName, type, el_type, item, el_subtype)
-        delta = Delta()
-        delta.user_change = getLastChange(objectName, el_type, item)
+        delta = stratosource.models.Delta()
+        delta.user_change = get_last_change(objectName, el_type, item)
         delta.object = deployable
         delta.commit = commit
         delta.delta_type = delta_type
         delta.save()
-#        if not delta.user_change is None:
+
+
+# if not delta.user_change is None:
 #            mqclient.publish({'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
 #                              'dtype': delta_type, 'type': type, 'item': item,
 #                              'last_update': delta.user_change.last_update.isoformat()})
 
 
-def getLastChange(objectName, el_type, el_name):
+def get_last_change(objectName, el_type, el_name):
     fullName = objectName
     if el_type == 'labels': return None  # not doing audit tracking for labels
 
@@ -330,9 +329,9 @@ def getLastChange(objectName, el_type, el_name):
         parts[0] = el_type + ':' + parts[0]
         if el_name: parts[0] += '.' + el_name
         fullName = parts[0]  # '.'.join(parts)
-    #    print ' fullName=%s' % fullName
+    # print ' fullName=%s' % fullName
 
-    lastchangelist = list(UserChange.objects.filter(branch=working_branch, apex_name=fullName).order_by('-last_update'))
+    lastchangelist = list(stratosource.models.UserChange.objects.filter(branch=working_branch, apex_name=fullName).order_by('-last_update'))
     if len(lastchangelist) > 0:
         return lastchangelist[0]
     return None
@@ -340,9 +339,9 @@ def getLastChange(objectName, el_type, el_name):
 
 def getDeployableTranslation(branch, label, locale):
     try:
-        deployableT = DeployableTranslation.objects.get(branch=branch, label=label, locale=locale, status__exact='a')
+        deployableT = stratosource.models.DeployableTranslation.objects.get(branch=branch, label=label, locale=locale, status__exact='a')
     except ObjectDoesNotExist:
-        deployableT = DeployableTranslation()
+        deployableT = stratosource.models.DeployableTranslation()
         deployableT.label = label
         deployableT.locale = locale
         deployableT.branch = branch
@@ -353,7 +352,7 @@ def getDeployableTranslation(branch, label, locale):
 def insertTranslationDeltas(commit, items, delta_type, locale):
     for item in items:
         deployableT = getDeployableTranslation(commit.branch, item, locale)
-        delta = TranslationDelta()
+        delta = stratosource.models.TranslationDelta()
         delta.translation = deployableT
         delta.commit = commit
         delta.delta_type = delta_type
@@ -363,7 +362,7 @@ def insertTranslationDeltas(commit, items, delta_type, locale):
 ##
 # [ objects ]
 ##
-def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
+def analyze_object_changes(list, lFileCache, rFileCache, elementname, commit):
     global documentCache
 
     changesFound = False
@@ -373,21 +372,19 @@ def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname,
                                                             objectChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
-                if inserts: insertDeltas(commit, objectName, 'objects', inserts.keys(), 'a', elementname)
-                if updates: insertDeltas(commit, objectName, 'objects', updates.keys(), 'u', elementname)
-                if deletes: insertDeltas(commit, objectName, 'objects', deletes.keys(), 'd', elementname)
+                if inserts: insert_deltas(commit, objectName, 'objects', inserts.keys(), 'a', elementname)
+                if updates: insert_deltas(commit, objectName, 'objects', updates.keys(), 'u', elementname)
+                if deletes: insert_deltas(commit, objectName, 'objects', deletes.keys(), 'd', elementname)
                 changesFound = True
 
         except NewObjectException:
             logger.debug('New object %s' % objectName)
             doc = documentCache['r' + objectName]
-            insertDeltas(commit, objectName, 'objects', getAllFullNames(doc, elementname), 'a', elementname)
-            return
+            insert_deltas(commit, objectName, 'objects', getAllFullNames(doc, elementname), 'a', elementname)
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
-            insertDeltas(commit, objectName, 'objects', getAllFullNames(doc, elementname), 'd', elementname)
-            return
+            insert_deltas(commit, objectName, 'objects', getAllFullNames(doc, elementname), 'd', elementname)
 
     if not changesFound:
         pass
@@ -396,7 +393,7 @@ def analyzeObjectChanges(list, lFileCache, rFileCache, elementname, commit):
 ##
 # [ objectTranslation ]
 ##
-def analyzeObjectTranslationChanges(list, lFileCache, rFileCache, elementname, commit):
+def analyze_object_translation_changes(list, lFileCache, rFileCache, elementname, commit):
     global documentCache
 
     changesFound = False
@@ -405,19 +402,19 @@ def analyzeObjectTranslationChanges(list, lFileCache, rFileCache, elementname, c
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname,
                                                             objectTranslationChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
-                if inserts: insertDeltas(commit, objectName, 'objectTranslations', inserts.keys(), 'a', elementname)
-                if updates: insertDeltas(commit, objectName, 'objectTranslations', updates.keys(), 'u', elementname)
-                if deletes: insertDeltas(commit, objectName, 'objectTranslations', deletes.keys(), 'd', elementname)
+                if inserts: insert_deltas(commit, objectName, 'objectTranslations', inserts.keys(), 'a', elementname)
+                if updates: insert_deltas(commit, objectName, 'objectTranslations', updates.keys(), 'u', elementname)
+                if deletes: insert_deltas(commit, objectName, 'objectTranslations', deletes.keys(), 'd', elementname)
                 changesFound = True
 
         except NewObjectException:
             doc = documentCache['r' + objectName]
-            insertDeltas(commit, objectName, 'objectTranslations', getAllFullNames(doc, elementname), 'a', elementname)
+            insert_deltas(commit, objectName, 'objectTranslations', getAllFullNames(doc, elementname), 'a', elementname)
             return
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
-            insertDeltas(commit, objectName, 'objectTranslations', getAllFullNames(doc, elementname), 'd', elementname)
+            insert_deltas(commit, objectName, 'objectTranslations', getAllFullNames(doc, elementname), 'd', elementname)
             return
 
     if not changesFound:
@@ -427,7 +424,7 @@ def analyzeObjectTranslationChanges(list, lFileCache, rFileCache, elementname, c
 ##
 # [ labels ]
 ##
-def analyzeLabelChanges(list, lFileCache, rFileCache, elementname, commit):
+def analyze_label_changes(list, lFileCache, rFileCache, elementname, commit):
     global documentCache
 
     for objectName in list:
@@ -435,23 +432,23 @@ def analyzeLabelChanges(list, lFileCache, rFileCache, elementname, commit):
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname,
                                                             objectChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
-                if inserts: insertDeltas(commit, objectName, 'labels', inserts.keys(), 'a', elementname)
-                if updates: insertDeltas(commit, objectName, 'labels', updates.keys(), 'u', elementname)
-                if deletes: insertDeltas(commit, objectName, 'labels', deletes.keys(), 'd', elementname)
+                if inserts: insert_deltas(commit, objectName, 'labels', inserts.keys(), 'a', elementname)
+                if updates: insert_deltas(commit, objectName, 'labels', updates.keys(), 'u', elementname)
+                if deletes: insert_deltas(commit, objectName, 'labels', deletes.keys(), 'd', elementname)
 
         except NewObjectException:
             doc = documentCache['r' + objectName]
-            insertDeltas(commit, objectName, 'labels', getAllFullNames(doc, elementname), 'a', elementname)
+            insert_deltas(commit, objectName, 'labels', getAllFullNames(doc, elementname), 'a', elementname)
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
-            insertDeltas(commit, objectName, 'labels', getAllFullNames(doc, elementname), 'd', elementname)
+            insert_deltas(commit, objectName, 'labels', getAllFullNames(doc, elementname), 'd', elementname)
 
 
 ##
 # [ translations ]
 ##
-def analyzeTranslationChanges(list, lFileCache, rFileCache, commit):
+def analyze_translation_changes(list, lFileCache, rFileCache, commit):
     global documentCache
 
     for objectName in list:
@@ -466,13 +463,13 @@ def analyzeTranslationChanges(list, lFileCache, rFileCache, commit):
 
         except NewObjectException:
             doc = documentCache['r' + objectName]
-            insertDeltas(commit, objectName, 'translations', getAllFullNames(doc, 'customLabels', tagname='name'), 'a',
-                         'customLabels')
+            insert_deltas(commit, objectName, 'translations', getAllFullNames(doc, 'customLabels', tagname='name'), 'a',
+                          'customLabels')
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
-            insertDeltas(commit, objectName, 'translations', getAllFullNames(doc, 'customLabels', tagname='name'), 'd',
-                         'customLabels')
+            insert_deltas(commit, objectName, 'translations', getAllFullNames(doc, 'customLabels', tagname='name'), 'd',
+                          'customLabels')
 
 
 ##
@@ -536,32 +533,32 @@ def recTypePicklistResolver(ldoc, rdoc, rmap, map, elementName):
     return inserts, updates, missing
 
 
-def analyzeRecordTypePicklistChanges(list, lFileCache, rFileCache, commit):
+def analyze_recordtype_picklist_changes(list, lFileCache, rFileCache, commit):
     global documentCache
 
     for objectName in list:
         try:
             inserts, updates, deletes = getObjectChanges('l', lFileCache, 'r', rFileCache, objectName, 'recordTypes',
                                                          recTypePicklistResolver)
-            if inserts: insertDeltas(commit, objectName, 'objects', inserts, 'a', 'recordTypes', 'picklists')
-            if updates: insertDeltas(commit, objectName, 'objects', updates, 'u', 'recordTypes', 'picklists')
-            if deletes: insertDeltas(commit, objectName, 'objects', deletes, 'd', 'recordTypes', 'picklists')
+            if inserts: insert_deltas(commit, objectName, 'objects', inserts, 'a', 'recordTypes', 'picklists')
+            if updates: insert_deltas(commit, objectName, 'objects', updates, 'u', 'recordTypes', 'picklists')
+            if deletes: insert_deltas(commit, objectName, 'objects', deletes, 'd', 'recordTypes', 'picklists')
 
         except NewObjectException:
             doc = documentCache['r' + objectName]
-            insertDeltas(commit, objectName, 'objects', getAllFullNames(doc, 'recordTypes', tagname='name'), 'a',
-                         'recordTypes')
+            insert_deltas(commit, objectName, 'objects', getAllFullNames(doc, 'recordTypes', tagname='name'), 'a',
+                          'recordTypes')
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
-            insertDeltas(commit, objectName, 'objects', getAllFullNames(doc, 'recordTypes', tagname='name'), 'd',
-                         'recordTypes')
+            insert_deltas(commit, objectName, 'objects', getAllFullNames(doc, 'recordTypes', tagname='name'), 'd',
+                          'recordTypes')
 
 
 ##
 # [ workflows ]
 ##
-def analyzeWorkflowChanges(list, lFileCache, rFileCache, elementname, commit):
+def analyze_workflow_changes(list, lFileCache, rFileCache, elementname, commit):
     global documentCache
 
     changesFound = False
@@ -571,25 +568,25 @@ def analyzeWorkflowChanges(list, lFileCache, rFileCache, elementname, commit):
             inserts, updates, deletes = getAllObjectChanges(objectName, lFileCache, rFileCache, elementname,
                                                             objectChangeResolver)
             if (inserts and len(inserts)) or (updates and len(updates)) or (deletes and len(deletes)):
-                if inserts: insertDeltas(commit, objectName, 'workflows', inserts.keys(), 'a', elementname)
-                if updates: insertDeltas(commit, objectName, 'workflows', updates.keys(), 'u', elementname)
-                if deletes: insertDeltas(commit, objectName, 'workflows', deletes.keys(), 'd', elementname)
+                if inserts: insert_deltas(commit, objectName, 'workflows', inserts.keys(), 'a', elementname)
+                if updates: insert_deltas(commit, objectName, 'workflows', updates.keys(), 'u', elementname)
+                if deletes: insert_deltas(commit, objectName, 'workflows', deletes.keys(), 'd', elementname)
                 changesFound = True
 
         except NewObjectException:
             doc = documentCache['r' + objectName]
-            insertDeltas(commit, objectName, 'workflows', getAllFullNames(doc, elementname), 'a', elementname)
+            insert_deltas(commit, objectName, 'workflows', getAllFullNames(doc, elementname), 'a', elementname)
 
         except DeletedObjectException:
             doc = documentCache['l' + objectName]
-            insertDeltas(commit, objectName, 'workflows', getAllFullNames(doc, elementname), 'd', elementname)
+            insert_deltas(commit, objectName, 'workflows', getAllFullNames(doc, elementname), 'd', elementname)
 
     if not changesFound:
         pass
 
 
 @transaction.atomic
-def analyzeCommit(branch, commit):
+def analyze_commit(branch, commit):
     global documentCache
     global mapCache
     global working_branch
@@ -604,8 +601,8 @@ def analyzeCommit(branch, commit):
     change_batch = None
 
     # clean up deltas in case we are rerunning
-    Delta.objects.filter(commit=commit).delete()
-    TranslationDelta.objects.filter(commit=commit).delete()
+    stratosource.models.Delta.objects.filter(commit=commit).delete()
+    stratosource.models.TranslationDelta.objects.filter(commit=commit).delete()
 
     lhash = commit.prev_hash
     rhash = commit.hash
@@ -622,15 +619,15 @@ def analyzeCommit(branch, commit):
     rFileCache = createFileCache(rhash, omap, branch.name)
 
     for otype, olist in omap.items():
-#        logger.debug("Type: %s" % otype)
+        #        logger.debug("Type: %s" % otype)
         if otype == 'objects':
-            analyzeObjectChanges(olist, lFileCache, rFileCache, 'fields', commit)
-            analyzeObjectChanges(olist, lFileCache, rFileCache, 'validationRules', commit)
-            analyzeObjectChanges(olist, lFileCache, rFileCache, 'webLinks', commit)
-            analyzeObjectChanges(olist, lFileCache, rFileCache, 'recordTypes', commit)
-            analyzeRecordTypePicklistChanges(olist, lFileCache, rFileCache, commit)
-            analyzeObjectChanges(olist, lFileCache, rFileCache, 'namedFilters', commit)
-            analyzeObjectChanges(olist, lFileCache, rFileCache, 'listViews', commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'fields', commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'validationRules', commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'webLinks', commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'recordTypes', commit)
+            analyze_recordtype_picklist_changes(olist, lFileCache, rFileCache, commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'namedFilters', commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'listViews', commit)
             # misc single-node elements
         #                analyzeObjectChanges(list, lFileCache, rFileCache, 'label', commit)
         #                analyzeObjectChanges(list, lFileCache, rFileCache, 'nameField', commit, nameKey='label')
@@ -639,21 +636,21 @@ def analyzeCommit(branch, commit):
         #                analyzeObjectChanges(list, lFileCache, rFileCache, 'sharingModel', commit)
 
         elif otype == 'translations':
-            analyzeTranslationChanges(olist, lFileCache, rFileCache, commit)
+            analyze_translation_changes(olist, lFileCache, rFileCache, commit)
 
         elif otype == 'workflows':
-            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'alerts', commit)
-            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'fieldUpdates', commit)
-            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'rules', commit)
-            analyzeWorkflowChanges(olist, lFileCache, rFileCache, 'tasks', commit)
+            analyze_workflow_changes(olist, lFileCache, rFileCache, 'alerts', commit)
+            analyze_workflow_changes(olist, lFileCache, rFileCache, 'fieldUpdates', commit)
+            analyze_workflow_changes(olist, lFileCache, rFileCache, 'rules', commit)
+            analyze_workflow_changes(olist, lFileCache, rFileCache, 'tasks', commit)
 
         elif otype == 'objectTranslations':
-            analyzeObjectTranslationChanges(olist, lFileCache, rFileCache, 'fields', commit)
-            analyzeObjectTranslationChanges(olist, lFileCache, rFileCache, 'validationRules', commit)
-            analyzeObjectTranslationChanges(olist, lFileCache, rFileCache, 'webLinks', commit)
+            analyze_object_translation_changes(olist, lFileCache, rFileCache, 'fields', commit)
+            analyze_object_translation_changes(olist, lFileCache, rFileCache, 'validationRules', commit)
+            analyze_object_translation_changes(olist, lFileCache, rFileCache, 'webLinks', commit)
 
         elif otype == 'labels':
-            analyzeLabelChanges(olist, lFileCache, rFileCache, 'labels', commit)
+            analyze_label_changes(olist, lFileCache, rFileCache, 'labels', commit)
 
         else:
             for listitem in olist:
@@ -665,43 +662,44 @@ def analyzeCommit(branch, commit):
                 else:
                     delta_type = 'u'
 
-                delta = Delta()
+                delta = stratosource.models.Delta()
                 delta.object = getDeployable(branch, listitem, otype, None, None, None)
                 delta.commit = commit
-                delta.user_change = getLastChange(listitem, None, None)
+                delta.user_change = get_last_change(listitem, None, None)
                 if delta.user_change is None:
-                    logger.debug('** Audit record not found for %s' % listitem)
+                    #logger.debug('** Audit record not found for %s' % listitem)
+                    pass
                 else:
                     # print 'audit record found!'
                     pass
                 delta.delta_type = delta_type
                 delta.save()
                 logger.debug('  added delta for {0}'.format(listitem))
-#                if not delta.user_change is None:
-#                    print 'user %s' % (delta.user_change.sfuser.name,)
-#                    print 'commit %s' % (commit,)
-#                    print 'dtype %s' % (delta_type,)
-#                    print 'otype %s' % (otype,)
-#                    print 'item %s' % (listitem,)
+            #                if not delta.user_change is None:
+            #                    print 'user %s' % (delta.user_change.sfuser.name,)
+            #                    print 'commit %s' % (commit,)
+            #                    print 'dtype %s' % (delta_type,)
+            #                    print 'otype %s' % (otype,)
+            #                    print 'item %s' % (listitem,)
 
-#                    mqclient.publish(
-#                            {'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
-#                             'dtype': delta_type, 'type': otype, 'item': listitem,
-#                             'last_update': delta.user_change.last_update.isoformat()})
+            #                    mqclient.publish(
+            #                            {'user': delta.user_change.sfuser.name.encode('ascii', 'ignore'), 'commit': commit.hash,
+            #                             'dtype': delta_type, 'type': otype, 'item': listitem,
+            #                             'last_update': delta.user_change.last_update.isoformat()})
 
     commit.status = 'c'
     commit.save()
 
 
-def generateAnalysis(branch, start_date):
+def generate_analysis(branch, start_date):
     global documentCache
 
-    commits = Commit.objects.filter(branch=branch, status__exact='p', prev_hash__isnull=False,
-                                    date_added__gte=start_date).order_by('-date_added')
+    commits = stratosource.models.Commit.objects.filter(branch=branch, status__exact='p', prev_hash__isnull=False,
+                                                        date_added__gte=start_date).order_by('-date_added')
 
     for commit in commits:
-        if commit.prev_hash is None: continue
-        analyzeCommit(branch, commit)
+        if commit.prev_hash is None or len(commit.prev_hash) == 0: continue
+        analyze_commit(branch, commit)
 
 
 # msg = AdminMessage()
@@ -722,18 +720,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         global documentCache
 
-        repo = Repo.objects.get(name__exact=options['repo'])
-        branch = Branch.objects.get(repo=repo, name__exact=options['branch'])
+        repo = stratosource.models.Repo.objects.get(name__exact=options['repo'])
+        branch = stratosource.models.Branch.objects.get(repo=repo, name__exact=options['branch'])
 
-#        mqclient = MQClient(exch='delta')
+        #        mqclient = MQClient(exch='delta')
 
         #        if len(args) == 3:
         #            start_date = datetime.strptime(args[2], '%m-%d-%Y')
         #        else:
-        here_tz = get_localzone()
 
-        #start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
-        start_date = datetime(2000, 1, 1, 0, 0)
+        start_date = datetime(2000, 1, 1, 0, 0) #, tzinfo=pytz.utc)
 
         os.chdir(repo.location)
 
@@ -743,7 +739,7 @@ class Command(BaseCommand):
         resetLocalRepo(branch.name)
         verifyGitRepo()
 
-        generateAnalysis(branch, start_date)
+        generate_analysis(branch, start_date)
 
         documentCache = {}  # just in case running stateful by django middleware, clear out between calls
 

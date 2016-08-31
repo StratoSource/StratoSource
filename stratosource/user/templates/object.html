@@ -2,18 +2,21 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> {{object.type}}/<strong>{{object.filename}}</strong>
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">{{object.type}}/<strong>{{object.filename}}</li>
+</ol>
 {% endblock %}
 
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container">
 
         <div id="content-main">
+        <h4>Object Change History</h4>
             <div class="module">
-                <table>
-                    <caption><a href="" class="section">Object Change History</a></caption>
+                <table class="table table-condensed table-hover">
                         <tr>
                             <th>Branch</th>
                             <th scope="row">Element Type</th>

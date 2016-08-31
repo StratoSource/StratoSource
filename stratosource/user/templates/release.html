@@ -2,7 +2,11 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> {{ release.name }}
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/releases">Releases</a></li>
+  <li class="active">{{  release.id }}</li>
+</ol>
 {% endblock %}
 
 {% block jscript %}
@@ -19,7 +23,7 @@
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
             <form id="releaseNotes" name="releaseNotes" method="POST">{% csrf_token %}
@@ -37,7 +41,7 @@
                     <div style="padding: 10px;">
                         <div style="font-weight:bold">Release Notes</div>
                         <textarea name="releaseNotes" cols="100" rows="5">{{ release.release_notes }}</textarea><br/>
-                        <input type="button" onclick="document.getElementById('releaseNotes').submit(); return false;" value="Save Notes"/>
+                        <button class="btn btn-primary btn-sm" type="button" onclick="document.getElementById('releaseNotes').submit(); return false;">Save Notes</button>
                     </div>
                 </div>
                 <div class="module">
@@ -50,7 +54,7 @@
                     </div>
                     
                     <div style="padding: 10px;">
-                        <table style="min-width:500px;" id="sortable">
+                        <table class="table table-condensed table-hover" style="min-width:500px;" id="sortable">
                             <thead>
                                 <tr>
                                     <th class="align_center">Type</th>
@@ -67,11 +71,11 @@
                                 <tr><td colspan="7"><img src="/static/images/loading_throbber.gif" alt="Loading..."/></td></tr>
                             </tbody>
                         </table>
-                        <table style="min-width:500px;">
+                        <table class="table-condensed table-hover" style="min-width:500px;">
                             <tr>
                                 <td>
-                                    <textarea id="taskName" name="taskName" cols="100" rows="2"></textarea>
-                                    <input type="button" onclick="addTask();" value="Add"/>
+                                    <textarea id="taskName" name="taskName" cols="100" rows="2"></textarea><br>
+                                    <button class="btn btn-primary btn-sm" type="submit" onclick="addTask();">Add</button>
                                 </td>
                             </tr>
                         </table>
@@ -127,12 +131,9 @@
             -->
             
             <div class="module ObjectsList">
-                <table>
+                <table class="table table-condensed table-hover">
                     <caption>
                         <span class="section">Stories in "{{ release.name }}"</span>
-                        <span class="sectionActions">
-                            <a href="/stories?releaseid={{release.id}}">Add / Remove Stories</a>
-                        </span>
                     </caption>
                     <tr>
                         <th scope="row">ID</th>
@@ -155,6 +156,10 @@
                     </tr>
                     {% endfor %}
                 </table>
+                <hr />
+                <span class="sectionActions">
+                    <a href="/stories?releaseid={{release.id}}">Add / Remove Stories</a>
+                </span>
             </div>
         </div>
         <br class="clear" />

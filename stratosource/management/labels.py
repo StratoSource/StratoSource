@@ -28,13 +28,13 @@ SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
 CODE_BASE = 'unpackaged'
 
 
-def generateLabelSpreadsheet(repo, release_id):
+def generateLabelSpreadsheet(branch, release_id):
         release = Release.objects.get(id=release_id)
         release_labels = []
         for story in release.stories.all():
             deployables = DeployableObject.objects.filter(pending_stories=story, el_type='labels')
             release_labels += [d.el_name for d in deployables]
-        os.chdir(repo.location)
+        os.chdir(branch.repo.location)
 
         path = os.path.join(CODE_BASE, 'labels', 'CustomLabels.labels')
         f  = open(path)

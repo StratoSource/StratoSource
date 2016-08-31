@@ -2,20 +2,24 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/admin">Admin</a> -> Log for for {{branch.name|upper}}
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/admin/">Admin</a></li>
+  <li class="active">Log for {{branch.name|upper}}</li>
+</ol>
 {% endblock %}
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
-            <div class="section">Last Log for {{branch.name|upper}}</div>
-            <div class="module" style="padding:15px;">
-                {% autoescape off %}
-                    {{ log }}
-                {% endautoescape %}
-            </div>
+            <h3>Last Log for {{branch.name|upper}}</h3>
+            {% autoescape off %}
+                <pre>
+                {{ log }}
+                </pre>
+            {% endautoescape %}
         </div>
     </div>
 

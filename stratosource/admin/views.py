@@ -23,13 +23,13 @@ from stratosource.models import Repo, Branch, Commit, Delta, TranslationDelta
 
 def repos(request):
     data = {'repos': Repo.objects.all() }
-    return render_to_response('repos.html', data, context_instance=RequestContext(request))
+    return render_to_response('repos.html', data)
 
 def branches(request, repo_id):
     repo = Repo.objects.get(id=repo_id)
     branches = Branch.objects.filter(repo=repo)
     data = {'repo': repo, 'branches':branches }
-    return render_to_response('branches.html', data, context_instance=RequestContext(request))
+    return render_to_response('branches.html', data)
 
 def commits(request, branch_id):
     branch = Branch.objects.get(id=branch_id)
@@ -46,7 +46,7 @@ def commits(request, branch_id):
         commit.__dict__['dels'] = dels
         commit.__dict__['updt'] = updt
     data = {'branch': branch, 'commits':commits }
-    return render_to_response('commits.html', data, context_instance=RequestContext(request))
+    return render_to_response('commits.html', data)
 
 def commit(request, commit_id):
     commit = Commit.objects.get(id=commit_id)
@@ -56,5 +56,5 @@ def commit(request, commit_id):
         delta.__dict__['type'] = delta.object.type
         delta.__dict__['filename'] = delta.object.filename
         delta.__dict__['el_name'] = delta.object.el_name
-    return render_to_response('commit.html', data, context_instance=RequestContext(request))
+    return render_to_response('commit.html', data)
 

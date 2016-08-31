@@ -1,22 +1,21 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a>
-&rsaquo;
-<a href="/repos">Repositories</a>
-&rsaquo;
-Environments
-
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+     <li><a href="/repos">Repositories</a></li>
+  <li class="active">Environments</li>
+</ol>
 {% endblock %}
 
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
             <div class="module">
-                <table>
+                <table class="table table-condensed table-hover">
                     <caption><a href="" class="section">Branches</a></caption>
                     {% for branch in branches %}
                         <tr>

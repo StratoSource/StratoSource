@@ -2,7 +2,11 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/unit_testing_admin/" id="unit_test_schedule_list_link">Unit Test Config</a> -> Create/Edit a Unit Test Run Schedule
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/unit_testing_admin/" id="unit_test_schedule_list_link">Unit Test Config</a> </li>
+  <li class="active">Create/Edit a Unit Test Run Schedule</li>
+</ol>
 {% endblock %}
 
 {% block content %}
@@ -16,119 +20,74 @@
 </script>
 
 
-    <div id="content" class="colMS">
+    <div id="content" class="container">
         <div id="content-main">
-            <div class="module">
+            <div>
 
-                <form action="/{{action}}" method="post">{% csrf_token %}
+                <form class="form-horizontal form-condensed form-hover" action="/{{action}}" method="post">{% csrf_token %}
 
                     {{ form.non_field_errors }}
 
-                    <table border="0">
-                        <tr>
-                            <td align="right">
-                                <label for="id_name">Branch Name:</label>
-                                {{ form.branch.errors }}
-                            </td>
-                            <td>
-                                {{ form.branch }}
-                            </td>
-                            <td>
-                                Pick which branch / instance this unit test run is for
-                            </td>
-                        </tr>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.branch.id_for_label }}">Branch Name:</label>
+                      <div class="col-md-4">
+                          {{ form.branch }}
+                          {{ form.branch.errors }}
+                      </div>
+                        <span class="help-block">Pick which branch / instance this unit test run is for</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.results_email_address.id_for_label }}">Report Email:</label>
+                      <div class="col-md-4">
+                          {{ form.results_email_address }}
+                          {{ form.results_email_address.errors }}
+                      </div>
+                        <span class="help-block">Email address for testing reports</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.email_only_failures.id_for_label }}">Report ONLY on Failures?</label>
+                      <div class="col-md-4">
+                          {{ form.email_only_failures }}
+                          {{ form.email_only_failures.errors }}
+                      </div>
+                        <span class="help-block">Email out reports even if there are NO failures</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.cron_enabled.id_for_label }}">cron Enabled?</label>
+                      <div class="col-md-4">
+                          {{ form.cron_enabled }}
+                          {{ form.cron_enabled.errors }}
+                      </div>
+                        <span class="help-block">Whether or not this schedule is active</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.cron_type.id_for_label }}">cron Type:</label>
+                      <div class="col-md-4">
+                          {{ form.cron_type }}
+                          {{ form.cron_type.errors }}
+                      </div>
+                        <span class="help-block">Type of cron job. You can manually change the cron job yourself for finer levels of control</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.cron_interval.id_for_label }}">cron Interval:</label>
+                      <div class="col-md-4">
+                          {{ form.cron_interval }}
+                          {{ form.cron_interval.errors }}
+                      </div>
+                        <span class="help-block">How often to run. ex. if type=Hourly, Interval=3, then run every 3 hours</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-md-2 control-label" for="{{ form.cron_start.id_for_label }}">cron Start:</label>
+                      <div class="col-md-4">
+                          {{ form.cron_start }}
+                          {{ form.cron_start.errors }}
+                      </div>
+                        <span class="help-block">When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past</span>
+                    </div>
 
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">Report Email:</label>
-                                {{ form.results_email_address.errors }}
-                            </td>
-                            <td>
-                                {{ form.results_email_address }}
-                            </td>
-                            <td>
-                                Which email address to send reports to
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">Report ONLY on Failures:</label>
-                                {{ form.email_only_failures.errors }}
-                            </td>
-                            <td>
-                                {{ form.email_only_failures }}
-                            </td>
-                            <td>
-                                Email out reports even if there are NO failures
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">cron Enabled:</label>
-                                {{ form.cron_enabled.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_enabled }}
-                            </td>
-                            <td>
-                                Whether or not this schedule is active
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">cron Type:</label>
-                                {{ form.cron_type.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_type }}
-                            </td>
-                            <td>
-                                Type of cron job. You can manually change
-                                the cron job yourself for finer levels of control.
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_interval">cron Interval:</label>
-                                {{ form.cron_interval.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_interval }}
-                            </td>
-                            <td>
-                                How often to run <br />
-                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
-                                ex. if type=Hourly, Interval=1 then run every hour<br />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_start">cron Start:</label>
-                                {{ form.cron_start.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_start }}
-                            </td>
-                            <td>
-                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
-                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
-                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
-                            </td>
-                        </tr>
-
-
-                    </table>
-
-                    <p>
-                        <br />
-                        <input name="action" type="submit" value="Save" />
-                        <input id="cancelButton" type="button" value="Cancel" />
-                    </p>
+                    <hr />
+                    <button class="btn btn-primary" name="action" type="submit">Save</button>
+                    <button class="btn btn-primary" id="cancelButton" type="button">Cancel</button>
                 </form>
             </div>
         </div>

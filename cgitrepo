@@ -2,3 +2,7 @@
 repo.url=fte0
 repo.path=/var/sfrepo/fte0/code/.git
 repo.desc=fte0
+#ID=1
+repo.url=fte0
+repo.path=/var/sfrepo/fte0/code/.git
+repo.desc=fte0

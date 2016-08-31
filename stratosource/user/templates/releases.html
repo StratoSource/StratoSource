@@ -2,7 +2,10 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Manage Releases
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Manage Releases</li>
+</ol>
 {% endblock %}
 
 {% block jscript %}
@@ -13,12 +16,12 @@
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
+        <h3>Releases</h3>
         <div id="content-main">
             <div class="module">
-                <table style="width: 100%;">
-                    <caption><a href="" class="section">Releases</a></caption>
-                    <tr id="{{ branch.name|upper }}headers">
+                <table class="table table-condensed table-hover">
+                    <tr style="background-color: lightgray" id="{{ branch.name|upper }}headers">
                         <th scope="row">Release Name</th>
                         <th> Released? </th>
                         <th> Scheduled For </th>
@@ -33,7 +36,7 @@
                     <tr id="createReleaseLink">
                         <td scope="row" colspan="5">
                             <a href="#" onclick="newRelease(''); return false;">
-                              Create New
+                              <button type="button" class="btn btn-primary">Create New</button>
                             </a>
                         </td>
                     </tr>

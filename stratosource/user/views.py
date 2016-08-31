@@ -14,50 +14,47 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
-#    
-
+#
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-from django.utils import timezone
 from django.utils.encoding import smart_str
-from django.template import RequestContext
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from stratosource.models import DeploymentPushStatus, DeploymentPackage, Story, Release, ReleaseTask, DeployableObject, DeployableTranslation, Delta, Branch, ConfigSetting, UserChange, SalesforceUser, Repo
+from pyral import RallyRESTAPIError
+
+from stratosource.models import DeploymentPushStatus, DeploymentPackage, Story, Release, DeployableObject, \
+    DeployableTranslation, Delta, Branch, ConfigSetting, SalesforceUser, Repo, BranchStats, UnitTestBatch
 from stratosource.user import rallyintegration
 from stratosource.user import agilezenintegration
 from stratosource.management import ConfigCache, Deployment, labels
 import logging
 
-
 logger = logging.getLogger('console')
 namestl = {
-            'homePageComponents'    :'Homepage Components',
-            'homePageLayouts'       :'Homepage Layouts',
-            'objectTranslations'    :'Object Translations',
-            'reportTypes'           :'Report Types',
-            'remoteSiteSettings'    :'Remote Site Settings',
-            'staticresources'       :'Static Resources',
-            'scontrols'             :'S-Controls',
-            'weblinks'              :'Web Links'
-        }
+    'homePageComponents': 'Homepage Components',
+    'homePageLayouts': 'Homepage Layouts',
+    'objectTranslations': 'Object Translations',
+    'reportTypes': 'Report Types',
+    'remoteSiteSettings': 'Remote Site Settings',
+    'staticresources': 'Static Resources',
+    'scontrols': 'S-Controls',
+    'weblinks': 'Web Links'
+}
 
 
 def configs(request):
     allsettings = ConfigSetting.objects.all();
 
     if request.method == u'POST':
-        logger.debug('Got a post!')
         params = dict(request.POST.items())
         for param in params:
             if param.startswith('key_'):
-                key = smart_str(param,'utf-8',False)[4:]
+                key = smart_str(param, 'utf-8', False)[4:]
                 value = request.POST[param]
                 for setting in allsettings:
                     if key == setting.key:
-                        logger.debug('Working on ' + setting.key + '!')
                         if setting.value != value:
                             if setting.masked:
                                 # only proceed with update if masked value is not empty
@@ -65,9 +62,9 @@ def configs(request):
                                     repValue = request.POST[param + '_2']
                                     logger.debug('Checking if the values match!')
                                     if repValue == value:
-                                       logger.debug('Values Match!')
-                                       setting.value = value
-                                       setting.save()
+                                        logger.debug('Values Match!')
+                                        setting.value = value
+                                        setting.save()
                             else:
                                 setting.value = value
                                 setting.save()
@@ -80,30 +77,60 @@ def configs(request):
                     setting.save()
 
         ConfigCache.refresh()
-        allsettings = ConfigSetting.objects.all();
+        allsettings = ConfigSetting.objects.all()
+        return render(request, 'home.html')
 
     data = {'settings': allsettings.order_by('key')}
     for setting in allsettings:
         if setting.type == 'check':
-            data[setting.key.replace('.','_')] = setting.value == '1'
+            data[setting.key.replace('.', '_')] = setting.value == '1'
         else:
-            data[setting.key.replace('.','_')] = setting.value
-    
-    return render_to_response('configs.html', data, context_instance=RequestContext(request))
+            data[setting.key.replace('.', '_')] = setting.value
+
+    return render(request, 'configs.html', data)
+
+
+def verify_configuration():
+    from django.db import connections
+    import os
+    conn = connections['ss']
+    try:
+        c = conn.cursor()
+        # test that a few tables exist
+        c.execute('select * from branch limit 1')
+        c.execute('select * from story limit 1')
+        c.execute('select * from delta limit 1')
+        if not os.path.isdir('/var/sfrepo'):
+            return False
+    except Exception:
+        return False
+    return True
+
 
 def home(request):
-    data = {'branches': Branch.objects.filter(enabled__exact = True).order_by('order')}
+#    if not verify_configuration():
+#        return render(request,'setup.html', {'stage': '10'})
 
-    data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
-    if data['calendar_host'] == 'localhost':
-        data['calendar_host'] = request.get_host().split(':')[0]
+    branches = Branch.objects.filter(enabled=True).order_by('order')
+    bstats = BranchStats.objects.filter(branch__enabled=True).order_by('branch__order')
+    try:
+        utrecent = UnitTestBatch.objects.filter(branch__enabled=True).latest('batch_time')
+    except Exception:
+        utrecent = None
 
-    return render_to_response('home.html', data, context_instance=RequestContext(request))
+    data = { 'branches' : branches, 'stats': bstats, 'unittest': utrecent }
+
+    #data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
+    #if data['calendar_host'] == 'localhost':
+    #    data['calendar_host'] = request.get_host().split(':')[0]
+
+    return render(request, 'home.html', data)
+
 
 def create_release_package(request, release_id):
     release = Release.objects.get(id=release_id)
-    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
-    data = {'release': release,  'branches': branches}
+    branches = Branch.objects.filter(enabled__exact=True).order_by('order')
+    data = {'release': release, 'branches': branches}
 
     if request.method == u'POST':
         release_package = DeploymentPackage()
@@ -118,7 +145,7 @@ def create_release_package(request, release_id):
                 release_package.deployable_objects.add(o)
         release_package.save()
         return redirect('/release/' + str(release_package.release.id))
-        
+
     if request.method == u'GET':
         manifest = []
         branch = Branch.objects.get(id=request.GET.get('sourceBranchId'))
@@ -130,32 +157,35 @@ def create_release_package(request, release_id):
             manifest += list(deployables)
             manifest += list(dep_objects)
 
-            manifest.sort(key=lambda object: object.type+object.filename)
-    
+            manifest.sort(key=lambda object: object.type + object.filename)
+
             data = {'release': release, 'manifest': manifest, 'branches': branches, 'branch': branch}
-    
-    return render_to_response('release_create_package.html', data, context_instance=RequestContext(request))
+
+    return render(request,'release_create_package.html', data)
+
 
 def release_package(request, release_package_id):
-    release_package= DeploymentPackage.objects.get(id=release_package_id)
-    
-    release_attempts = DeploymentPushStatus.objects.filter(package = release_package)
-    
+    release_package = DeploymentPackage.objects.get(id=release_package_id)
+
+    release_attempts = DeploymentPushStatus.objects.filter(package=release_package)
+
     data = {'release_package': release_package, 'release_attempts': release_attempts}
-    return render_to_response('release_package.html', data, context_instance=RequestContext(request))
+    return render(request,'release_package.html', data)
+
 
 def delete_release_package(request, release_package_id):
-    release_package= DeploymentPackage.objects.get(id=release_package_id)
+    release_package = DeploymentPackage.objects.get(id=release_package_id)
     release_id = release_package.release.id
     release_package.delete()
     return redirect('/release/' + str(release_id))
-    
+
+
 def push_release_package(request, release_package_id):
-    release_package= DeploymentPackage.objects.get(id=release_package_id)
+    release_package = DeploymentPackage.objects.get(id=release_package_id)
 
     if request.method == u'POST':
         branch = Branch.objects.get(id=request.POST.get('cboToBranch'))
-    
+
         push_package = DeploymentPushStatus()
         push_package.package = release_package
         push_package.keep_package = request.POST.get('chkKeepGenerated') == '1'
@@ -163,78 +193,64 @@ def push_release_package(request, release_package_id):
         push_package.test_only = True
         push_package.target_environment = branch
         push_package.save()
-        
+
         #
         # TODO: Fork project off
         #
-        #pr = subprocess.Popen(os.path.join(settings.ROOT_PATH, 'cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &', shell=True)
-        #logger.debug('Started With pid ' + str(pr.pid))
-        #pr.wait()
-        #if pr.returncode == 0:
+        # pr = subprocess.Popen(os.path.join(settings.ROOT_PATH, 'cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &', shell=True)
+        # logger.debug('Started With pid ' + str(pr.pid))
+        # pr.wait()
+        # if pr.returncode == 0:
         #    push_package.result = 'i'
         #    push_package.save()
-        
-        Deployment.deployPackage(push_package)
-        
-        return redirect('/release_push_status/' + str(push_package.id))
-    
-    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
-    data = {'release_package':release_package, 'branches':branches}
 
-    return render_to_response('release_push_package.html', data, context_instance=RequestContext(request))
+        Deployment.deployPackage(push_package)
+
+        return redirect('/release_push_status/' + str(push_package.id))
+
+    branches = Branch.objects.filter(enabled__exact=True).order_by('order')
+    data = {'release_package': release_package, 'branches': branches}
+
+    return render(request,'release_push_package.html', data)
+
 
 def release_push_status(request, release_package_push_id):
     push_package = DeploymentPushStatus.objects.get(id=release_package_push_id)
-    data = {'push_package':push_package}
+    data = {'push_package': push_package}
 
-    return render_to_response('release_push_status.html', data, context_instance=RequestContext(request))
-
-def export_labels(request, release_id, selectionError = False):
-    data = {'repos': Repo.objects.all() }
-    data['release'] = Release.objects.get(id=release_id)
-    data['release_id'] = release_id
-    data['repoSelectionError'] = selectionError
-    return render_to_response('export_labels_form.html', data, context_instance=RequestContext(request))
-
-def export_labels_form(request):
-    release_id = request.POST.get('release_id')
-    if request.POST.get('cancelButton') == 'Cancel':
-        return release(request, release_id)
-    repo_idlist = request.POST.getlist('repocb')
-    if repo_idlist == None or len(repo_idlist) != 1:
-        return export_labels(request, release_id, selectionError = True)
-
-    repo = Repo.objects.get(id=repo_idlist[0])
-    ssfile = labels.generateLabelSpreadsheet(repo, release_id)
-    response = HttpResponse(ssfile, mimetype='application/xls')
-    response['Content-Disposition'] = 'attachment; filename="%s_labels.xls"' % repo.name
-    return response
+    return render(request,'release_push_status.html', data)
 
 
-    return render_to_response('release_push_status.html', data, context_instance=RequestContext(request))
+#def export_labels(request, release_id, selectionError=False):
+#    data = {'repos': Repo.objects.all()}
+#    data['release'] = Release.objects.get(id=release_id)
+#    data['release_id'] = release_id
+#    d#ata['repoSelectionError'] = selectionError
+#    return render(request,'export_labels_form.html', data)
+
 
 def export_labels_form(request):
     release_id = request.GET.get('release_id')
-    repo_idlist = request.GET.getlist('repocb')
-    if repo_idlist == None or len(repo_idlist) == 0:
+    branch_id = request.GET.get('branch_id')
+    if branch_id is None or len(branch_id) == 0:
         return release(request, release_id)
 
-    repo = Repo.objects.get(id=repo_idlist[0])
-    ssfile = labels.generateLabelSpreadsheet(repo, release_id)
-    response = HttpResponse(ssfile, mimetype='application/xls')
-    response['Content-Disposition'] = 'attachment; filename="%s_labels.xls"' % repo.name
+    branch = Branch.objects.get(id=branch_id)
+    ssfile = labels.generateLabelSpreadsheet(branch, release_id)
+    response = HttpResponse(ssfile, content_type='application/xls')
+    response['Content-Disposition'] = 'attachment; filename="%s_labels.xls"' % branch.name
     return response
 
 
 def manifest(request, release_id):
     release = Release.objects.get(id=release_id)
-    release.release_notes = release.release_notes.replace('\n','<br/>');
+    release.release_notes = release.release_notes.replace('\n', '<br/>')
     manifest = []
     branch = Branch()
-    
+
     if request.GET.__contains__('branch'):
         release_story_id_list = set([story.rally_id for story in release.stories.all()])
-        
+
         branch = Branch.objects.get(id=request.GET.get('branch'))
         for story in release.stories.all():
             deployables = DeployableObject.objects.filter(pending_stories=story, branch=branch)
@@ -257,46 +273,47 @@ def manifest(request, release_id):
             else:
                 story.status = 'confirmed'
 
-    manifest.sort(key=lambda object: object.type+object.filename)
-    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
-    
+    manifest.sort(key=lambda object: object.type + object.filename)
+    branches = Branch.objects.filter(enabled__exact=True).order_by('order')
+
     data = {'release': release, 'manifest': manifest, 'branches': branches, 'branch': branch}
-    return render_to_response('release_manifest.html', data, context_instance=RequestContext(request))
+    return render(request,'release_manifest.html', data)
 
 
 def search(request):
     repos = Repo.objects.all()
-    searchText = ''
-    selectedRepo = ''
-    selectedBranch = ''
-    if request.GET.__contains__('searchText'): searchText = request.GET['searchText']
-    if request.GET.__contains__('selectedRepo'): selectedRepo = request.GET['selectedRepo']
-    if request.GET.__contains__('selectedBranch'): selectedBranch = request.GET['selectedBranch']
+    searchtext = ''
+    selectedrepo = ''
+    selectedbranch = ''
+    if request.GET.__contains__('searchText'): searchtext = request.GET['searchText']
+    if request.GET.__contains__('selectedRepo'): selectedrepo = request.GET['selectedRepo']
+    if request.GET.__contains__('selectedBranch'): selectedbranch = request.GET['selectedBranch']
 
     if request.GET.__contains__('selectedRepo'):
-        repo = Repo.objects.get(name__exact=selectedRepo)
-        branches = Branch.objects.filter(repo=repo, enabled__exact = True).order_by('order')
+        repo = Repo.objects.get(name__exact=selectedrepo)
+        branches = Branch.objects.filter(repo=repo, enabled__exact=True).order_by('order')
     else:
         branches = []
     results = []
     if request.GET.__contains__('go'):
-
-        repo = Repo.objects.get(name__exact=selectedRepo)
-        #branch = Branch.objects.get(repo=repo, name__exact=selectedBranch)
+        repo = Repo.objects.get(name__exact=selectedrepo)
+        # branch = Branch.objects.get(repo=repo, name__exact=selectedBranch)
         results = {}
-        results['classes'] = doGrep(repo.location + '/unpackaged/classes', 'cls', searchText)
-        results['triggers'] = doGrep(repo.location + '/unpackaged/triggers', 'trigger', searchText)
-        results['pages'] = doGrep(repo.location + '/unpackaged/pages', 'page', searchText)
+        results['classes'] = doGrep(repo.location + '/unpackaged/classes', 'cls', searchtext)
+        results['triggers'] = doGrep(repo.location + '/unpackaged/triggers', 'trigger', searchtext)
+        results['pages'] = doGrep(repo.location + '/unpackaged/pages', 'page', searchtext)
 
-    data = {'results': results, 'repos': repos, 'branches': branches, 'searchText': searchText, 'selectedRepo': selectedRepo, 'selectedBranch': selectedBranch}
-    return render_to_response('search.html', data, context_instance=RequestContext(request))
+    data = {'results': results, 'repos': repos, 'branches': branches, 'searchText': searchtext,
+            'selectedRepo': selectedrepo, 'selectedBranch': selectedbranch}
+    return render(request,'search.html', data)
+
 
 def doGrep(codedir, ext, text):
     import os, subprocess
     os.chdir(codedir)
     cmd = "grep -i '{0}' *.{1}".format(text, ext)
     print('STARTING ' + cmd)
-    ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     output = ps.communicate()[0]
     lines = output.split('\n')
     results = []
@@ -311,28 +328,31 @@ def doGrep(codedir, ext, text):
 def releases(request):
     unreleased = Release.objects.filter(released__exact=False)
 
-    data = {'unreleased_list': unreleased, 'branches': Branch.objects.filter(enabled__exact = True).order_by('order')}
-    return render_to_response('releases.html', data, context_instance=RequestContext(request))
+    data = {'unreleased_list': unreleased, 'branches': Branch.objects.filter(enabled__exact=True).order_by('order')}
+    return render(request,'releases.html', data)
+
 
 def release(request, release_id):
     release = Release.objects.get(id=release_id)
-    branches = Branch.objects.filter(enabled__exact = True).order_by('order')
+    branches = Branch.objects.filter(enabled__exact=True).order_by('order')
     deployment_packages = DeploymentPackage.objects.filter(release=release)
-    
+
     if request.method == u'GET' and request.GET.__contains__('remove_story_id'):
         story = Story.objects.get(id=request.GET['remove_story_id'])
         release.stories.remove(story)
         release.save()
-        
+
     if request.method == u'POST' and request.POST.__contains__('releaseNotes'):
         release.release_notes = request.POST['releaseNotes']
-        release.save()  
+        release.save()
 
-    data = {'release': release, 'avail_stories': stories, 'branches': branches, 'deployment_packages': deployment_packages}
-    return render_to_response('release.html', data, context_instance=RequestContext(request))
+    data = {'release': release, 'avail_stories': stories, 'branches': branches,
+            'deployment_packages': deployment_packages}
+    return render(request,'release.html', data)
+
 
 def unreleased(request, repo_name, branch_name):
-    branch = Branch.objects.get(repo__name=repo_name,name=branch_name)
+    branch = Branch.objects.get(repo__name=repo_name, name=branch_name)
 
     if request.method == u'GET' and request.GET.__contains__('releaseAll') and request.GET['releaseAll'] == 'true':
         deltas = Delta.objects.exclude(object__release_status='r').filter(object__branch=branch)
@@ -361,13 +381,12 @@ def unreleased(request, repo_name, branch_name):
         if request.GET.__contains__('username'):
             username = request.GET['username']
         if request.GET.__contains__('startDate'):
-            startDate =  datetime.strptime(request.GET['startDate'],"%m/%d/%Y")
+            startDate = datetime.strptime(request.GET['startDate'], "%m/%d/%Y")
         if request.GET.__contains__('endDate'):
-            endDate = datetime.strptime(request.GET['endDate'],"%m/%d/%Y")
+            endDate = datetime.strptime(request.GET['endDate'], "%m/%d/%Y")
         if request.GET.__contains__('type'):
             typeFilter = request.GET['type']
-            
-        
+
     uiEndDate = endDate
     endDate = endDate + timedelta(days=1)
 
@@ -378,22 +397,25 @@ def unreleased(request, repo_name, branch_name):
     changeDate = ''
 
     if request.GET.__contains__('go'):
-        deltas = Delta.objects.filter(object__branch=branch).filter(commit__date_added__gte = startDate).filter(commit__date_added__lte = endDate)
-    
+        deltas = Delta.objects.filter(object__branch=branch).filter(commit__date_added__gte=startDate).filter(
+            commit__date_added__lte=endDate)
+
         if len(username) > 0:
-            deltas = deltas.filter(user_change__sfuser__name = username)
-    
+            deltas = deltas.filter(user_change__sfuser__name=username)
+
         if len(search) > 0:
-            deltas = deltas.extra(where=['(filename LIKE \'%%' + search + '%%\' or type LIKE \'%%' + search + '%%\' or el_type LIKE \'%%' + search + '%%\' or el_subtype LIKE \'%%' + search + '%%\' or el_name LIKE \'%%' + search + '%%\')'])
-            
+            deltas = deltas.extra(where=[
+                '(filename LIKE \'%%' + search + '%%\' or type LIKE \'%%' + search + '%%\' or el_type LIKE \'%%' + search + '%%\' or el_subtype LIKE \'%%' + search + '%%\' or el_name LIKE \'%%' + search + '%%\')'])
+
         if len(typeFilter) > 0:
             deltas = deltas.extra(where=['type = \'' + typeFilter + '\''])
-            
-        deltas = deltas.order_by('object__type','object__filename','object__el_type','object__el_subtype','object__el_name','commit__date_added')
+
+        deltas = deltas.order_by('object__type', 'object__filename', 'object__el_type', 'object__el_subtype',
+                                 'object__el_name', 'commit__date_added')
 
         logger.debug('Deltas SQL ' + str(deltas.query))
         deltas.select_related()
-       
+
         for delta in deltas.all():
             changelog = deltaMap.get(delta.object)
             if delta.user_change and delta.user_change.sfuser.name != '':
@@ -402,11 +424,11 @@ def unreleased(request, repo_name, branch_name):
             else:
                 user = ''
                 changeDate = ''
-    
+
             if changelog:
                 if not changelog.endswith(delta.getDeltaType() + user + changeDate):
                     changelog += '\n' + delta.getDeltaType() + user + changeDate
-    
+
                 deltaMap[delta.object] = changelog
             else:
                 objects.append(delta.object)
@@ -431,14 +453,17 @@ def unreleased(request, repo_name, branch_name):
         'go': go,
         'objectTypes': objectTypes,
         'selectedType': typeFilter
-    }    
-    return render_to_response('unreleased.html', data, context_instance=RequestContext(request))
+    }
+    return render(request,'unreleased.html', data)
+
 
 def object(request, object_id):
     object = DeployableObject.objects.get(id=object_id)
-    deltas = Delta.objects.filter(object__filename=object.filename,object__branch__id=object.branch.id).order_by('commit__branch__name','-commit__date_added')
+    deltas = Delta.objects.filter(object__filename=object.filename, object__branch__id=object.branch.id).order_by(
+        'commit__branch__name', '-commit__date_added')
     data = {'object': object, 'deltas': deltas}
-    return render_to_response('object.html', data, context_instance=RequestContext(request))
+    return render(request,'object.html', data)
+
 
 def stories(request):
     if request.method == u'POST' and request.POST.__contains__('releaseid'):
@@ -456,12 +481,12 @@ def stories(request):
                         release.stories.remove(story)
             else:
                 release.stories.clear()
-            
+
             stories = Story.objects.filter(id__in=ids)
             for s in stories.all():
                 if s not in release.stories.all():
-                    #this print was causing a unicode issue adding a story, so commented out
-                    #print 'adding ' + s.name
+                    # this print was causing a unicode issue adding a story, so commented out
+                    # print 'adding ' + s.name
                     release.stories.add(s)
         release.save()
         return redirect('/release/' + str(release.id))
@@ -479,7 +504,7 @@ def stories(request):
             agilezenintegration.refresh()
         if ConfigCache.get_config_value('rally.enabled') == '1':
             rallyintegration.refresh()
-        
+
     releaseid = ''
     in_release = {}
     if request.method == u'GET' and request.GET.__contains__('releaseid'):
@@ -494,17 +519,18 @@ def stories(request):
         sprint = request.GET['sprint']
 
     sprintList = []
-    oneYear = timedelta(days = 365)
-    oneYearAgo = timezone.now() - oneYear
+    oneYear = timedelta(days=365)
+    oneYearAgo = datetime.now() - oneYear
 
-    sprints = Story.objects.values('sprint').filter(sprint__isnull=False,date_added__gte=oneYearAgo).order_by('sprint').distinct()
+    sprints = Story.objects.values('sprint').filter(sprint__isnull=False, date_added__gte=oneYearAgo).order_by(
+        'sprint').distinct()
 
     for sprintName in sprints:
         if len(sprintName['sprint']) > 0 and not sprintList.__contains__(sprintName['sprint']):
             sprintList.append(sprintName['sprint'])
 
     stories = Story.objects.filter(date_added__gte=oneYearAgo)
-    #stories = Story.objects.all()
+    # stories = Story.objects.all()
     if len(sprint) > 0:
         stories = stories.filter(sprint=sprint)
     stories = stories.order_by('sprint', 'rally_id', 'name')
@@ -512,21 +538,24 @@ def stories(request):
     # different SQL needed for mySQL and SQLite
     ## MySQL compatible call
     if ConfigCache.get_config_value('agilezen.enabled') == '1':
-        stories = stories.extra(select={'rally_id': 'CAST(rally_id AS SIGNED)'}).extra(order_by = ['rally_id'])
-    ## SQLite compatible call
+        stories = stories.extra(select={'rally_id': 'CAST(rally_id AS SIGNED)'}).extra(order_by=['rally_id'])
+        ## SQLite compatible call
         # stories = stories.extra(select={'rally_id': 'CAST(rally_id AS INTEGER)'}).extra(order_by = ['rally_id'])
     stories.select_related()
-    stories_refresh_enabled = (ConfigCache.get_config_value('rally.enabled') == '1') or (ConfigCache.get_config_value('agilezen.enabled') == '1')
-    data = {'stories': stories, 'rally_refresh' : stories_refresh_enabled, 'releaseid': releaseid, 'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
+    stories_refresh_enabled = (ConfigCache.get_config_value('rally.enabled') == '1') or (
+        ConfigCache.get_config_value('agilezen.enabled') == '1')
+    data = {'stories': stories, 'rally_refresh': stories_refresh_enabled, 'releaseid': releaseid,
+            'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
 
-    return render_to_response('stories.html', data, context_instance=RequestContext(request))
+    return render(request, 'stories.html', data)
+
 
 def instory(request, story_id):
     story = Story.objects.get(id=story_id)
     branches = []
     dep_branches = []
-    all_branches = Branch.objects.filter(enabled__exact = True).order_by('order')
-    
+    all_branches = Branch.objects.filter(enabled__exact=True).order_by('order')
+
     if request.method == u'GET' and request.GET.__contains__('remove'):
         obj = DeployableObject.objects.get(id=request.GET['assoc'])
         obj.pending_stories.remove(story)
@@ -551,10 +580,12 @@ def instory(request, story_id):
             trans.save()
         story.save()
 
-    objects = DeployableObject.objects.filter(pending_stories=story).order_by('branch__name', 'type','filename','el_type','el_subtype','el_name')
+    objects = DeployableObject.objects.filter(pending_stories=story).order_by('branch__name', 'type', 'filename',
+                                                                              'el_type', 'el_subtype', 'el_name')
     objects.select_related()
 
-    translations = DeployableTranslation.objects.filter(pending_stories=story).order_by('branch__name', 'label','locale')
+    translations = DeployableTranslation.objects.filter(pending_stories=story).order_by('branch__name', 'label',
+                                                                                        'locale')
     translations.select_related()
 
     for obj in objects:
@@ -564,10 +595,12 @@ def instory(request, story_id):
         if trans.branch not in branches:
             branches.append(trans.branch)
 
-    dep_objects = DeployableObject.objects.filter(released_stories=story).order_by('branch__name', 'type','filename','el_type','el_subtype','el_name')
+    dep_objects = DeployableObject.objects.filter(released_stories=story).order_by('branch__name', 'type', 'filename',
+                                                                                   'el_type', 'el_subtype', 'el_name')
     dep_objects.select_related()
 
-    dep_translations = DeployableTranslation.objects.filter(released_stories=story).order_by('branch__name', 'label','locale')
+    dep_translations = DeployableTranslation.objects.filter(released_stories=story).order_by('branch__name', 'label',
+                                                                                             'locale')
     dep_translations.select_related()
 
     for obj in dep_objects:
@@ -576,40 +609,43 @@ def instory(request, story_id):
     for trans in dep_translations:
         if trans.branch not in dep_branches:
             dep_branches.append(trans.branch)
-            
-    releases = Release.objects.filter(released=False,stories__id=story.id)
 
-    data = {'story': story, 'objects': objects, 'dep_objects': dep_objects, 'translations': translations, 'dep_translations': dep_translations, 'branches': branches, 'dep_branches': dep_branches, 'all_branches': all_branches, 'releases': releases}
+    releases = Release.objects.filter(released=False, stories__id=story.id)
+
+    data = {'story': story, 'objects': objects, 'dep_objects': dep_objects, 'translations': translations,
+            'dep_translations': dep_translations, 'branches': branches, 'dep_branches': dep_branches,
+            'all_branches': all_branches, 'releases': releases}
     if request.method == u'GET' and request.GET.__contains__('branch_name') and request.GET.__contains__('repo_name'):
         data['branch_name'] = request.GET['branch_name']
         data['repo_name'] = request.GET['repo_name']
 
-    return render_to_response('in_story.html', data, context_instance=RequestContext(request))
+    return render(request,'in_story.html', data)
+
 
 def rally_projects(request):
     if request.method == u'GET' and request.GET.__contains__('chkProject'):
-         pickedProjs = request.GET.getlist('chkProject')
-         isFirst = True
-         projectConfValue = ''
-         for p in pickedProjs:
+        pickedProjs = request.GET.getlist('chkProject')
+        isFirst = True
+        projectConfValue = ''
+        for p in pickedProjs:
             if not isFirst:
                 projectConfValue = projectConfValue + ';'
             isFirst = False
             projectConfValue = projectConfValue + p
 
-         ConfigCache.store_config_value('rally.pickedprojects', projectConfValue)
-         return redirect('/configs/')
+        ConfigCache.store_config_value('rally.pickedprojects', projectConfValue)
+        return redirect('/configs/')
 
     projects = []
     if ConfigCache.get_config_value('rally.enabled') == '1':
         projlist = rallyintegration.get_projects(True)
         for project in projlist:
-            projects.append( project )
-            
+            projects.append(project)
+
     if ConfigCache.get_config_value('agilezen.enabled') == '1':
         projlist = agilezenintegration.get_projects(True)
         for project in projlist:
-            projects.append( project )
+            projects.append(project)
 
     data = {'projects': projects}
-    return render_to_response('rally_projects.html', data, context_instance=RequestContext(request))
+    return render(request,'rally_projects.html', data)

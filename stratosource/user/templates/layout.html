@@ -5,49 +5,57 @@
     <head>
         <title>
         {% block title %}
-            StratoSource
+            StratoSource v2
         {% endblock %}
         </title>
         <script type="text/javascript">
         </script>
-        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css" type="text/css" />
-        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/redmond/jquery-ui.css" type="text/css" />
-    
+
+    <!--
         <link rel="stylesheet" type="text/css" href="/static/css/base.css" />
         <link rel="stylesheet" type="text/css" href="/static/css/dashboard.css" />
         <link rel="stylesheet" type="text/css" href="/static/css/stratosource1.1.css" />
-        
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js" type="text/javascript"></script>
+    -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
         <script src="/static/js/stratosource1.0.js" type="text/javascript"></script>
+
+        {% load bootstrap3 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+
         {% block jscript %} {% endblock %}
     </head>
 
-<body class="dashboard">
+<body>
 
 <!-- Container -->
 <div id="container">
 
-
     <!-- Header -->
-    <div id="header">
+    <div id="header" class="bg-info">
+    <!--
         <div style="float: right;">You are logged in as <strong>{{ user|lower }}</strong></div>
+        -->
         <div id="branding">
-            <h1 id="site-name" class="siteBranding">{% block page_title %} Strato<strong><i>Source</i></strong> {% endblock %}</h1>
+            <h2 id="site-name" class="siteBranding">{% block page_title %} Strato<strong><i>Source</i></strong> <small>v2</small> {% endblock %}
+            <img height="50px" src="/static/images/stratosaurus_small.png"/>
+            </h2>
+            <hr />
         </div>
     </div>
     <!-- END Header -->
 
-    <div class="breadcrumbs">
-        {% block breadcrumbs %} {% endblock %}
-    </div>
+    {% block breadcrumbs %} {% endblock %}
 
     {% block content %}
     content goes here
     {% endblock %}
 
 
-    <div id="footer"></div>
+    <div id="footer">
+    </div>
 
 </div>
 <!-- END Container -->

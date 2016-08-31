@@ -2,7 +2,11 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Settings
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/configs">Config</a></li>
+  <li class="active">Rally Projects</li>
+</ol>
 {% endblock %}
 
 {% block content %}
@@ -14,15 +18,13 @@
         }
     </script>
 
-    <div id="content" class="colMS">
+    <div id="content" class="container">
 
+        <h3>Pick a Rally project as your story source</h3>
         <div id="content-main">
             <div class="module ObjectsList">
                 <form id="formProjects" name="formSettings" method="GET">
-                    <table>
-                        <caption>
-                            <span><a href="" class="section">Settings</a></span>
-                        </caption>
+                    <table class="table-condensed table-hover">
                         <tr>
                             <th scope="row"></th>
                             <th>Rally Project</th>
@@ -35,7 +37,7 @@
                         {% endfor %}
                     </table>
                     <div style="padding:5px;">
-                        <input name="saveConfig" onclick="return submitForm();" type="button" value="Save"/>
+                        <button id="save-button" class="btn btn-primary" name="saveConfig" onclick="return submitForm();" type="button">Save</button>
                     </div>
                 </form>
             </div>

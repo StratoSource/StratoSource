@@ -23,7 +23,6 @@ from stratosource.models import Release, Story, Branch, DeployableObject, Deploy
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from django.template import RequestContext
 import json
 from django.db import transaction
 from django.db.models import Q
@@ -149,7 +148,7 @@ def releases(request):
         releases = Release.objects.filter(hidden=False).order_by('released', 'est_release_date', 'release_date', 'name')
         data = {'releases': releases}
 
-        return render_to_response('ajax_releases.html', data, context_instance=RequestContext(request) )
+        return render_to_response('ajax_releases.html', data )
 
 def ignoreitem(request, object_id):
     results = {'success':False}
@@ -368,7 +367,7 @@ def get_release_tasks(request, type, id):
     
     data = {'success':True, 'tasks': tasks, 'branches': branches, 'readonly' : request.GET.__contains__('readonly'), 'users' : users, 'type': type}
 
-    return render_to_response('release_tasks_ajax.html', data, context_instance=RequestContext(request))
+    return render_to_response('release_tasks_ajax.html', data)
     
 def add_release_task(request):
     results = {'success':False}

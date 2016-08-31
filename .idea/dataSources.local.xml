@@ -2,10 +2,15 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="Django default" uuid="90f4e0bd-d9a2-4813-8589-364ced3d88b3">
-      <user-name>fte0</user-name>
-      <user-password>dfccdfdedfcfdf9a</user-password>
-      <schema-pattern>stratosource.*</schema-pattern>
-      <default-schemas>stratosource.*</default-schemas>
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" />
+      <introspection-scope>stratosource:*</introspection-scope>
+      <resolve-scope>stratosource:*</resolve-scope>
+    </data-source>
+    <data-source name="Sqlite (Xerial) - placeholder" uuid="fb5f889f-8ad5-4c4d-be0a-78fac4e01491">
+      <database-info product="SQLite" version="3.8.9" jdbc-version="2.1" driver-name="SQLiteJDBC" driver-version="native" />
+      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
+      <secret-storage>master_key</secret-storage>
+      <auth-required>false</auth-required>
     </data-source>
   </component>
 </project>

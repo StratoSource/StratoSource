@@ -2,7 +2,10 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Manage Stories
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Manage Stories</li>
+</ol>
 {% endblock %}
 
 {% block jscript %}
@@ -17,7 +20,7 @@
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
             <form id="storyForm" method="post">{% csrf_token %}
@@ -33,15 +36,12 @@
                 <br/>
                 <div class="module ObjectsList">
                     <input type="hidden" id="releaseid" name="releaseid" value="{{ releaseid }}"/>
-                    <table>
+                    <table class="table table-condensed table-hover">
                         <caption>
-                            <span><a href="" class="section">Stories</a></span>
-                            <span class="sectionActions">
-                                {% if releaseid %}<a href="#" onclick="document.getElementById('storyForm').submit(); return false;">Syncronize Selected Stories to Release</a>{% endif %}
-                                {% if not releaseid and rally_refresh %}<a href="/stories?refresh=true">Refresh</a>{% endif %}
-                            </span>
+                            {% if releaseid %}<button type="button" class="btn btn-primary" onclick="document.getElementById('storyForm').submit(); return false;">Synchronize Selected Stories to Release</button>{% endif %}
+                            {% if not releaseid and rally_refresh %}<button id="refresh-stories" type="button" class="btn btn-primary" onclick="window.location='/stories?refresh=true'">Refresh</button>{% endif %}
                         </caption>
-                            <tr>
+                            <tr style="background-color: lightgray">
                                 <th scope="row" class="align_center">Select</th>
                                 <th>Story ID</th>
                                 <th>Sprint/Project ID - Deadline</th>
@@ -64,7 +64,9 @@
                                 </td>
                                 {% if not releaseid %}
                                 <td>
+                                    {%  if story.url != None %}
                                     <a href="{{ story.url }}" target="_blank">Details</a>
+                                    {%  endif %}
                                 </td>
                                 <td align="center">
                                     <a href="/stories?delete={{ story.id }}">Delete</a>

@@ -105,3 +105,9 @@ def process_run(batch_id):
     batch.save()
 
     email_results(batch, failures, runs)
+
+@transaction.atomic
+def delete_batch(batch_id):
+    batch = UnitTestBatch.objects.get(id=batch_id)
+    # remove the batch, let cascading take out all the child records
+    batch.delete()

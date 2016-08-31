@@ -5,7 +5,8 @@
 # arg2 is the branch name
 #
 
-LOG_NAME=/tmp/$1_$2_$(date +%Y%M%d%H%M%S)_pull.log
+LOG_NAME="/var/sftmp/$1_$2_config_snapshot.log"
+rm -rf $LOG_NAME || true
 BASEDIR=$(dirname $0)
 REPO=$1
 BRANCH=$2
@@ -51,6 +52,6 @@ python manage.py storelog $REPO $BRANCH $LOG_NAME config r
 cd $BASEDIR >>$LOG_NAME 2>&1
 ./post-cronjob.sh $REPO $BRANCH config >>$LOG_NAME 2>&1
 
-rm $LOG_NAME
+#rm $LOG_NAME
 
 onexit 99

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="dataSourceStorage">
   <data-source name="Django default" uuid="90f4e0bd-d9a2-4813-8589-364ced3d88b3">
-    <database-info product="MySQL" version="5.5.5-10.0.23-MariaDB-0ubuntu0.15.10.1" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.35 ( Revision: 5fb9c5849535c13917c2cf9baaece6ef9693ef27 )">
-      <extra-name-characters>#@</extra-name-characters>
-      <identifier-quote-string>`</identifier-quote-string>
-    </database-info>
-    <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact"/>
-    <database-model serializer="dbm" rdbms="MYSQL" format-version="2.5">
-      <schema id="1" name="stratosource"/>
+    <database-info product="" version="" jdbc-version="" driver-name="" driver-version=""/>
+  </data-source>
+  <data-source name="Sqlite (Xerial) - placeholder" uuid="fb5f889f-8ad5-4c4d-be0a-78fac4e01491">
+    <database-info product="SQLite" version="3.8.9" jdbc-version="2.1" driver-name="SQLiteJDBC" driver-version="native"/>
+    <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed"/>
+    <database-model serializer="dbm" rdbms="SQLITE" format-version="2.6">
+      <schema id="1">
+        <visible>1</visible>
+      </schema>
       <table id="2" parent="1" name="admin_message"/>
       <table id="3" parent="1" name="auth_group"/>
       <table id="4" parent="1" name="auth_group_permissions"/>
@@ -18,7 +20,7 @@
       <table id="9" parent="1" name="branch"/>
       <table id="10" parent="1" name="branch_log"/>
       <table id="11" parent="1" name="commit"/>
-      <table id="12" parent="1" name="config_settings"/>
+      <table id="12" parent="1" name="config_setting"/>
       <table id="13" parent="1" name="delta"/>
       <table id="14" parent="1" name="deployable_object"/>
       <table id="15" parent="1" name="deployable_object_pending_stories"/>
@@ -29,15 +31,15 @@
       <table id="20" parent="1" name="deployment_package"/>
       <table id="21" parent="1" name="deployment_package_deployable_objects"/>
       <table id="22" parent="1" name="deployment_push_status"/>
-      <table id="23" parent="1" name="django_admin_log"/>
-      <table id="24" parent="1" name="django_content_type"/>
-      <table id="25" parent="1" name="django_migrations"/>
-      <table id="26" parent="1" name="django_session"/>
-      <table id="27" parent="1" name="release"/>
-      <table id="28" parent="1" name="release_stories"/>
-      <table id="29" parent="1" name="release_task"/>
-      <table id="30" parent="1" name="repo"/>
-      <table id="31" parent="1" name="salesforce_user"/>
+      <table id="23" parent="1" name="django_content_type"/>
+      <table id="24" parent="1" name="django_migrations"/>
+      <table id="25" parent="1" name="django_session"/>
+      <table id="26" parent="1" name="release"/>
+      <table id="27" parent="1" name="release_stories"/>
+      <table id="28" parent="1" name="release_task"/>
+      <table id="29" parent="1" name="repo"/>
+      <table id="30" parent="1" name="salesforce_user"/>
+      <table id="31" parent="1" name="sqlite_sequence"/>
       <table id="32" parent="1" name="story"/>
       <table id="33" parent="1" name="story_done_on_branches"/>
       <table id="34" parent="1" name="translation_delta"/>
@@ -48,1592 +50,1519 @@
       <table id="39" parent="1" name="user_change"/>
       <column id="40" parent="2" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
       <column id="41" parent="2" name="to">
         <mandatory>1</mandatory>
-        <data-type>varchar(50)</data-type>
+        <data-type>VARCHAR(50) (0,-1)|12</data-type>
       </column>
       <column id="42" parent="2" name="sender">
         <mandatory>1</mandatory>
-        <data-type>varchar(50)</data-type>
+        <data-type>VARCHAR(50) (0,-1)|12</data-type>
       </column>
       <column id="43" parent="2" name="subject">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
       <column id="44" parent="2" name="body">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
       <column id="45" parent="2" name="event_time">
         <mandatory>1</mandatory>
-        <data-type>date</data-type>
+        <data-type>DATE(0,-1)|12</data-type>
       </column>
       <column id="46" parent="2" name="handled_by">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <key id="47" parent="2" name="PRIMARY">
+      <key id="47" parent="2">
         <columns>id</columns>
         <primary>1</primary>
       </key>
       <column id="48" parent="3" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
       <column id="49" parent="3" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(80)</data-type>
+        <data-type>VARCHAR(80) (0,-1)|12</data-type>
       </column>
-      <index id="50" parent="3" name="name">
+      <index id="50" parent="3" name="sqlite_autoindex_auth_group_1">
+        <name-surrogate>1</name-surrogate>
         <columns>name</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="51" parent="3" name="name">
-        <columns>name</columns>
-        <underlying-index>name</underlying-index>
-      </key>
-      <key id="52" parent="3" name="PRIMARY">
+      <key id="51" parent="3">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="53" parent="4" name="id">
+      <column id="52" parent="4" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="54" parent="4" name="group_id">
+      <column id="53" parent="4" name="group_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="55" parent="4" name="permission_id">
+      <column id="54" parent="4" name="permission_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="56" parent="4" name="auth_group__permission_id_1f49ccbbdc69d2fc_fk_auth_permission_id">
-        <columns>permission_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="57" parent="4" name="group_id">
+      <index id="55" parent="4" name="auth_group_permissions_group_id_0cd325b0_uniq">
         <columns>group_id
 permission_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="58" parent="4" name="group_id">
-        <columns>group_id
-permission_id</columns>
-        <underlying-index>group_id</underlying-index>
-      </key>
-      <key id="59" parent="4" name="PRIMARY">
+      <key id="56" parent="4">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="60" parent="4" name="auth_group_permission_group_id_689710a9a73b7457_fk_auth_group_id">
+      <foreign-key id="57" parent="4" name="#FAKE_auth_group_permissions_2">
+        <name-surrogate>1</name-surrogate>
         <columns>group_id</columns>
-        <ref-key>~.auth_group.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.auth_group.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="61" parent="4" name="auth_group__permission_id_1f49ccbbdc69d2fc_fk_auth_permission_id">
+      <foreign-key id="58" parent="4" name="#FAKE_auth_group_permissions_1">
+        <name-surrogate>1</name-surrogate>
         <columns>permission_id</columns>
-        <ref-key>~.auth_permission.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.auth_permission.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="62" parent="5" name="id">
+      <column id="59" parent="5" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="63" parent="5" name="name">
+      <column id="60" parent="5" name="content_type_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="64" parent="5" name="content_type_id">
+      <column id="61" parent="5" name="codename">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="65" parent="5" name="codename">
+      <column id="62" parent="5" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
-      <index id="66" parent="5" name="content_type_id">
+      <index id="63" parent="5" name="auth_permission_content_type_id_01ab375a_uniq">
         <columns>content_type_id
 codename</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="67" parent="5" name="content_type_id">
-        <columns>content_type_id
-codename</columns>
-        <underlying-index>content_type_id</underlying-index>
-      </key>
-      <key id="68" parent="5" name="PRIMARY">
+      <key id="64" parent="5">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="69" parent="5" name="auth__content_type_id_508cf46651277a81_fk_django_content_type_id">
+      <foreign-key id="65" parent="5" name="#FAKE_auth_permission_1">
+        <name-surrogate>1</name-surrogate>
         <columns>content_type_id</columns>
-        <ref-key>~.django_content_type.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.django_content_type.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="70" parent="6" name="id">
+      <column id="66" parent="6" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="71" parent="6" name="password">
+      <column id="67" parent="6" name="password">
         <mandatory>1</mandatory>
-        <data-type>varchar(128)</data-type>
+        <data-type>VARCHAR(128) (0,-1)|12</data-type>
       </column>
-      <column id="72" parent="6" name="last_login">
-        <data-type>datetime(6)</data-type>
+      <column id="68" parent="6" name="last_login">
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="73" parent="6" name="is_superuser">
+      <column id="69" parent="6" name="is_superuser">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="74" parent="6" name="username">
+      <column id="70" parent="6" name="first_name">
         <mandatory>1</mandatory>
-        <data-type>varchar(30)</data-type>
+        <data-type>VARCHAR(30) (0,-1)|12</data-type>
       </column>
-      <column id="75" parent="6" name="first_name">
+      <column id="71" parent="6" name="last_name">
         <mandatory>1</mandatory>
-        <data-type>varchar(30)</data-type>
+        <data-type>VARCHAR(30) (0,-1)|12</data-type>
       </column>
-      <column id="76" parent="6" name="last_name">
+      <column id="72" parent="6" name="email">
         <mandatory>1</mandatory>
-        <data-type>varchar(30)</data-type>
+        <data-type>VARCHAR(254) (0,-1)|12</data-type>
       </column>
-      <column id="77" parent="6" name="email">
+      <column id="73" parent="6" name="is_staff">
         <mandatory>1</mandatory>
-        <data-type>varchar(254)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="78" parent="6" name="is_staff">
+      <column id="74" parent="6" name="is_active">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="79" parent="6" name="is_active">
+      <column id="75" parent="6" name="date_joined">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="80" parent="6" name="date_joined">
+      <column id="76" parent="6" name="username">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>VARCHAR(150) (0,-1)|12</data-type>
       </column>
-      <index id="81" parent="6" name="username">
+      <index id="77" parent="6" name="sqlite_autoindex_auth_user_1">
+        <name-surrogate>1</name-surrogate>
         <columns>username</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="82" parent="6" name="PRIMARY">
+      <key id="78" parent="6">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <key id="83" parent="6" name="username">
-        <columns>username</columns>
-        <underlying-index>username</underlying-index>
-      </key>
-      <column id="84" parent="7" name="id">
+      <column id="79" parent="7" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="85" parent="7" name="user_id">
+      <column id="80" parent="7" name="user_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="86" parent="7" name="group_id">
+      <column id="81" parent="7" name="group_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="87" parent="7" name="auth_user_groups_group_id_33ac548dcf5f8e37_fk_auth_group_id">
-        <columns>group_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="88" parent="7" name="user_id">
+      <index id="82" parent="7" name="auth_user_groups_user_id_94350c0c_uniq">
         <columns>user_id
 group_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="89" parent="7" name="PRIMARY">
+      <key id="83" parent="7">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <key id="90" parent="7" name="user_id">
-        <columns>user_id
-group_id</columns>
-        <underlying-index>user_id</underlying-index>
-      </key>
-      <foreign-key id="91" parent="7" name="auth_user_groups_group_id_33ac548dcf5f8e37_fk_auth_group_id">
-        <columns>group_id</columns>
-        <ref-key>~.auth_group.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="92" parent="7" name="auth_user_groups_user_id_4b5ed4ffdb8fd9b0_fk_auth_user_id">
+      <foreign-key id="84" parent="7" name="#FAKE_auth_user_groups_2">
+        <name-surrogate>1</name-surrogate>
         <columns>user_id</columns>
-        <ref-key>~.auth_user.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.auth_user.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="93" parent="8" name="id">
+      <foreign-key id="85" parent="7" name="#FAKE_auth_user_groups_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>group_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.auth_group.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="86" parent="8" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="94" parent="8" name="user_id">
+      <column id="87" parent="8" name="user_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="95" parent="8" name="permission_id">
+      <column id="88" parent="8" name="permission_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="96" parent="8" name="auth_user_u_permission_id_384b62483d7071f0_fk_auth_permission_id">
-        <columns>permission_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="97" parent="8" name="user_id">
+      <index id="89" parent="8" name="auth_user_user_permissions_user_id_14a6b632_uniq">
         <columns>user_id
 permission_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="98" parent="8" name="PRIMARY">
+      <key id="90" parent="8">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <key id="99" parent="8" name="user_id">
-        <columns>user_id
-permission_id</columns>
-        <underlying-index>user_id</underlying-index>
-      </key>
-      <foreign-key id="100" parent="8" name="auth_user_user_permissi_user_id_7f0938558328534a_fk_auth_user_id">
+      <foreign-key id="91" parent="8" name="#FAKE_auth_user_user_permissions_2">
+        <name-surrogate>1</name-surrogate>
         <columns>user_id</columns>
-        <ref-key>~.auth_user.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.auth_user.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="101" parent="8" name="auth_user_u_permission_id_384b62483d7071f0_fk_auth_permission_id">
+      <foreign-key id="92" parent="8" name="#FAKE_auth_user_user_permissions_1">
+        <name-surrogate>1</name-surrogate>
         <columns>permission_id</columns>
-        <ref-key>~.auth_permission.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.auth_permission.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="102" parent="9" name="id">
+      <column id="93" parent="9" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="103" parent="9" name="order">
+      <column id="94" parent="9" name="order">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="104" parent="9" name="name">
+      <column id="95" parent="9" name="repo_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(30)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="105" parent="9" name="api_env">
+      <column id="96" parent="9" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(10)</data-type>
+        <data-type>VARCHAR(30) (0,-1)|12</data-type>
       </column>
-      <column id="106" parent="9" name="api_pod">
+      <column id="97" parent="9" name="api_env">
         <mandatory>1</mandatory>
-        <data-type>varchar(10)</data-type>
+        <data-type>VARCHAR(10) (0,-1)|12</data-type>
       </column>
-      <column id="107" parent="9" name="api_user">
+      <column id="98" parent="9" name="api_pod">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(10) (0,-1)|12</data-type>
       </column>
-      <column id="108" parent="9" name="api_pass">
-        <data-type>varchar(100)</data-type>
-      </column>
-      <column id="109" parent="9" name="api_auth">
-        <data-type>varchar(50)</data-type>
-      </column>
-      <column id="110" parent="9" name="api_store">
+      <column id="99" parent="9" name="api_user">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="111" parent="9" name="api_assets">
+      <column id="100" parent="9" name="api_pass">
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
+      </column>
+      <column id="101" parent="9" name="api_auth">
+        <data-type>VARCHAR(50) (0,-1)|12</data-type>
+      </column>
+      <column id="102" parent="9" name="api_store">
         <mandatory>1</mandatory>
-        <data-type>varchar(500)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="112" parent="9" name="enabled">
+      <column id="103" parent="9" name="api_assets">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>VARCHAR(500) (0,-1)|12</data-type>
       </column>
-      <column id="113" parent="9" name="cron_enabled">
+      <column id="104" parent="9" name="enabled">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="114" parent="9" name="cron_type">
+      <column id="105" parent="9" name="cron_enabled">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="115" parent="9" name="run_status">
-        <data-type>varchar(1)</data-type>
-      </column>
-      <column id="116" parent="9" name="cron_interval">
+      <column id="106" parent="9" name="cron_type">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="117" parent="9" name="cron_start">
+      <column id="107" parent="9" name="run_status">
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
+      </column>
+      <column id="108" parent="9" name="cron_interval">
         <mandatory>1</mandatory>
-        <data-type>varchar(5)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="118" parent="9" name="repo_id">
+      <column id="109" parent="9" name="cron_start">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(5) (0,-1)|12</data-type>
       </column>
-      <index id="119" parent="9" name="stratosource_branch_9a8c79bf">
-        <columns>repo_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="120" parent="9" name="PRIMARY">
+      <column id="110" parent="9" name="keep_archive">
+        <mandatory>1</mandatory>
+        <data-type>BOOL(0,-1)|4</data-type>
+      </column>
+      <column id="111" parent="9" name="code_cron_enabled">
+        <mandatory>1</mandatory>
+        <data-type>BOOL(0,-1)|4</data-type>
+      </column>
+      <column id="112" parent="9" name="code_cron_type">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
+      </column>
+      <column id="113" parent="9" name="code_run_status">
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
+      </column>
+      <column id="114" parent="9" name="code_cron_interval">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="115" parent="9" name="code_cron_start">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(5) (0,-1)|12</data-type>
+      </column>
+      <column id="116" parent="9" name="code_keep_archive">
+        <mandatory>1</mandatory>
+        <data-type>BOOL(0,-1)|4</data-type>
+      </column>
+      <key id="117" parent="9">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="121" parent="9" name="stratosource_br_repo_id_7fb8721f05f2a420_fk_stratosource_repo_id">
+      <foreign-key id="118" parent="9" name="#FAKE_branch_1">
+        <name-surrogate>1</name-surrogate>
         <columns>repo_id</columns>
-        <ref-key>~.repo.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.repo.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="122" parent="10" name="id">
+      <column id="119" parent="10" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="123" parent="10" name="lastlog">
+      <column id="120" parent="10" name="lastlog">
         <mandatory>1</mandatory>
-        <data-type>varchar(20000)</data-type>
+        <data-type>VARCHAR(20000) (0,-1)|12</data-type>
       </column>
-      <column id="124" parent="10" name="branch_id">
+      <column id="121" parent="10" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="125" parent="10" name="stratosourc_branch_id_131c7290d050b195_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="126" parent="10" name="PRIMARY">
+      <column id="122" parent="10" name="logtype">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(6) (0,-1)|12</data-type>
+      </column>
+      <key id="123" parent="10">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="127" parent="10" name="stratosourc_branch_id_131c7290d050b195_fk_stratosource_branch_id">
+      <foreign-key id="124" parent="10" name="#FAKE_branch_log_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="128" parent="11" name="id">
+      <column id="125" parent="11" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="129" parent="11" name="hash">
+      <column id="126" parent="11" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="130" parent="11" name="prev_hash">
+      <column id="127" parent="11" name="hash">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="131" parent="11" name="comment">
-        <data-type>varchar(200)</data-type>
-      </column>
-      <column id="132" parent="11" name="date_added">
+      <column id="128" parent="11" name="prev_hash">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="133" parent="11" name="status">
+      <column id="129" parent="11" name="comment">
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
+      </column>
+      <column id="130" parent="11" name="date_added">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="134" parent="11" name="parser_ver">
+      <column id="131" parent="11" name="status">
         <mandatory>1</mandatory>
-        <data-type>varchar(2)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="135" parent="11" name="branch_id">
+      <column id="132" parent="11" name="parser_ver">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(2) (0,-1)|12</data-type>
       </column>
-      <index id="136" parent="11" name="stratosource_branch_id_7f07901e827a463_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="137" parent="11" name="stratosource_commit_0800fc57">
+      <index id="133" parent="11" name="commit_0800fc57">
         <columns>hash</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <key id="138" parent="11" name="PRIMARY">
+      <key id="134" parent="11">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="139" parent="11" name="stratosource_branch_id_7f07901e827a463_fk_stratosource_branch_id">
+      <foreign-key id="135" parent="11" name="#FAKE_commit_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="140" parent="12" name="id">
+      <column id="136" parent="12" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="141" parent="12" name="key">
+      <column id="137" parent="12" name="key">
         <mandatory>1</mandatory>
-        <data-type>varchar(250)</data-type>
+        <data-type>VARCHAR(250) (0,-1)|12</data-type>
       </column>
-      <column id="142" parent="12" name="value">
-        <data-type>varchar(1000)</data-type>
+      <column id="138" parent="12" name="value">
+        <data-type>VARCHAR(1000) (0,-1)|12</data-type>
       </column>
-      <column id="143" parent="12" name="type">
+      <column id="139" parent="12" name="type">
         <mandatory>1</mandatory>
-        <data-type>varchar(20)</data-type>
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="144" parent="12" name="allow_delete">
+      <column id="140" parent="12" name="allow_delete">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="145" parent="12" name="masked">
+      <column id="141" parent="12" name="masked">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <index id="146" parent="12" name="key">
+      <index id="142" parent="12" name="sqlite_autoindex_config_setting_1">
+        <name-surrogate>1</name-surrogate>
         <columns>key</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="147" parent="12" name="key">
-        <columns>key</columns>
-        <underlying-index>key</underlying-index>
-      </key>
-      <key id="148" parent="12" name="PRIMARY">
+      <key id="143" parent="12">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="149" parent="13" name="id">
+      <column id="144" parent="13" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="150" parent="13" name="delta_type">
+      <column id="145" parent="13" name="object_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="151" parent="13" name="commit_id">
+      <column id="146" parent="13" name="commit_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="152" parent="13" name="object_id">
+      <column id="147" parent="13" name="delta_type">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="153" parent="13" name="user_change_id">
-        <data-type>int(11)</data-type>
+      <column id="148" parent="13" name="user_change_id">
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="154" parent="13" name="stratosource_delta_1c0bbd2a">
-        <columns>user_change_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="155" parent="13" name="stratosource_delta_af31437c">
-        <columns>object_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="156" parent="13" name="stratosourc_commit_id_4fac85c589356e5c_fk_stratosource_commit_id">
-        <columns>commit_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="157" parent="13" name="PRIMARY">
+      <key id="149" parent="13">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="158" parent="13" name="stratosourc_commit_id_4fac85c589356e5c_fk_stratosource_commit_id">
-        <columns>commit_id</columns>
-        <ref-key>~.commit.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="159" parent="13" name="st_user_change_id_1676d29f3ad3b216_fk_stratosource_userchange_id">
-        <columns>user_change_id</columns>
-        <ref-key>~.user_change.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="160" parent="13" name="s_object_id_79148e95517ef2ea_fk_stratosource_deployableobject_id">
+      <foreign-key id="150" parent="13" name="#FAKE_delta_3">
+        <name-surrogate>1</name-surrogate>
         <columns>object_id</columns>
-        <ref-key>~.deployable_object.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_object.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="161" parent="14" name="id">
+      <foreign-key id="151" parent="13" name="#FAKE_delta_2">
+        <name-surrogate>1</name-surrogate>
+        <columns>commit_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.commit.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <foreign-key id="152" parent="13" name="#FAKE_delta_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>user_change_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.user_change.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="153" parent="14" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="162" parent="14" name="filename">
+      <column id="154" parent="14" name="filename">
         <mandatory>1</mandatory>
-        <data-type>varchar(200)</data-type>
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
       </column>
-      <column id="163" parent="14" name="type">
+      <column id="155" parent="14" name="type">
         <mandatory>1</mandatory>
-        <data-type>varchar(20)</data-type>
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="164" parent="14" name="el_type">
-        <data-type>varchar(20)</data-type>
+      <column id="156" parent="14" name="el_type">
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="165" parent="14" name="el_subtype">
-        <data-type>varchar(20)</data-type>
+      <column id="157" parent="14" name="el_subtype">
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="166" parent="14" name="el_name">
-        <data-type>varchar(100)</data-type>
+      <column id="158" parent="14" name="el_name">
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="167" parent="14" name="status">
+      <column id="159" parent="14" name="status">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="168" parent="14" name="release_status">
+      <column id="160" parent="14" name="release_status">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="169" parent="14" name="branch_id">
+      <column id="161" parent="14" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="170" parent="14" name="stratosource_branch_id_a610eb751fb5a54_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="171" parent="14" name="stratosource_deployableobject_435ed7e9">
+      <index id="162" parent="14" name="deployable_object_435ed7e9">
         <columns>filename</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <index id="172" parent="14" name="stratosource_deployableobject_599dcce2">
+      <index id="163" parent="14" name="deployable_object_599dcce2">
         <columns>type</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <key id="173" parent="14" name="PRIMARY">
+      <key id="164" parent="14">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="174" parent="14" name="stratosource_branch_id_a610eb751fb5a54_fk_stratosource_branch_id">
+      <foreign-key id="165" parent="14" name="#FAKE_deployable_object_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="175" parent="15" name="id">
+      <column id="166" parent="15" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="176" parent="15" name="deployableobject_id">
+      <column id="167" parent="15" name="deployableobject_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="177" parent="15" name="story_id">
+      <column id="168" parent="15" name="story_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="178" parent="15" name="deployableobject_id">
+      <index id="169" parent="15" name="deployable_object_pending_stories_deployableobject_id_c35efe2b_uniq">
         <columns>deployableobject_id
 story_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <index id="179" parent="15" name="stratosource__story_id_60b274d40e267762_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="180" parent="15" name="deployableobject_id">
-        <columns>deployableobject_id
-story_id</columns>
-        <underlying-index>deployableobject_id</underlying-index>
-      </key>
-      <key id="181" parent="15" name="PRIMARY">
+      <key id="170" parent="15">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="182" parent="15" name="ddd73166377d2d6ec5a8e557b82b5327">
+      <foreign-key id="171" parent="15" name="#FAKE_deployable_object_pending_stories_2">
+        <name-surrogate>1</name-surrogate>
         <columns>deployableobject_id</columns>
-        <ref-key>~.deployable_object.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_object.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="183" parent="15" name="stratosource__story_id_60b274d40e267762_fk_stratosource_story_id">
+      <foreign-key id="172" parent="15" name="#FAKE_deployable_object_pending_stories_1">
+        <name-surrogate>1</name-surrogate>
         <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="184" parent="16" name="id">
+      <column id="173" parent="16" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="185" parent="16" name="deployableobject_id">
+      <column id="174" parent="16" name="deployableobject_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="186" parent="16" name="story_id">
+      <column id="175" parent="16" name="story_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="187" parent="16" name="deployableobject_id">
+      <index id="176" parent="16" name="deployable_object_released_stories_deployableobject_id_7ed42f06_uniq">
         <columns>deployableobject_id
 story_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <index id="188" parent="16" name="stratosource__story_id_2b93730bc2e3bed9_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="189" parent="16" name="deployableobject_id">
-        <columns>deployableobject_id
-story_id</columns>
-        <underlying-index>deployableobject_id</underlying-index>
-      </key>
-      <key id="190" parent="16" name="PRIMARY">
+      <key id="177" parent="16">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="191" parent="16" name="D7df6fa91ddc5e1c832238c7e41ca72c">
+      <foreign-key id="178" parent="16" name="#FAKE_deployable_object_released_stories_2">
+        <name-surrogate>1</name-surrogate>
         <columns>deployableobject_id</columns>
-        <ref-key>~.deployable_object.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_object.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="192" parent="16" name="stratosource__story_id_2b93730bc2e3bed9_fk_stratosource_story_id">
+      <foreign-key id="179" parent="16" name="#FAKE_deployable_object_released_stories_1">
+        <name-surrogate>1</name-surrogate>
         <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="193" parent="17" name="id">
+      <column id="180" parent="17" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="194" parent="17" name="label">
+      <column id="181" parent="17" name="label">
         <mandatory>1</mandatory>
-        <data-type>varchar(200)</data-type>
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
       </column>
-      <column id="195" parent="17" name="locale">
+      <column id="182" parent="17" name="locale">
         <mandatory>1</mandatory>
-        <data-type>varchar(10)</data-type>
+        <data-type>VARCHAR(10) (0,-1)|12</data-type>
       </column>
-      <column id="196" parent="17" name="status">
+      <column id="183" parent="17" name="status">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="197" parent="17" name="release_status">
+      <column id="184" parent="17" name="release_status">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="198" parent="17" name="branch_id">
+      <column id="185" parent="17" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="199" parent="17" name="stratosourc_branch_id_6e37d15d5ccdd40f_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="200" parent="17" name="PRIMARY">
+      <key id="186" parent="17">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="201" parent="17" name="stratosourc_branch_id_6e37d15d5ccdd40f_fk_stratosource_branch_id">
+      <foreign-key id="187" parent="17" name="#FAKE_deployable_translation_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="202" parent="18" name="id">
+      <column id="188" parent="18" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="203" parent="18" name="deployabletranslation_id">
+      <column id="189" parent="18" name="deployabletranslation_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="204" parent="18" name="story_id">
+      <column id="190" parent="18" name="story_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="205" parent="18" name="deployabletranslation_id">
+      <index id="191" parent="18" name="deployable_translation_pending_stories_deployabletranslation_id_9110c08e_uniq">
         <columns>deployabletranslation_id
 story_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <index id="206" parent="18" name="stratosource__story_id_67d591133ba2fe09_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="207" parent="18" name="deployabletranslation_id">
-        <columns>deployabletranslation_id
-story_id</columns>
-        <underlying-index>deployabletranslation_id</underlying-index>
-      </key>
-      <key id="208" parent="18" name="PRIMARY">
+      <key id="192" parent="18">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="209" parent="18" name="D9dd81f1e41da665bf03d9d241e09cc8">
+      <foreign-key id="193" parent="18" name="#FAKE_deployable_translation_pending_stories_2">
+        <name-surrogate>1</name-surrogate>
         <columns>deployabletranslation_id</columns>
-        <ref-key>~.deployable_translation.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_translation.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="210" parent="18" name="stratosource__story_id_67d591133ba2fe09_fk_stratosource_story_id">
+      <foreign-key id="194" parent="18" name="#FAKE_deployable_translation_pending_stories_1">
+        <name-surrogate>1</name-surrogate>
         <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="211" parent="19" name="id">
+      <column id="195" parent="19" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="212" parent="19" name="deployabletranslation_id">
+      <column id="196" parent="19" name="deployabletranslation_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="213" parent="19" name="story_id">
+      <column id="197" parent="19" name="story_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="214" parent="19" name="deployabletranslation_id">
+      <index id="198" parent="19" name="deployable_translation_released_stories_deployabletranslation_id_c9f79ed7_uniq">
         <columns>deployabletranslation_id
 story_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <index id="215" parent="19" name="stratosource__story_id_4e700f44654559dc_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="216" parent="19" name="deployabletranslation_id">
-        <columns>deployabletranslation_id
-story_id</columns>
-        <underlying-index>deployabletranslation_id</underlying-index>
-      </key>
-      <key id="217" parent="19" name="PRIMARY">
+      <key id="199" parent="19">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="218" parent="19" name="D3c6e7e1a03d6c6344e9e8432e104cd3">
+      <foreign-key id="200" parent="19" name="#FAKE_deployable_translation_released_stories_2">
+        <name-surrogate>1</name-surrogate>
         <columns>deployabletranslation_id</columns>
-        <ref-key>~.deployable_translation.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_translation.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="219" parent="19" name="stratosource__story_id_4e700f44654559dc_fk_stratosource_story_id">
+      <foreign-key id="201" parent="19" name="#FAKE_deployable_translation_released_stories_1">
+        <name-surrogate>1</name-surrogate>
         <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="220" parent="20" name="id">
+      <column id="202" parent="20" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="221" parent="20" name="name">
+      <column id="203" parent="20" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(1000)</data-type>
+        <data-type>VARCHAR(1000) (0,-1)|12</data-type>
       </column>
-      <column id="222" parent="20" name="date_added">
+      <column id="204" parent="20" name="release_id">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="223" parent="20" name="last_pushed">
-        <data-type>datetime(6)</data-type>
-      </column>
-      <column id="224" parent="20" name="release_id">
+      <column id="205" parent="20" name="date_added">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="225" parent="20" name="source_environment_id">
+      <column id="206" parent="20" name="last_pushed">
+        <data-type>DATETIME(0,-1)|12</data-type>
+      </column>
+      <column id="207" parent="20" name="source_environment_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="226" parent="20" name="stratosource_deploymentpackage_b07ccb57">
-        <columns>release_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="227" parent="20" name="stratosource_deploymentpackage_dfa1d517">
-        <columns>source_environment_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="228" parent="20" name="PRIMARY">
+      <key id="208" parent="20">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="229" parent="20" name="D06b6869d62386fe4fcdc81b5d102ccc">
-        <columns>source_environment_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="230" parent="20" name="stratosou_release_id_518d69274e10fb30_fk_stratosource_release_id">
+      <foreign-key id="209" parent="20" name="#FAKE_deployment_package_2">
+        <name-surrogate>1</name-surrogate>
         <columns>release_id</columns>
-        <ref-key>~.release.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.release.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="231" parent="21" name="id">
+      <foreign-key id="210" parent="20" name="#FAKE_deployment_package_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>source_environment_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="211" parent="21" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="232" parent="21" name="deploymentpackage_id">
+      <column id="212" parent="21" name="deploymentpackage_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="233" parent="21" name="deployableobject_id">
+      <column id="213" parent="21" name="deployableobject_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="234" parent="21" name="D2d5a321d0bf26796afd596e65d9e14c">
-        <columns>deployableobject_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="235" parent="21" name="deploymentpackage_id">
+      <index id="214" parent="21" name="deployment_package_deployable_objects_deploymentpackage_id_86c399cf_uniq">
         <columns>deploymentpackage_id
 deployableobject_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="236" parent="21" name="deploymentpackage_id">
-        <columns>deploymentpackage_id
-deployableobject_id</columns>
-        <underlying-index>deploymentpackage_id</underlying-index>
-      </key>
-      <key id="237" parent="21" name="PRIMARY">
+      <key id="215" parent="21">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="238" parent="21" name="D2d5a321d0bf26796afd596e65d9e14c">
-        <columns>deployableobject_id</columns>
-        <ref-key>~.deployable_object.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="239" parent="21" name="D3ffef5d93081524cd920507f7c0a482">
+      <foreign-key id="216" parent="21" name="#FAKE_deployment_package_deployable_objects_2">
+        <name-surrogate>1</name-surrogate>
         <columns>deploymentpackage_id</columns>
-        <ref-key>~.deployment_package.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployment_package.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="240" parent="22" name="id">
+      <foreign-key id="217" parent="21" name="#FAKE_deployment_package_deployable_objects_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>deployableobject_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_object.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="218" parent="22" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="241" parent="22" name="date_attempted">
+      <column id="219" parent="22" name="package_id">
         <mandatory>1</mandatory>
-        <data-type>date</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="242" parent="22" name="log_output">
+      <column id="220" parent="22" name="date_attempted">
         <mandatory>1</mandatory>
-        <data-type>varchar(20000)</data-type>
+        <data-type>DATE(0,-1)|12</data-type>
       </column>
-      <column id="243" parent="22" name="result">
+      <column id="221" parent="22" name="log_output">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>VARCHAR(20000) (0,-1)|12</data-type>
       </column>
-      <column id="244" parent="22" name="test_only">
+      <column id="222" parent="22" name="result">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <column id="245" parent="22" name="keep_package">
+      <column id="223" parent="22" name="test_only">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="246" parent="22" name="package_location">
-        <data-type>varchar(200)</data-type>
-      </column>
-      <column id="247" parent="22" name="package_id">
+      <column id="224" parent="22" name="keep_package">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="248" parent="22" name="target_environment_id">
+      <column id="225" parent="22" name="target_environment_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="249" parent="22" name="b30d968e2a921d75197761bd5afea9ff">
-        <columns>target_environment_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="250" parent="22" name="D36372d689076b042093d0a0c1b7338e">
-        <columns>package_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="251" parent="22" name="PRIMARY">
+      <column id="226" parent="22" name="package_location">
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
+      </column>
+      <key id="227" parent="22">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="252" parent="22" name="b30d968e2a921d75197761bd5afea9ff">
-        <columns>target_environment_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="253" parent="22" name="D36372d689076b042093d0a0c1b7338e">
+      <foreign-key id="228" parent="22" name="#FAKE_deployment_push_status_2">
+        <name-surrogate>1</name-surrogate>
         <columns>package_id</columns>
-        <ref-key>~.deployment_package.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployment_package.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="254" parent="23" name="id">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <column id="255" parent="23" name="action_time">
-        <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
-      </column>
-      <column id="256" parent="23" name="object_id">
-        <data-type>longtext</data-type>
-      </column>
-      <column id="257" parent="23" name="object_repr">
-        <mandatory>1</mandatory>
-        <data-type>varchar(200)</data-type>
-      </column>
-      <column id="258" parent="23" name="action_flag">
-        <mandatory>1</mandatory>
-        <data-type>smallint(5) unsigned</data-type>
-      </column>
-      <column id="259" parent="23" name="change_message">
-        <mandatory>1</mandatory>
-        <data-type>longtext</data-type>
-      </column>
-      <column id="260" parent="23" name="content_type_id">
-        <data-type>int(11)</data-type>
-      </column>
-      <column id="261" parent="23" name="user_id">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <index id="262" parent="23" name="django_admin_log_user_id_52fdd58701c5f563_fk_auth_user_id">
-        <columns>user_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="263" parent="23" name="djang_content_type_id_697914295151027a_fk_django_content_type_id">
-        <columns>content_type_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="264" parent="23" name="PRIMARY">
-        <columns>id</columns>
-        <primary>1</primary>
-      </key>
-      <foreign-key id="265" parent="23" name="django_admin_log_user_id_52fdd58701c5f563_fk_auth_user_id">
-        <columns>user_id</columns>
-        <ref-key>~.auth_user.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+      <foreign-key id="229" parent="22" name="#FAKE_deployment_push_status_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>target_environment_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="266" parent="23" name="djang_content_type_id_697914295151027a_fk_django_content_type_id">
-        <columns>content_type_id</columns>
-        <ref-key>~.django_content_type.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <column id="267" parent="24" name="id">
+      <column id="230" parent="23" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="268" parent="24" name="app_label">
+      <column id="231" parent="23" name="app_label">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="269" parent="24" name="model">
+      <column id="232" parent="23" name="model">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <index id="270" parent="24" name="django_content_type_app_label_45f3b1d93ec8c61c_uniq">
+      <index id="233" parent="23" name="django_content_type_app_label_76bd3d3b_uniq">
         <columns>app_label
 model</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="271" parent="24" name="django_content_type_app_label_45f3b1d93ec8c61c_uniq">
-        <columns>app_label
-model</columns>
-        <underlying-index>django_content_type_app_label_45f3b1d93ec8c61c_uniq</underlying-index>
-      </key>
-      <key id="272" parent="24" name="PRIMARY">
+      <key id="234" parent="23">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="273" parent="25" name="id">
+      <column id="235" parent="24" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="274" parent="25" name="app">
+      <column id="236" parent="24" name="app">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
-      <column id="275" parent="25" name="name">
+      <column id="237" parent="24" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
-      <column id="276" parent="25" name="applied">
+      <column id="238" parent="24" name="applied">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <key id="277" parent="25" name="PRIMARY">
+      <key id="239" parent="24">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="278" parent="26" name="session_key">
+      <column id="240" parent="25" name="session_key">
         <mandatory>1</mandatory>
-        <data-type>varchar(40)</data-type>
+        <data-type>VARCHAR(40) (0,-1)|12</data-type>
       </column>
-      <column id="279" parent="26" name="session_data">
+      <column id="241" parent="25" name="session_data">
         <mandatory>1</mandatory>
-        <data-type>longtext</data-type>
+        <data-type>TEXT(0,-1)|12</data-type>
       </column>
-      <column id="280" parent="26" name="expire_date">
+      <column id="242" parent="25" name="expire_date">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <index id="281" parent="26" name="django_session_de54fa62">
+      <index id="243" parent="25" name="django_session_de54fa62">
         <columns>expire_date</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <key id="282" parent="26" name="PRIMARY">
+      <key id="244" parent="25">
         <columns>session_key</columns>
         <primary>1</primary>
       </key>
-      <column id="283" parent="27" name="id">
+      <column id="245" parent="26" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="284" parent="27" name="name">
+      <column id="246" parent="26" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
-      <column id="285" parent="27" name="release_notes">
+      <column id="247" parent="26" name="release_notes">
         <mandatory>1</mandatory>
-        <data-type>varchar(4000)</data-type>
+        <data-type>VARCHAR(4000) (0,-1)|12</data-type>
       </column>
-      <column id="286" parent="27" name="est_release_date">
-        <data-type>date</data-type>
+      <column id="248" parent="26" name="est_release_date">
+        <data-type>DATE(0,-1)|12</data-type>
       </column>
-      <column id="287" parent="27" name="release_date">
-        <data-type>date</data-type>
+      <column id="249" parent="26" name="release_date">
+        <data-type>DATE(0,-1)|12</data-type>
       </column>
-      <column id="288" parent="27" name="released">
+      <column id="250" parent="26" name="released">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <column id="289" parent="27" name="hidden">
+      <column id="251" parent="26" name="hidden">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <key id="290" parent="27" name="PRIMARY">
+      <key id="252" parent="26">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="291" parent="28" name="id">
+      <column id="253" parent="27" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="292" parent="28" name="release_id">
+      <column id="254" parent="27" name="release_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="293" parent="28" name="story_id">
+      <column id="255" parent="27" name="story_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="294" parent="28" name="release_id">
+      <index id="256" parent="27" name="release_stories_release_id_4af4800b_uniq">
         <columns>release_id
 story_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <index id="295" parent="28" name="stratosource__story_id_580adf5b8774f162_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="296" parent="28" name="PRIMARY">
+      <key id="257" parent="27">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <key id="297" parent="28" name="release_id">
-        <columns>release_id
-story_id</columns>
-        <underlying-index>release_id</underlying-index>
-      </key>
-      <foreign-key id="298" parent="28" name="stratosource__story_id_580adf5b8774f162_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="299" parent="28" name="stratosou_release_id_4baa5b2a55e00090_fk_stratosource_release_id">
+      <foreign-key id="258" parent="27" name="#FAKE_release_stories_2">
+        <name-surrogate>1</name-surrogate>
         <columns>release_id</columns>
-        <ref-key>~.release.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.release.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="300" parent="29" name="id">
+      <foreign-key id="259" parent="27" name="#FAKE_release_stories_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>story_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="260" parent="28" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="301" parent="29" name="task_type">
+      <column id="261" parent="28" name="task_type">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="302" parent="29" name="name">
+      <column id="262" parent="28" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(1000)</data-type>
+        <data-type>VARCHAR(1000) (0,-1)|12</data-type>
       </column>
-      <column id="303" parent="29" name="done_in_branch">
+      <column id="263" parent="28" name="done_in_branch">
         <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="304" parent="29" name="order">
+      <column id="264" parent="28" name="order">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="305" parent="29" name="release_id">
-        <data-type>int(11)</data-type>
+      <column id="265" parent="28" name="user_id">
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="306" parent="29" name="story_id">
-        <data-type>int(11)</data-type>
+      <column id="266" parent="28" name="release_id">
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="307" parent="29" name="user_id">
-        <data-type>int(11)</data-type>
+      <column id="267" parent="28" name="story_id">
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="308" parent="29" name="stratosource_releasetask_e8701ad4">
+      <key id="268" parent="28">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+      <foreign-key id="269" parent="28" name="#FAKE_release_task_3">
+        <name-surrogate>1</name-surrogate>
         <columns>user_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="309" parent="29" name="stratosource_releasetask_f5976bb5">
-        <columns>story_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="310" parent="29" name="stratosou_release_id_159ec1df2087c00b_fk_stratosource_release_id">
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.salesforce_user.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <foreign-key id="270" parent="28" name="#FAKE_release_task_2">
+        <name-surrogate>1</name-surrogate>
         <columns>release_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="311" parent="29" name="PRIMARY">
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.release.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <foreign-key id="271" parent="28" name="#FAKE_release_task_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>story_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="272" parent="29" name="id">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="273" parent="29" name="name">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
+      </column>
+      <column id="274" parent="29" name="location">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
+      </column>
+      <key id="275" parent="29">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="312" parent="29" name="stratosource__story_id_3775cd59d4fac203_fk_stratosource_story_id">
-        <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="313" parent="29" name="stratosou_release_id_159ec1df2087c00b_fk_stratosource_release_id">
-        <columns>release_id</columns>
-        <ref-key>~.release.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="314" parent="29" name="strat_user_id_33f0f489ce0ae92c_fk_stratosource_salesforceuser_id">
-        <columns>user_id</columns>
-        <ref-key>~.salesforce_user.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <column id="315" parent="30" name="id">
+      <column id="276" parent="30" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="316" parent="30" name="name">
+      <column id="277" parent="30" name="userid">
         <mandatory>1</mandatory>
-        <data-type>varchar(20)</data-type>
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="317" parent="30" name="location">
+      <column id="278" parent="30" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <key id="318" parent="30" name="PRIMARY">
-        <columns>id</columns>
-        <primary>1</primary>
-      </key>
-      <column id="319" parent="31" name="id">
+      <column id="279" parent="30" name="email">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(100) (0,-1)|12</data-type>
       </column>
-      <column id="320" parent="31" name="userid">
-        <mandatory>1</mandatory>
-        <data-type>varchar(20)</data-type>
+      <column id="280" parent="30" name="lastActive">
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="321" parent="31" name="name">
-        <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
-      </column>
-      <column id="322" parent="31" name="email">
-        <mandatory>1</mandatory>
-        <data-type>varchar(100)</data-type>
-      </column>
-      <index id="323" parent="31" name="stratosource_salesforceuser_b068931c">
+      <index id="281" parent="30" name="salesforce_user_b068931c">
         <columns>name</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <key id="324" parent="31" name="PRIMARY">
+      <key id="282" parent="30">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="325" parent="32" name="id">
+      <column id="283" parent="31" name="name">
+        <data-type>(0,-1)|12</data-type>
+      </column>
+      <column id="284" parent="31" name="seq">
+        <data-type>(0,-1)|12</data-type>
+      </column>
+      <column id="285" parent="32" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="326" parent="32" name="rally_id">
-        <data-type>varchar(20)</data-type>
+      <column id="286" parent="32" name="rally_id">
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="327" parent="32" name="sprint">
+      <column id="287" parent="32" name="sprint">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
-      <column id="328" parent="32" name="name">
+      <column id="288" parent="32" name="name">
         <mandatory>1</mandatory>
-        <data-type>varchar(255)</data-type>
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
       </column>
-      <column id="329" parent="32" name="url">
-        <data-type>varchar(1024)</data-type>
+      <column id="289" parent="32" name="url">
+        <data-type>VARCHAR(1024) (0,-1)|12</data-type>
       </column>
-      <column id="330" parent="32" name="release_date">
-        <data-type>date</data-type>
+      <column id="290" parent="32" name="release_date">
+        <data-type>DATE(0,-1)|12</data-type>
       </column>
-      <column id="331" parent="32" name="released">
+      <column id="291" parent="32" name="released">
         <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
+        <data-type>BOOL(0,-1)|4</data-type>
       </column>
-      <key id="332" parent="32" name="PRIMARY">
+      <column id="292" parent="32" name="date_added">
+        <mandatory>1</mandatory>
+        <data-type>DATE(0,-1)|12</data-type>
+      </column>
+      <key id="293" parent="32">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <column id="333" parent="33" name="id">
+      <column id="294" parent="33" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="334" parent="33" name="story_id">
+      <column id="295" parent="33" name="story_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="335" parent="33" name="branch_id">
+      <column id="296" parent="33" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="336" parent="33" name="story_id">
+      <index id="297" parent="33" name="story_done_on_branches_story_id_d9ce3bee_uniq">
         <columns>story_id
 branch_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <index id="337" parent="33" name="stratosourc_branch_id_73a7c67dcef72fc9_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="338" parent="33" name="PRIMARY">
+      <key id="298" parent="33">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <key id="339" parent="33" name="story_id">
-        <columns>story_id
-branch_id</columns>
-        <underlying-index>story_id</underlying-index>
-      </key>
-      <foreign-key id="340" parent="33" name="stratosource__story_id_2d282f179743fcb1_fk_stratosource_story_id">
+      <foreign-key id="299" parent="33" name="#FAKE_story_done_on_branches_2">
+        <name-surrogate>1</name-surrogate>
         <columns>story_id</columns>
-        <ref-key>~.story.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.story.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="341" parent="33" name="stratosourc_branch_id_73a7c67dcef72fc9_fk_stratosource_branch_id">
+      <foreign-key id="300" parent="33" name="#FAKE_story_done_on_branches_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="342" parent="34" name="id">
+      <column id="301" parent="34" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="343" parent="34" name="delta_type">
+      <column id="302" parent="34" name="translation_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="344" parent="34" name="commit_id">
+      <column id="303" parent="34" name="commit_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="345" parent="34" name="translation_id">
+      <column id="304" parent="34" name="delta_type">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
       </column>
-      <index id="346" parent="34" name="e34180967aa6b09d01038b1d1aa89e32">
-        <columns>translation_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="347" parent="34" name="stratosourc_commit_id_4d8aae726030d262_fk_stratosource_commit_id">
-        <columns>commit_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="348" parent="34" name="PRIMARY">
+      <key id="305" parent="34">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="349" parent="34" name="e34180967aa6b09d01038b1d1aa89e32">
+      <foreign-key id="306" parent="34" name="#FAKE_translation_delta_2">
+        <name-surrogate>1</name-surrogate>
         <columns>translation_id</columns>
-        <ref-key>~.deployable_translation.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.deployable_translation.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="350" parent="34" name="stratosourc_commit_id_4d8aae726030d262_fk_stratosource_commit_id">
+      <foreign-key id="307" parent="34" name="#FAKE_translation_delta_1">
+        <name-surrogate>1</name-surrogate>
         <columns>commit_id</columns>
-        <ref-key>~.commit.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.commit.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="351" parent="35" name="id">
+      <column id="308" parent="35" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="352" parent="35" name="batch_time">
+      <column id="309" parent="35" name="batch_time">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="353" parent="35" name="tests">
+      <column id="310" parent="35" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="354" parent="35" name="failures">
+      <column id="311" parent="35" name="tests">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="355" parent="35" name="runtime">
+      <column id="312" parent="35" name="failures">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="356" parent="35" name="branch_id">
+      <column id="313" parent="35" name="runtime">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="357" parent="35" name="stratosource_unittestbatch_35e73a1a">
+      <index id="314" parent="35" name="unit_test_batch_35e73a1a">
         <columns>batch_time</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <index id="358" parent="35" name="stratosourc_branch_id_31fd9fca50e6858d_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="359" parent="35" name="PRIMARY">
+      <key id="315" parent="35">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="360" parent="35" name="stratosourc_branch_id_31fd9fca50e6858d_fk_stratosource_branch_id">
+      <foreign-key id="316" parent="35" name="#FAKE_unit_test_batch_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="361" parent="36" name="id">
+      <column id="317" parent="36" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="362" parent="36" name="apex_class_id">
+      <column id="318" parent="36" name="apex_class_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(20)</data-type>
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <column id="363" parent="36" name="class_name">
+      <column id="319" parent="36" name="batch_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(200)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="364" parent="36" name="tests">
+      <column id="320" parent="36" name="class_name">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
       </column>
-      <column id="365" parent="36" name="failures">
+      <column id="321" parent="36" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="366" parent="36" name="runtime">
+      <column id="322" parent="36" name="tests">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="367" parent="36" name="batch_id">
+      <column id="323" parent="36" name="failures">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="368" parent="36" name="branch_id">
+      <column id="324" parent="36" name="runtime">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <index id="369" parent="36" name="stratosourc_branch_id_63d8ac01fbafbb0e_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="370" parent="36" name="strat_batch_id_583684d7ad1f8e8d_fk_stratosource_unittestbatch_id">
+      <key id="325" parent="36">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+      <foreign-key id="326" parent="36" name="#FAKE_unit_test_run_2">
+        <name-surrogate>1</name-surrogate>
         <columns>batch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="371" parent="36" name="PRIMARY">
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.unit_test_batch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <foreign-key id="327" parent="36" name="#FAKE_unit_test_run_1">
+        <name-surrogate>1</name-surrogate>
+        <columns>branch_id</columns>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="328" parent="37" name="id">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="329" parent="37" name="test_run_id">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="330" parent="37" name="start_time">
+        <mandatory>1</mandatory>
+        <data-type>DATETIME(0,-1)|12</data-type>
+      </column>
+      <column id="331" parent="37" name="end_time">
+        <mandatory>1</mandatory>
+        <data-type>DATETIME(0,-1)|12</data-type>
+      </column>
+      <column id="332" parent="37" name="method_name">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
+      </column>
+      <column id="333" parent="37" name="outcome">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(50) (0,-1)|12</data-type>
+      </column>
+      <column id="334" parent="37" name="message">
+        <data-type>VARCHAR(255) (0,-1)|12</data-type>
+      </column>
+      <column id="335" parent="37" name="runtime">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <key id="336" parent="37">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="372" parent="36" name="stratosourc_branch_id_63d8ac01fbafbb0e_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <foreign-key id="373" parent="36" name="strat_batch_id_583684d7ad1f8e8d_fk_stratosource_unittestbatch_id">
-        <columns>batch_id</columns>
-        <ref-key>~.unit_test_batch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <column id="374" parent="37" name="id">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <column id="375" parent="37" name="start_time">
-        <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
-      </column>
-      <column id="376" parent="37" name="end_time">
-        <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
-      </column>
-      <column id="377" parent="37" name="method_name">
-        <mandatory>1</mandatory>
-        <data-type>varchar(200)</data-type>
-      </column>
-      <column id="378" parent="37" name="outcome">
-        <mandatory>1</mandatory>
-        <data-type>varchar(50)</data-type>
-      </column>
-      <column id="379" parent="37" name="message">
-        <data-type>varchar(255)</data-type>
-      </column>
-      <column id="380" parent="37" name="runtime">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <column id="381" parent="37" name="test_run_id">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <index id="382" parent="37" name="stra_test_run_id_4214ef7f6134efa7_fk_stratosource_unittestrun_id">
+      <foreign-key id="337" parent="37" name="#FAKE_unit_test_run_result_1">
+        <name-surrogate>1</name-surrogate>
         <columns>test_run_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="383" parent="37" name="PRIMARY">
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.unit_test_run.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
+      </foreign-key>
+      <column id="338" parent="38" name="id">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="339" parent="38" name="branch_id">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="340" parent="38" name="results_email_address">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(500) (0,-1)|12</data-type>
+      </column>
+      <column id="341" parent="38" name="email_only_failures">
+        <mandatory>1</mandatory>
+        <data-type>BOOL(0,-1)|4</data-type>
+      </column>
+      <column id="342" parent="38" name="cron_enabled">
+        <mandatory>1</mandatory>
+        <data-type>BOOL(0,-1)|4</data-type>
+      </column>
+      <column id="343" parent="38" name="cron_type">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(1) (0,-1)|12</data-type>
+      </column>
+      <column id="344" parent="38" name="cron_interval">
+        <mandatory>1</mandatory>
+        <data-type>INTEGER(0,-1)|4</data-type>
+      </column>
+      <column id="345" parent="38" name="cron_start">
+        <mandatory>1</mandatory>
+        <data-type>VARCHAR(5) (0,-1)|12</data-type>
+      </column>
+      <key id="346" parent="38">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="384" parent="37" name="stra_test_run_id_4214ef7f6134efa7_fk_stratosource_unittestrun_id">
-        <columns>test_run_id</columns>
-        <ref-key>~.unit_test_run.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
-      </foreign-key>
-      <column id="385" parent="38" name="id">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <column id="386" parent="38" name="results_email_address">
-        <mandatory>1</mandatory>
-        <data-type>varchar(500)</data-type>
-      </column>
-      <column id="387" parent="38" name="email_only_failures">
-        <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
-      </column>
-      <column id="388" parent="38" name="cron_enabled">
-        <mandatory>1</mandatory>
-        <data-type>tinyint(1)</data-type>
-      </column>
-      <column id="389" parent="38" name="cron_type">
-        <mandatory>1</mandatory>
-        <data-type>varchar(1)</data-type>
-      </column>
-      <column id="390" parent="38" name="cron_interval">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <column id="391" parent="38" name="cron_start">
-        <mandatory>1</mandatory>
-        <data-type>varchar(5)</data-type>
-      </column>
-      <column id="392" parent="38" name="branch_id">
-        <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
-      </column>
-      <index id="393" parent="38" name="stratosourc_branch_id_766e95dd79f23503_fk_stratosource_branch_id">
+      <foreign-key id="347" parent="38" name="#FAKE_unit_test_schedule_1">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="394" parent="38" name="PRIMARY">
-        <columns>id</columns>
-        <primary>1</primary>
-      </key>
-      <foreign-key id="395" parent="38" name="stratosourc_branch_id_766e95dd79f23503_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <column id="396" parent="39" name="id">
+      <column id="348" parent="39" name="id">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="397" parent="39" name="apex_id">
-        <data-type>varchar(20)</data-type>
-      </column>
-      <column id="398" parent="39" name="apex_name">
+      <column id="349" parent="39" name="branch_id">
         <mandatory>1</mandatory>
-        <data-type>varchar(200)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="399" parent="39" name="batch_time">
+      <column id="350" parent="39" name="apex_id">
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
+      </column>
+      <column id="351" parent="39" name="apex_name">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>VARCHAR(200) (0,-1)|12</data-type>
       </column>
-      <column id="400" parent="39" name="last_update">
+      <column id="352" parent="39" name="sfuser_id">
         <mandatory>1</mandatory>
-        <data-type>datetime(6)</data-type>
+        <data-type>INTEGER(0,-1)|4</data-type>
       </column>
-      <column id="401" parent="39" name="object_type">
+      <column id="353" parent="39" name="batch_time">
         <mandatory>1</mandatory>
-        <data-type>varchar(20)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="402" parent="39" name="branch_id">
+      <column id="354" parent="39" name="last_update">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>DATETIME(0,-1)|12</data-type>
       </column>
-      <column id="403" parent="39" name="sfuser_id">
+      <column id="355" parent="39" name="object_type">
         <mandatory>1</mandatory>
-        <data-type>int(11)</data-type>
+        <data-type>VARCHAR(20) (0,-1)|12</data-type>
       </column>
-      <index id="404" parent="39" name="stratosource_userchange_fd4864db">
+      <index id="356" parent="39" name="user_change_fd4864db">
         <columns>apex_name</columns>
         <desc-columns></desc-columns>
+        <unique>1</unique>
       </index>
-      <index id="405" parent="39" name="stratosourc_branch_id_5ead9fcde317d60b_fk_stratosource_branch_id">
-        <columns>branch_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <index id="406" parent="39" name="stra_sfuser_id_d38f259cd999e8f_fk_stratosource_salesforceuser_id">
-        <columns>sfuser_id</columns>
-        <desc-columns></desc-columns>
-      </index>
-      <key id="407" parent="39" name="PRIMARY">
+      <key id="357" parent="39">
         <columns>id</columns>
         <primary>1</primary>
       </key>
-      <foreign-key id="408" parent="39" name="stratosourc_branch_id_5ead9fcde317d60b_fk_stratosource_branch_id">
+      <foreign-key id="358" parent="39" name="#FAKE_user_change_2">
+        <name-surrogate>1</name-surrogate>
         <columns>branch_id</columns>
-        <ref-key>~.branch.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.branch.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
-      <foreign-key id="409" parent="39" name="stra_sfuser_id_d38f259cd999e8f_fk_stratosource_salesforceuser_id">
+      <foreign-key id="359" parent="39" name="#FAKE_user_change_1">
+        <name-surrogate>1</name-surrogate>
         <columns>sfuser_id</columns>
-        <ref-key>~.salesforce_user.PRIMARY</ref-key>
-        <cascade-update-rule>restrict</cascade-update-rule>
-        <cascade-delete-rule>restrict</cascade-delete-rule>
+        <deferrable>1</deferrable>
+        <initially-deferred>1</initially-deferred>
+        <ref-key>~.salesforce_user.#1</ref-key>
+        <cascade-update-rule>no_action</cascade-update-rule>
+        <cascade-delete-rule>no_action</cascade-delete-rule>
       </foreign-key>
     </database-model>
   </data-source>

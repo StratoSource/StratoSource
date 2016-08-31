@@ -2,29 +2,33 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Unit Test Config
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Unit Test Configuration</li>
+</ol>
 {% endblock %}
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container">
 
         <div id="content-main">
             <form name="unitTestConfigForm" action="/unit_test_schedule_admin_form_action" method="post">{% csrf_token %}
                 <div class="module ObjectsList">
-                    <table>
-                            <tr>
-                                <th scope="row">Branch</th>
-                                <th>Enabled</th>
-                            </tr>
-                            {% for schedule in schedules %}
+                    <table class="table table-condensed table-hover">
+                        <caption>Schedules</caption>
+                        <tr>
+                            <th scope="row">Branch</th>
+                            <th> Enabled? </th>
+                        </tr>
+                        {% for schedule in schedules %}
                             <tr>
                                 <td scope="row" nowrap style="width: 30%;">
                                     <input type="checkbox" name="scheduleId" value="{{ schedule.id }}"/> &nbsp; <a href="/edit_test_schedule/{{ schedule.id }}" style="display:inline;">{{ schedule.branch.name }}</a>
                                 </td>
                                 <td>
                                     {{ schedule.cron_enabled }}
-                                </td>                            
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -32,23 +36,24 @@
                                     <strong>No Schedules Defined</strong>
                                 </td>
                             </tr>
-                            {% endfor %}
+                        {% endfor %}
                     </table>
                 </div>
-                <input name="addScheduledTestButton" type="submit" value="Add"/>
+                <button class="btn btn-primary" name="addScheduledTestButton" type="submit">Add</button>
             </form>
         </div>
 
-        <br class="clear" />        
+        {%  if crontab|length > 0 %}
         <div>
             <br />
-            <h3 class="sectionHeader">Cron Entries for Unit Tests</h3>
+            <h3>Cron Entries for Unit Tests</h3>
             <div style="margin-left:5px">
                 {% for entry in crontab %}
                 <pre>{{ entry }}</pre>
                 {% endfor %}
             </div>
         </div>
+    {%  endif %}
     </div>
 
 {% endblock %}

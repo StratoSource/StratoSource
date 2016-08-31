@@ -3,101 +3,162 @@
 {% load myfilters %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Unreleased Code for {{repo_name|upper}} - {{branch_name|upper}}
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Unreleased Code for {{repo_name|upper}} - {{branch_name|upper}}</li>
+</ol>
 {% endblock %}
 
 {% block jscript %}
     <script src="/static/js/cs_unreleased_code_management1.1.js" type="text/javascript"></script>
+
+    <style>
+
+        .line_item_e {
+            background-color: #f0d1ab;
+            color: #555555;
+            font-weight: bold;
+            padding: 3px;
+        }
+
+        .line_item_e a:link, .line_item_e a:visited{
+            color: 555555;
+        }
+
+        .line_item_p {
+            background-color: #acfeaa;
+            font-weight: normal;
+            color: #555555;
+            padding: 3px;
+        }
+
+        .line_item_p a:link, .line_item_p a:visited{
+            font-weight: normal;
+            color: #555555;
+        }
+
+        .line_item_c {
+            font-weight: bold;
+            padding: 3px;
+        }
+
+        .line_item_r {
+
+        }
+
+    </style>
 {% endblock %}
+
+
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div class="container-fluid">
 
-        <div align="center" id="content-main" style="white-space: nowrap; padding: 5px; margin-bottom: 10px;">
-            <span>Key:</span> 
-            <span class="line_item_c" style="border: 1px; border-style: solid;">&#x21B7; - Repeated Action</span>
-            <span class="line_item_c" style="border: 1px; border-style: solid;"><a href="#">Changed</a></span>
-            <span class="line_item_p" style="border: 1px; border-style: solid;"><a href="#">Release Pending</a></span>
-            <span class="line_item_e" style="border: 1px; border-style: solid;"><a href="#">Release Pending & Changed Again (Conflict)</a></span>
-        </div>
-       
-        <div id="content-main">            
-            <div class="sectionBase">
-                <span class="section">Find Changed Objects in {{repo_name|upper}} - {{branch_name|upper}}</span>
-                <span class="sectionActions">
-                    <!-- <span id="markAllReleased"><a href="?releaseAll=true" onclick="return confirm('This cannot be reversed and should only be done after an environment has been refreshed. All tracking will start from scratch. Are you VERY VERY sure?');">Mark ALL Released</a></span> |-->
-                    <span id="ignoreSelected"><a href="#" onclick="if (confirm('Are you sure?')) {ignoreSelected();} return false;">Ignore Selected Objects</a></span> |
-                    <a href="#" onclick="promptStoryAdd(); return false;">Associate Selected Objects to a Story</a>
-                </span>
+        <div id="content-main">
+            <div class="col-md-12 bg-primary" >
+                <h4 >Find Changed Objects in {{repo_name|upper}} - {{branch_name|upper}}</h4>
             </div>
-            <div class="actionBar">
-                <div>
-                    <div style="height:50px; display: inline-block;  text-align: center;">
-                        <span class="sectionHeader" style="padding: 5px; margin-bottom: 5px; width: 100%; text-align: center; display: inline-block;">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
                             <strong>Filter</strong>
-                        </span>
-                        <span style="text-align: left; display: inline-block;">
-                            Modified: <input name="startDate" type="text" id="startDate" value="{{ startDate|date:"m/d/Y" }}" style="width: 60px;"> to <input name="endDate" type="text" id="endDate" value="{{ endDate|date:"m/d/Y" }}" style="width: 60px;"> <strong>&nbsp;+&nbsp;</strong>
-                            Contains: <input type="text" id="txtSearch" id="txtSearch" value="{{ search }}"/> <strong>&nbsp;+&nbsp;</strong>
-                            <span>
-                                Type:
-                                <select name="cboType" id="cboType">
-                                    <option value="">-- All Types --</option>
-                                    {% for type in objectTypes %}
-                                    <option value="{{ type }}" {% if type == selectedType %}selected{% endif %}>{{ type|capfirst }}</option>
-                                    {% endfor %}
-                                </select>
-                            </span>  <strong>&nbsp;+&nbsp;</strong>
-                            <span>
-                                Modified by:
-                                <select name="cboUserName" id="cboUserName">
-                                    <option value="">-- Anyone --</option>
-                                    {% for user in users %}
-                                    <option value="{{ user }}" {% if user == username %}selected{% endif %}>{{ user }}</option>
-                                    {% endfor %}
-                                </select>
-                            </span> 
-                            <input type="button" onclick="refreshFilters();" value="Search!">
-                        </span>
+                        </div>
+                        <div class="panel-body">
+                            <span style="text-align: left; display: inline-block;">
+                                Modified: <input name="startDate" type="text" id="startDate" value="{{ startDate|date:"m/d/Y" }}" style="width: 90px;"> to <input name="endDate" type="text" id="endDate" value="{{ endDate|date:"m/d/Y" }}" style="width: 90px;"> <strong>&nbsp;+&nbsp;</strong>
+                                Contains: <input type="text" id="txtSearch" id="txtSearch" value="{{ search }}"/> <strong>&nbsp;+&nbsp;</strong>
+                                <span>
+                                    Type:
+                                    <select name="cboType" id="cboType">
+                                        <option value="">-- All Types --</option>
+                                        {% for type in objectTypes %}
+                                        <option value="{{ type }}" {% if type == selectedType %}selected{% endif %}>{{ type|capfirst }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>  <strong>&nbsp;+&nbsp;</strong>
+                                <span>
+                                    Modified by:
+                                    <select name="cboUserName" id="cboUserName">
+                                        <option value="">-- Anyone --</option>
+                                        {% for user in users %}
+                                        <option value="{{ user }}" {% if user == username %}selected{% endif %}>{{ user }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                                <button class="btn btn-primary btn-sm" type="button" onclick="refreshFilters();">Search</button>
+                            </span>
+
+                        </div>
                     </div>
+                </div>
+            <!--
+                <div class="col-md-2">
                     {% if objects|length > 0 %}
-                    <div style="height:50px; display:inline-block; text-align: center; float:right;">
-                        <span class="sectionHeader" style="padding: 5px; margin-bottom: 5px; width: 100%; text-align: center; display: inline-block;">
+                    <div class="panel">
+                        <div class="panel-header">
                             <strong>Select</strong>
-                        </span>
-                        <span style="display: inline-block;">
-                            Matching <a href="http://www.javascriptkit.com/javatutors/redev2.shtml" target="_blank">REGEX:</a> <input type="text" id="filter" name="filter"> <input type="button" onclick="selectFiltered();" value="GO"/> <strong>&nbsp;/&nbsp;</strong>
-                            All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/>
-                        </span>
+                        </div>
+                        <div class="panel-body">
+                            <div style="height:50px; display:inline-block; text-align: center; float:right;">
+                                <span class="sectionHeader" style="padding: 5px; margin-bottom: 5px; width: 100%; text-align: center; display: inline-block;">
+                                    <strong>Select</strong>
+                                </span>
+                                <span style="display: inline-block;">
+                                    Matching <a href="http://www.javascriptkit.com/javatutors/redev2.shtml" target="_blank">REGEX:</a> <input type="text" id="filter" name="filter"> <input type="button" onclick="selectFiltered();" value="GO"/> <strong>&nbsp;/&nbsp;</strong>
+                                    All: <input type="checkbox" id="chkAll" onchange="flagAll(this.checked);"/>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
+                -->
+            </div> <!-- row -->
+            <div class="row">
+                <div class="col-md-8"></div>
+                <div class="col-md-4">
+                    <div class="pull-right">
+                        <button type="button" class="button btn-success btn-sm" id="ignoreSelected" onclick="if (confirm('Are you sure?')) {ignoreSelected();} return false;">Ignore Selected Objects</button>
+                        <button type="button" class="button btn-success btn-sm" onclick="promptStoryAdd(); return false;">Associate Selected Objects to a Story</button>
+                    </div>
+                </div>
             </div>
-            <div class="module ObjectsList">
+
+
+
+            <div>
                 {% for object in objects %}
-                {% ifchanged object.type %}
-                {% if not forloop.first %}
-                    </table>
-                    <br/>
-            </div>
-            {% endif %}
-            <h3 class="sectionHeader">
-                <a href="#" onclick="toggle('{{ object.type|title }}List'); toggle('max{{ object.type|title }}'); toggle('min{{ object.type|title }}'); return false;"><img id="min{{ object.type|title }}" src="/static/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ object.type|title }}" src="/static/images/maximize.png" height="20" width="20"/> {{ namestl|lookup:object.type|title }}</a>
-                <span class="sectionHeaderActions">Select all in section: <input type="checkbox" onclick="selectSection('{{ object.type|title }}',this.checked)"/></span>
-            </h3>
-              <div id="{{ object.type|title }}List" style="display:none;">
-                <table>
-                    <tr>
-                        <th scope="row" style="width: 32%;">Object Name</th>
-                        <th style="width: 5%;">Element Type</th>
-                        <th style="width: 33%;">Element Name</th>
-                        <th style="width: 10%;">Changes</th>
-                        <th style="width: 5%;">Stories</th>
-                        <th style="width: 5%;" colspan="2">Actions</th>
-                        <th style="width: 5%;">Include</th>
-                    </tr>
-            {% endifchanged %}
+                    {% ifchanged object.type %}
+                        {% if not forloop.first %}
+                            </table>
+                            <br/>
+                            </div>
+                        {% endif %}
+
+                        <div class="col-md-12 bg-info" style="height: 30pt; padding-right: 0px; padding-left: 0px;">
+                            <div class="col-md-4">
+                                <strong><a style="font-size: 15pt" href="#" onclick="toggle('{{ object.type|title }}List'); toggle('max{{ object.type|title }}'); toggle('min{{ object.type|title }}'); return false;"><img id="min{{ object.type|title }}" src="/static/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ object.type|title }}" src="/static/images/maximize.png" height="20" width="20"/> {{ namestl|lookup:object.type|title }}</a></strong>
+                            </div>
+                            <div class="col-md-8" >
+                                <div class="text-right">Select all in section: <input type="checkbox" onclick="selectSection('{{ object.type|title }}',this.checked)"/></div>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="{{ object.type|title }}List" style="display:none;">
+                            <table class="table table-condensed">
+                                <tr>
+                                    <th scope="row" style="width: 32%;">Object Name</th>
+                                    <th style="width: 5%;">Element Type</th>
+                                    <th style="width: 33%;">Element Name</th>
+                                    <th style="width: 10%;">Changes</th>
+                                    <th style="width: 5%;">Stories</th>
+                                    <th style="width: 5%;" colspan="2">Actions</th>
+                                    <th style="width: 5%;">Include</th>
+                                </tr>
+                    {% endifchanged %}
                     <tr class="line_item_{{ object.release_status }}">
                         <td style="white-space: normal;">
                            {% ifchanged object.filename %}<strong><a href="/object/{{object.id}}" target="_blank">{{ object.filename }}</a></strong>{% endifchanged %}
@@ -132,7 +193,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if object.release_status = 'e' %}
+                            {% if object.release_status == 'e' %}
                             <a href="#" onclick="ignoreItem('{{ object.id }}',true); return false;">Expected Change</a>
                             {% else %}
                             &nbsp;
@@ -142,39 +203,50 @@
                             <input name="chkItem" id="{{ object.id }}" type="checkbox" value="{{ object.type|title|addslashes }}/{{ object.filename|addslashes }}{% if object.el_type %}: {{ object.el_type|title|addslashes }}{% endif %}{% if object.el_subtype %}/{{ object.el_subtype|title|addslashes }}{% endif %}{% if object.el_name %}: {{ object.el_name|addslashes }}{% endif %}" unchecked/>
                         </td>
                     </tr>
-            {% if forloop.last %}
-                </table>
-                <br/>
-            </div>
-            {% endif %}
+                {% if forloop.last %}
+                    </table>
+                    <br/>
+                </div>
+                {% endif %}
             {% empty %}
-            <div>
-                <table>
-                    <tr>
-                        <td scope="row" colspan="6" style="height:50px; text-align: center;">
-                            <strong><span class="biggesttext">
-                            {% if go %}
-                                No objects found matching search filters.
-                            {% else %}
-                                Select filters then click "Search!" to find Objects to tag.
-                            {% endif %}
-                            </span></strong>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                <div>
+                    <table>
+                        <tr>
+                            <td scope="row" colspan="6" style="height:50px; text-align: center;">
+                                <strong><span class="biggesttext">
+                                {% if go %}
+                                    No objects found matching search filters.
+                                {% else %}
+                                    Select filters then click "Search!" to find Objects to tag.
+                                {% endif %}
+                                </span></strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             {% endfor %}
         </div>
-        <br class="clear" />
+
+        <br />
+        <hr />
+        <div class="panel" id="content-main" style="white-space: nowrap; padding: 5px; margin-bottom: 10px; margin-top: 10px;">
+            <span>Key:</span>
+            <span style="border: 1px; border-style: solid;">&#x21B7; - Repeated Action</span>
+            <span class="label label-default" style="border: 1px; border-style: solid;">Changed</span>
+            <span class="label" style="color: #555555; background-color: #acfeaa; border: 1px; border-style: solid;">Release Pending</span>
+            <span class="label" style="color: #555555; background-color: #f0d1ab; border: 1px; border-style: solid;">Release Pending & Changed Again (Conflict)</span>
+        </div>
+
     </div>
+
+
     <div style="display:none;">
         <div id="storyManager" title="Story Manager" style="text-align: center;">
             <div>Please select the following:</div>
             <div>&nbsp;</div>
-            <table align="center">
+            <table class="table table-condensed" align="center">
                 <tr>
-                    <td class="label">Sprint:</td>
-                    <td>&nbsp;&nbsp;</td>
+                    <td class="text-right">Sprint:</td>
                     <td>
                         <select name="sprintId" id="sprintId" style="width:450px;">
                             <option value="None" selected>None</option>
@@ -182,8 +254,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="label">Story:</td>
-                    <td>&nbsp;&nbsp;</td>
+                    <td class="text-right">Story:</td>
                     <td>
                         <select name="storyId" id="storyId" style="width:450px;">
                             <option value="" selected>None</option>
@@ -191,22 +262,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="label">New Story Name:</td>
-                    <td>&nbsp;&nbsp;</td>
+                    <td class="text-right">New Story Name:</td>
                     <td><input type="text" name="storyName" id="storyName" value=""></td>
                 </tr>
                 <tr>
-                    <td class="label">New Story External ID*:</td>
-                    <td>&nbsp;&nbsp;</td>
+                    <td class="text-right">New Story External ID*:</td>
                     <td><input type="text" name="storyRallyId" id="storyRallyId" value=""></td>
                 </tr>
                 <tr>
-                    <td class="label">New Story URL (optional):</td>
-                    <td>&nbsp;&nbsp;</td>
+                    <td class="text-right">New Story URL (optional):</td>
                     <td><input type="text" name="storyURL" id="storyURL" value=""></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="smalltext">* Story External Id is required to create a story</td>
+                    <td colspan="3" ><small>* Story External Id is required to create a story</small></td>
                 </tr>
                 <tr>
                     <td colspan="3" id="itemList"></td>

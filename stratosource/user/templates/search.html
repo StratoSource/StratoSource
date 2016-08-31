@@ -3,7 +3,10 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-Home
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Search</li>
+</ol>
 {% endblock %}
 
 {% block jscript %}
@@ -29,10 +32,11 @@ function refreshBranches() {
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
         <div id="content-main">
 
 			Repo: <select name="cboRepo" id="selectedRepo" onchange="refreshBranches();">
+                    <option value="select">--select--</option>
 				{% for repo in repos %}
 					<option value="{{ repo.name }}" {% if repo.name == selectedRepo %}selected{% endif %} >{{ repo.name }}</option>
 				{% endfor %}

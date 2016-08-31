@@ -17,8 +17,7 @@
 #    
 
 from django import forms
-from django.template import RequestContext
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import redirect, render
 from stratosource.models import Branch, BranchLog, Repo, DeployableObject, Delta
 from ss2 import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -40,23 +39,34 @@ class RepoForm(forms.ModelForm):
     def clean(self):
 
         cleaned_data = self.cleaned_data
-        path = cleaned_data.get("location")
+#        path = cleaned_data.get("location")
+        name = cleaned_data.get("name")
+        path = os.path.join('/var/sfrepo', name, 'code')
+ #       cleaned_data['location'] = path
 
         if not os.path.isdir(path):
-            self._errors["location"] = self.error_class(['Path does not exist or is inaccessible'])
-        else:
-            curdir = os.getcwd()
-            os.chdir(path)
-            p = subprocess.Popen(['git', 'status'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            (r, w) = (p.stdin, p.stdout)
-            for line in r:
-                line = line.rstrip()
-                if line.startswith("fatal"):
-                    self._errors["location"] = self.error_class(['Appears to be an invalid git repository'])
-                    break
-            os.chdir(curdir)
-            r.close()
-            w.close()
+            try:
+                os.makedirs(path)
+            except Exception as ex:
+                self.errors['__all__'] = self.error_class([str(ex)])
+#                self._errors["location"] = self.error_class(['Path does not exist and unable to create'])
+                return cleaned_data
+
+            if os.path.isdir(path):
+                curdir = os.getcwd()
+                os.chdir(path)
+                try:
+                    #
+                    # initialize the git repo
+                    #
+                    output = subprocess.check_output(['git','init'])
+                    subprocess.check_output(['touch','.gitignore'])
+                    subprocess.check_output(['git', 'add','.gitignore'])
+                    subprocess.check_output(['git','commit','-m','"initial commit"'])
+                except Exception as ex:
+                    self._errors["location"] = self.error_class(['Unable to create git repository in ' + path])
+                finally:
+                    os.chdir(curdir)
         return cleaned_data
 
 
@@ -90,14 +100,14 @@ class BranchForm(forms.ModelForm):
         ('ApexComponent', 'Apex Components'),
         ('ReportType', 'Report types'),
         ('Scontrol', 'S-Controls'),
-        ('StaticResource', 'Static resources'),
+#        ('StaticResource', 'Static resources'),
         ('Workflow', 'Workflows'),
         ('ApprovalProcess', 'Approval processes'),
         ('EntitlementTemplate', 'Entitlement templates'),
     )
 
     api_env = forms.ChoiceField(choices=SFENVCHOICES)
-    api_assets = forms.MultipleChoiceField(choices=SFAPIASSETS)
+    api_assets = forms.MultipleChoiceField(choices=SFAPIASSETS, required=False)
     #    api_pass = forms.CharField(max_length=100, widget=forms.PasswordInput)
     api_pass2 = forms.CharField(max_length=100, widget=forms.PasswordInput, required=False)
 
@@ -163,13 +173,31 @@ def newbranch(request):
             #            row.api_ver = cleaned_data.get('api_ver')
             row.api_assets = ','.join(cleaned_data.get('api_assets'))
             row.save()
+
             createCrontab(row)
             createCGitEntry(row)
+
+            repo = Repo.objects.get(id=row.repo_id)
+            curdir = os.getcwd()
+            os.chdir(repo.location)
+            try:
+                #
+                # initialize the git repo
+                #
+                subprocess.check_output(['git', 'checkout', '-b', row.name, 'master'])
+            except Exception as ex:
+                removeCGitEntry(row)
+                removeCrontab(row)
+                row.delete()
+                logger.exception(ex)
+                raise
+            finally:
+                os.chdir(curdir)
+
             return adminMenu(request)
     else:
         form = BranchForm()
-    return render_to_response('editbranch.html', {'form': form, 'type': 'New', 'action': 'newbranch/'},
-                              context_instance=RequestContext(request))
+    return render(request, 'editbranch.html', {'form': form, 'type': 'New', 'action': 'newbranch/'})
 
 
 def editbranch(request, branch_id):
@@ -211,8 +239,7 @@ def editbranch(request, branch_id):
         row = Branch.objects.get(id=branch_id)
         row.api_assets = row.api_assets.split(',')
         form = BranchForm(instance=row)
-    return render_to_response('editbranch.html', {'form': form, 'type': 'Edit', 'action': 'editbranch/' + branch_id},
-                              context_instance=RequestContext(request))
+    return render(request, 'editbranch.html', {'form': form, 'type': 'Edit', 'action': 'editbranch/' + branch_id})
 
 
 def last_log(request, branch_id, logtype):
@@ -225,12 +252,21 @@ def last_log(request, branch_id, logtype):
         pass
 
     data = {'branch': branch, 'log': log}
-    return render_to_response('last_log.html', data, context_instance=RequestContext(request))
+    return render(request, 'last_log.html', data)
 
+#
+# just-in-time setup of cgit config, to support Docker
+#
+def verifyCgit():
+    if not os.path.isdir(settings.CONFIG_DIR):
+        os.mkdir(settings.CONFIG_DIR)
+    if not os.path.isfile(os.path.join(settings.CONFIG_DIR, 'cgitrepo')):
+        subprocess.check_output(['cp', os.path.join(settings.BASE_DIR, 'resources', 'cgitrepo'), settings.CONFIG_DIR])
 
 def createCGitEntry(branch):
+    verifyCgit()
     removeCGitEntry(branch)
-    f = open(os.path.join(settings.BASE_DIR, 'cgitrepo'), 'a')
+    f = open(os.path.join(settings.CONFIG_DIR, 'cgitrepo'), 'a')
     f.write('#ID=%d\n' % branch.id)
     f.write('repo.url=%s\n' % branch.name)
     f.write('repo.path=%s/.git\n' % branch.repo.location)
@@ -239,7 +275,8 @@ def createCGitEntry(branch):
 
 
 def removeCGitEntry(branch):
-    p = os.path.join(settings.BASE_DIR, 'cgitrepo')
+    verifyCgit()
+    p = os.path.join(settings.CONFIG_DIR, 'cgitrepo')
     if not os.path.exists(p):
         return
     f = open(p, 'r')
@@ -258,7 +295,7 @@ def removeCGitEntry(branch):
         linecount += 1
         while linecount < len(lines) and len(lines[linecount]) > 0 and lines[linecount][0:1] != '#': linecount += 1
         #        del lines[start:linecount]
-        f = open(os.path.join(settings.BASE_DIR, 'cgitrepo'), 'w')
+        f = open(os.path.join(settings.CONFIG_DIR, 'cgitrepo'), 'w')
         f.writelines(lines[0:start])
         f.writelines(lines[linecount:])
         f.close()
@@ -272,7 +309,7 @@ def createCrontab(branch):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/tmp/config_cronjob.out 2>&1" % (
+        cronline = "%s %s * * * %s %s %s >/var/sftmp/config_cronjob.out 2>&1" % (
             branch.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'config_cronjob.sh'), branch.repo.name,
             branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
@@ -285,7 +322,7 @@ def createCrontab(branch):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/tmp/code_cronjob.out 2>&1" % (
+        cronline = "%s %s * * * %s %s %s >/var/sftmp/code_cronjob.out 2>&1" % (
             branch.code_cron_start, interval_str, os.path.join(settings.BASE_DIR, 'code_cronjob.sh'), branch.repo.name,
             branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
@@ -314,6 +351,17 @@ def removeCrontab(branch):
 
 
 def adminMenu(request):
+    if request.method == u'GET' and request.GET.__contains__('reset') and request.GET['reset'] == 'true':
+        snaptype = request.GET['type']
+        branch_id = request.GET['branch_id']
+        branch = Branch.objects.get(id=branch_id)
+        if snaptype == 'config':
+            branch.run_status = 'd'
+        else:
+            branch.code_run_status = 'd'
+        branch.save()
+        return redirect("/admin/?success=true")
+
     if request.method == u'GET' and request.GET.__contains__('snapshot') and request.GET['snapshot'] == 'true':
         branch_id = request.GET['branch_id']
         snaptype = request.GET['type']
@@ -322,7 +370,7 @@ def adminMenu(request):
             repo_name = branch.repo.name
             branch_name = branch.name
             pr = subprocess.Popen(os.path.join(settings.BASE_DIR,
-                                               'config_cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &',
+                                  'config_cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
                                   shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
@@ -343,8 +391,8 @@ def adminMenu(request):
             repo_name = branch.repo.name
             branch_name = branch.name
             pr = subprocess.Popen(os.path.join(settings.BASE_DIR,
-                                               'code_cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &',
-                                  shell=True)
+                                    'code_cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
+                                    shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
             if pr.returncode == 0:
@@ -369,8 +417,7 @@ def adminMenu(request):
         if item.find(CRON_COMMENT) != -1:
             cronlist.append(item)
 
-    return render_to_response('admin_menu.html', {'repos': repos, 'branches': branches, 'crontab': cronlist},
-                              context_instance=RequestContext(request))
+    return render(request, 'admin_menu.html', {'repos': repos, 'branches': branches, 'crontab': cronlist})
 
 
 def repo_form_action(request):
@@ -423,12 +470,16 @@ def newrepo(request):
     if request.method == 'POST':
         form = RepoForm(request.POST)
         if form.is_valid():
-            form.save()
+            row = Repo()
+            cleaned_data = form.cleaned_data
+            row.name = cleaned_data.get('name')
+            row.location = os.path.join('/var/sfrepo', row.name, 'code')
+            row.save()
+#            form.save()
             return adminMenu(request)
     else:
         form = RepoForm()
-    return render_to_response('editrepo.html', {'form': form, 'type': 'New', 'action': 'newrepo/'},
-                              context_instance=RequestContext(request))
+    return render(request, 'editrepo.html', {'form': form, 'type': 'New', 'action': 'newrepo/'})
 
 
 def editrepo(request, repo_id):
@@ -438,10 +489,10 @@ def editrepo(request, repo_id):
             row = Repo.objects.get(id=repo_id)
             cleaned_data = form.cleaned_data
             row.name = cleaned_data.get('name')
-            row.location = cleaned_data.get('location')
+            #row.location = cleaned_data.get('location')
+            row.location = os.path.join('/var/sfrepo', row.name, 'code')
             row.save()
             return adminMenu(request)
     else:
         form = RepoForm(instance=Repo.objects.get(id=repo_id))
-    return render_to_response('editrepo.html', {'form': form, 'type': 'Edit', 'action': 'editrepo/' + repo_id},
-                              context_instance=RequestContext(request))
+    return render(request, 'editrepo.html', {'form': form, 'type': 'Edit', 'action': 'editrepo/' + repo_id})

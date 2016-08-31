@@ -1,0 +1,178 @@
+
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<style type="text/css">
+    .modal
+    {
+        position: fixed;
+        z-index: 999;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background-color: Black;
+        filter: alpha(opacity=60);
+        opacity: 0.6;
+        -moz-opacity: 0.8;
+    }
+    .center
+    {
+        z-index: 1000;
+        margin: 300px auto;
+        padding: 10px;
+        width: 130px;
+        background-color: White;
+        border-radius: 10px;
+        filter: alpha(opacity=100);
+        opacity: 1;
+        -moz-opacity: 1;
+    }
+    .center img
+    {
+        height: 128px;
+        width: 128px;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function() {
+        $('#cancelButton').click(function() {
+            window.location = $('#admin_menu_link').attr('href');
+        });
+
+        $('input').addClass('form-control');
+        $('select').addClass('form-control');
+    });
+
+    function submitDbAll() {
+        $(".modal").show();
+        $("#dball").submit();
+    }
+
+    function submitDb(stage) {
+        $(".modal").show();
+        window.location = '/setup/' + stage;
+    }
+</script>
+
+
+    <div id="content" class="container-fluid">
+        <div id="content-main">
+            {%  if status == 'error' %}
+                <p class="bg-danger">{{  desc }}</p>
+            {%  endif %}
+            {%  if stage == '10' %}
+                <h2>Your environment needs to be configured</h2>
+                <button type="button" class="btn btn-default" onclick="window.location='/setup/20'">Continue</button>
+            {%  endif %}
+            {%  if stage == '20' %}
+                <h2>Unable to connect to the Stratosource database</h2>
+                <hr />
+                <h3>Your options are:</h3>
+				<h4>If your database server is on another machine or VM, make sure to edit ss2/settings.py and set the HOST and optional PORT of the 'ss' section to your server. Then restart Stratosource</h4>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Create the user, database, and tables. Make sure the database server is running first.
+                    </div>
+                    <div class="panel-body">
+                        The following action will:
+                        <ul>
+                            <li>Create a database called 'stratosource' in the default tablespace</li>
+                            <li>Create a database user called 'stratosource' with same default password</li>
+                            <li>Create all tables and populate the default configuration</li>
+                        </ul>
+                        <form id="dball" class="form-inline" method="post" action="/setup/22">{% csrf_token %}
+
+                            <div class="form-group">
+                                <label for="user">User:</label>
+                                <input type="text" class="form-control" name="username" size="30" placeholder="database admin user">
+                            </div>
+                            <div class="form-group">
+                                <label for="Password">Password:</label>
+                                <input type="password" class="form-control" name="password" size="30" placeholder="password">
+                            </div>
+                            <button type="submit" class="btn btn-default" onclick="submitDbAll();">Do it all</button>
+                            <p>Be patient - this may take up to a minute</p>
+                        </form>
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Create the database and tables for me.
+                    </div>
+                    <div class="panel-body">
+                        You must have created a user called "stratosource" with initial password "stratosource" and <ul>grant permission</ul> to create a database.
+                        The following action will:
+                        <ul>
+                            <li>Create a database called 'stratosource' in the default tablespace</li>
+                            <li>Create all tables and populate the default configuration</li>
+                        </ul>
+
+                         <button type="btn btn-default" class="btn btn-default" onclick="submitDb('25');">Try it now</button>
+                         <p>Be patient - this may take up to a minute</p>
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Just create the tables for me.
+                    </div>
+                    <div class="panel-body">
+                         Make sure database and user "stratosource" exists. <button type="button" class="btn btn-default" onclick="submitDb('30');">click here to proceed</button>
+                         <p>Be patient - this may take up to a minute</p>
+                    </div>
+                </div>
+            {%  endif %}
+            {%  if stage == '30' %}
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Create database tables
+                    </div>
+                    <div class="panel-body">
+                        The database and user are verified.  Now we need to create the Stratosource tables.
+                         <button type="button" class="btn btn-default" onclick="submitDb('30');">click here to proceed</button>
+                         <p>Be patient - this may take up to a minute</p>
+                    </div>
+                </div>
+
+            {%  endif %}
+            {%  if stage == '40' %}
+                <h2>Unable to create tables</h2>
+                <code>{{ desc }}</code>
+            {%  endif %}
+            {%  if stage == '50' %}
+                <h2>Database setup complete</h2>
+				<p>Next we will check filesystem access</p>
+                <button type="button" class="btn btn-default" onclick="window.location='/setup/50'">Check now</button>
+            {%  endif %}
+            {%  if stage == '55' %}
+                <h2>Filesystem problem</h2>
+				<p>Unable to write to /var/sfrepo or /var/sftmp. Please fix the permissions.</p>
+				<ul>
+					<li>If running under Apache, /var/sfrepo should be owned and writable by the apache user. ie. <code>chown -R apache:apache /var/sfrepo; chmod ug+rwx /var/sfrepo</code></li>
+					<li>If not running under Apache, /var/sfrepo to be owned and writable by the correct owning user</li>
+                    <li>Make sure /var/sftmp is a symbolic link to /tmp</li>
+				</ul>
+                <button type="button" class="btn btn-default" onclick="window.location='/setup/50'">Try again</button>
+            {%  endif %}
+            {%  if stage == '57' %}
+                <h2>Container problem</h2>
+				<p>Unable to write to /var/sfrepo or /var/sftmp</p>
+                <div class="alert alert-warning">One or more volumes have not been mapped to the host system.  Please reconfigure your image and try again.</div>
+            {%  endif %}
+            {%  if stage == '60' %}
+                <h2>Setup complete</h2>
+                <div class="alert alert-success">Please restart Stratosource now to continue</div>
+            {%  endif %}
+        </div>
+    </div>
+
+
+    <div class="modal" style="display: none">
+        <div class="center">
+            <img alt="" src="/static/images/loader.gif" />
+        </div>
+    </div>
+
+{% endblock %}

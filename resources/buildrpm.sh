@@ -3,7 +3,7 @@
 # Update version numbers here only
 ##
 MAJOR=2
-MINOR=13
+MINOR=0
 PATCH=0
 REL=0
 VERSION=$MAJOR.$MINOR.$PATCH
@@ -18,6 +18,7 @@ cp -R ss2 $NAME
 cp *cronjob.sh $NAME
 cp notify.py $NAME
 cp runmanage.sh $NAME
+cp manage.py $NAME
 
 SOURCEDIR="/tmp/stratosource"
 mkdir -p $SOURCEDIR/SOURCES

@@ -31,7 +31,7 @@ __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
 
 _API_VERSION = 35.0
-_DEFAULT_LOGNAME = '/tmp/agent.log'
+_DEFAULT_LOGNAME = '/var/sftmp/agent.log'
 _METADATA_TIMEOUT=60 * 80
 _METADATA_POLL_SLEEP=10
 _DEPLOY_TIMEOUT=6 * 10 * 60   # 1 hour
@@ -250,7 +250,7 @@ class SalesforceAgent:
         data['records'] = recs
         return data
 
-    def retrieve_meta(self, types, pod, outputname='/tmp/retrieve.zip'):
+    def retrieve_meta(self, types, pod, outputname='/var/sftmp/retrieve.zip'):
         if not self.login_result:
             raise Exception('Initialization error: not logged in')
         if not self.meta:

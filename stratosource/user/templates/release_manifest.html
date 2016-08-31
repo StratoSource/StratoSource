@@ -2,8 +2,11 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{release.id}}">{{ release.name }}</a> ->
-Manifest for "{{release.name|upper}}"
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/releases">Releases</a></li>
+  <li class="active">Manifest for "{{release.name|upper}}</li>
+</ol>
 {% endblock %}
 
 
@@ -25,7 +28,7 @@ Manifest for "{{release.name|upper}}"
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
 
@@ -55,7 +58,7 @@ Manifest for "{{release.name|upper}}"
                     <span class="section">Release Tasks</span>
             </div>
             <div class="module" style="padding:15px;">
-                <table style="min-width:500px;" id="sortable">
+                <table class="table table-condensed table-hover" style="min-width:500px;" id="sortable">
                     <thead>
                         <tr>
                             <th class="align_center">Type</th>
@@ -74,10 +77,10 @@ Manifest for "{{release.name|upper}}"
             </div>
             <br/>
             <div class="section">
-                <span class="section">Manifest of Changed Objects in {{release.name}}</span>
+                <h4>Manifest of Changed Objects in {{release.name}}</h4>
                 <span class="sectionActions">
                     {% if null != branch.id %}
-                    <a href="/export_labels_form?release_id={{release.id}}&repocb={{branch.repo.id}}">Export Labels</a>
+                    <a href="/export_labels_form?release_id={{release.id}}&branch_id={{branch.id}}">Export Labels</a>
                     {% endif %}
                     <!-- Hiding until package deployment is ready
                     {% if null != branch.id %}
@@ -86,7 +89,7 @@ Manifest for "{{release.name|upper}}"
                     -->
                 </span>
             </div>
-            <table style="font-weight:bold;">
+            <table class="table table-condensed table-hover" style="font-weight:bold;">
                 <tr>
                     <td scope="row" style="text-align:right; width: 50%; font-size: 10pt;">Environment:</td>
                     <td style="width: 50%;">
@@ -117,7 +120,7 @@ Manifest for "{{release.name|upper}}"
                 {% endif %}
                 <h3 class="sectionHeader">{{ object.type|title }}</h3>
                 <div id="{{ object.type|title }}List">
-                    <table>
+                    <table class="table table-condensed table-hover">
                         <tr>
                             <th scope="row">Object Name</th>
                             <th>Element Type</th>
@@ -170,7 +173,7 @@ Manifest for "{{release.name|upper}}"
                 {% if translations|length > 0 %}
                 <h3 class="sectionHeader">Translations</h3>
                 <div id="TranslationsList">
-                    <table>
+                    <table class="table table-condensed table-hover">
                         <tr>
                             <th scope="row">Label</th>
                             <th>Locale</th>

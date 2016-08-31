@@ -16,18 +16,15 @@
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
 from django.core.management.base import BaseCommand, CommandError
-from suds.client import Client
-import os
-import base64
-import sys
 import httplib, urllib
 import json
 import time
 import datetime
-from stratosource.admin.management import CSBase
-from stratosource.admin.management import Utils
-from stratosource.admin.models import Branch, Repo, UnitTestBatch, UnitTestRun, UnitTestRunResult
-from stratosource.admin.management import UnitTestRunUtil
+
+from stratosource.management import CSBase
+from stratosource.management import Utils
+from stratosource.models import Branch, Repo, UnitTestBatch, UnitTestRun, UnitTestRunResult
+from stratosource.management import UnitTestRunUtil
 
 
 __author__="masmith"
@@ -37,11 +34,17 @@ __date__ ="$Nov 1, 2011 10:41:44 AM$"
 
 class Command(BaseCommand):
 
+    args = ''
+    help = 'download assets from Salesforce'
+
+    def add_arguments(self, parser):
+        parser.add_argument('repo', help='repository name')
+        parser.add_argument('branch', help='branch name')
+
     def handle(self, *args, **options):
 
-        if len(args) < 2: raise CommandError('usage: runtests <repo alias> <branch>')
-        repo = Repo.objects.get(name__exact=args[0])
-        self.branch = Branch.objects.get(repo=repo, name__exact=args[1])
+        repo = Repo.objects.get(name__exact=options['repo'])
+        self.branch = Branch.objects.get(repo=repo, name__exact=options['branch'])
 
         self.agent = Utils.getAgentForBranch(self.branch)
         self.rest_headers = {"Authorization": "OAuth %s" % self.agent.getSessionId(), "Content-Type": "application/json" }

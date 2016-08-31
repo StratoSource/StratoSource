@@ -14,7 +14,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
-#    
+#
+from datetime import timedelta, datetime
+
+from django.utils import timezone
+
 from stratosource.management import ConfigCache
 from stratosource.models import Story
 from ss2 import settings
@@ -45,27 +49,30 @@ class RallyProject():
 
 def print_proj_tree(pList):
     for p in pList:
-        if len(p.children) == 0:
-            logger.debug(p.name + ' - ' + p.id + ' (' + str(len(p.sprints)) + ' sprints)')
-        else:
-            print_proj_tree(p.children)
+        if hasattr(p, 'children'):
+            if len(p.children) == 0:
+                logger.debug(p.name + ' - ' + p.id + ' (' + str(len(p.sprints)) + ' sprints)')
+            else:
+                print_proj_tree(p.children)
 
 def find_leaves(pList, level, leaves):
     for p in pList:
-        if len(p.children) == 0:
-            if not leaves.has_key(p.id) or level > leaves[p.id]:
-                leaves[p.id] = level
-        else:
-            find_leaves(p.children, level + 1, leaves)
+        if hasattr(p,'children'):
+            if len(p.children) == 0:
+                if not leaves.has_key(p.id) or level > leaves[p.id]:
+                    leaves[p.id] = level
+            else:
+                find_leaves(p.children, level + 1, leaves)
     return leaves
 
 def leaf_list(pList, llist):
 
     for p in pList:
-        if len(p.children) == 0:
-            llist.append(p)
-        else:
-            leaf_list(p.children, llist)
+        if hasattr(p, 'children'):
+            if len(p.children) == 0:
+                llist.append(p)
+            else:
+                leaf_list(p.children, llist)
 
     return llist
 
@@ -131,16 +138,26 @@ def get_stories(projectIds):
 #    projNames = ['Red Hat Connect Tech Partner Hub']
 #    projectIds = ['c97fae21-9861-496d-8643-74adc92a00bc']
 
+    oneYear = timedelta(days=365)
+    oneYearAgo = timezone.now() - oneYear
+
     for projectid in projectIds:
         print('projectid=%s' % (projectid,))
-        queriedStories = session.get('Story', query='Project.ObjectID = "' + projectid + '"', fetch=True)
+        queriedStories = session.get('Story', query='Project.ObjectID = "' + projectid + '"', fetch='FormattedID,Name,CreationDate,Iteration')
         queriedDefects = session.get('Defect', query='Project.ObjectID = "' + projectid + '"', fetch=True)
         queriedStories = list(queriedStories)
         queriedDefects = list(queriedDefects)
         for result in queriedStories + queriedDefects:
+            createdate = datetime.strptime(result.CreationDate[0:19], "%Y-%m-%dT%H:%M:%S" )
+            if createdate < oneYearAgo:
+                #
+                # Don't load ones over a year old. If you are still working a story after a year you have bigger problems.
+                #
+                continue
             story = Story()
             story.rally_id = result.FormattedID
             story.name = result.Name
+            story.date_added = createdate
             if result.Iteration:
                 story.sprint = result.Iteration.Name
             stories[story.rally_id] = story

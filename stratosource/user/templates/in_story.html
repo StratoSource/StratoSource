@@ -2,13 +2,16 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> 
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
 {% if branch_name %}
-<a href="/unreleased/{{repo_name}}/{{branch_name}}">Unreleased Code for {{branch_name|upper}}</a>
+  <li><a href="/unreleased/{{repo_name}}/{{branch_name}}">Unreleased Code for {{branch_name|upper}}</a></li>
 {% else %}
-<a href="/stories">Manage Stories</a>
+  <li><a href="/stories">Manage Stories</a></li>
 {% endif %}
--> {{story.rally_id}}
+  <li class="active">{{story.rally_id}}</li>
+</ol>
+
 {% endblock %}
 
 {% block jscript %}
@@ -25,11 +28,11 @@
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container">
 
         <div id="content-main">
-            <div class="module ObjectsList" style="padding: 5px;">
-                <b>{{story.rally_id}} Description {% if story.rally_id != '' %}(<a href="{{ story.url }}" target="_blank">See Details</a>){% endif %}</b> 
+            <div style="padding: 5px;">
+                <b>{{story.rally_id}} Description {% if story.url != None %}(<a href="{{ story.url }}" target="_blank">See Details</a>){% endif %}</b>
                 <br/><br/>{{story.name}}
                 <br/><br/>
             </div>
@@ -39,7 +42,7 @@
                         <span class="section">Release Tasks</span>
                 </div>
                 <div style="padding: 10px;">
-                    <table style="min-width:500px;" id="sortable">
+                    <table style="table-condensed table-hover" style="min-width:500px;" id="sortable">
                         <thead>
                             <tr>
                                 <th class="align_center">Type</th>
@@ -104,7 +107,7 @@
                             <th>Actions</th>
                         </tr>
                     {% for object in objects %}
-                        {% if object.branch.id = branch.id %}
+                        {% if object.branch.id == branch.id %}
                         <tr class="line_item_{{ object.release_status }}">
                             <td scope="row" nowrap>
                                 <a href="/object/{{object.id}}" target="_blank">{{ object.type|title|addslashes }}/{{ object.filename|addslashes }}{% if object.el_type %}: {{ object.el_type|title|addslashes }}{% endif %}{% if object.el_subtype %}/{{ object.el_subtype|title|addslashes }}{% endif %}{% if object.el_name %}: {{ object.el_name|addslashes }}{% endif %}</a>
@@ -128,7 +131,7 @@
                         {%endif%}
                     {% endfor %}
                     {% for translation in translations %}
-                        {% if translation.branch.id = branch.id %}
+                        {% if translation.branch.id == branch.id %}
                         <tr class="line_item_{{ translation.release_status }}">
                             <td scope="row" nowrap>
                                 <a href="/translation/{{translation.id}}" target="_blank">Translation/{{ translation.label|title }} ({{ translation.locale }})</a>
@@ -180,7 +183,7 @@
                             <th>Also in Story</th>
                         </tr>
                     {% for object in dep_objects %}
-                        {% if object.branch.id = branch.id %}
+                        {% if object.branch.id == branch.id %}
                         <tr>
                             <td>
                                 <a href="/object/{{object.id}}" target="_blank">{{ object.type|title|addslashes }}/{{ object.filename|addslashes }}{% if object.el_type %}: {{ object.el_type|title|addslashes }}{% endif %}{% if object.el_subtype %}/{{ object.el_subtype|title|addslashes }}{% endif %}{% if object.el_name %}: {{ object.el_name|addslashes }}{% endif %}</a>
@@ -201,7 +204,7 @@
                         {% endif %}
                     {% endfor %}
                     {% for translation in dep_translations %}
-                        {% if translation.branch.id = branch.id %}
+                        {% if translation.branch.id == branch.id %}
                         <tr class="line_item_{{ translation.release_status }}">
                             <td scope="row" nowrap>
                                 <a href="/translation/{{translation.id}}" target="_blank">Translation/{{ translation.label|title }} ({{ translation.locale }})</a>

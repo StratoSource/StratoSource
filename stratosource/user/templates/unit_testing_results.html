@@ -29,20 +29,23 @@
 
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Unit Test Results
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Unit Test Results</li>
+</ol>
 {% endblock %}
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container">
 
         <div id="content-main">{{ hash }}
             <div class="module ObjectsList">
             {% for batch in batches %}
-                <h3 class="sectionHeader">
-                    <a href="#" onclick="toggleList('{{ batch.id }}'); toggle('max{{ batch.id }}'); toggle('min{{ batch.id }}'); return false;"><img id="min{{ batch.id }}" src="/static/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ batch.id }}" src="/static/images/maximize.png" height="20" width="20"/> Unit Test Batch on {{batch.branch.name|upper}} started at {{ batch.batch_time }}</a>
-                    <span class="sectionHeaderActions"><a href="#" onclick="document.location = document.location.pathname + '?sendReport={{batch.id}}' + document.location.hash; return false;">Resend Results Report</a><!--<a onclick="return confirm('Are you sure?');" href="?delete={{ batch.id }}" style="display:inline;">Delete Run</a>--></span>
-                </h3>
+                <div class="col-md-12 bg-info">
+                    <a class="col-md-8" href="#" onclick="toggleList('{{ batch.id }}'); toggle('max{{ batch.id }}'); toggle('min{{ batch.id }}'); return false;"><img id="min{{ batch.id }}" src="/static/images/minimize.png" height="20" width="20" style="display:none;"/><img id="max{{ batch.id }}" src="/static/images/maximize.png" height="20" width="20"/> Unit Test Batch on {{batch.branch.name|upper}} started at {{ batch.batch_time }}</a>
+                    <span class="col-md-4 text-right"><a href="#" onclick="document.location = document.location.pathname + '?sendReport={{batch.id}}' + document.location.hash; return false;">Resend Results Report</a> | <a onclick="return confirm('Are you sure?');" href="?delete={{ batch.id }}" style="display:inline;">Delete Run</a></span>
+                </div>
                 <div  class="module biggertext" style="padding:3px; background: white;">{{ batch.tests }} Tests Run, {{ batch.failures }} Failed, {{ batch.runtime }} Seconds total System Runtime</div>
                 <div id="{{ batch.id }}List" style="display:none;">
                 </div>

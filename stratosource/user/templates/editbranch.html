@@ -2,7 +2,11 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a id="admin_menu_link" href="/admin/">Admin Menu</a> -> Branch -> {{ type }}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/admin/">Repos and Branches</a></li>
+  <li class="active">Branch {{ type }}</li>
+</ol>
 {% endblock %}
 
 {% block content %}
@@ -12,313 +16,220 @@
         $('#cancelButton').click(function() {
             window.location = $('#admin_menu_link').attr('href');
         });
+        //$('input').addClass('form-control');
+        //$('select').addClass('form-control');
     });
 </script>
 
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
         <div id="content-main">
             <div class="module">
-                <form action="/{{action}}" method="post">{% csrf_token %}
-
+                <h2>Branch Details</h2>
+                <form class="form-horizontal form-condensed form-hover" action="/{{action}}" method="post">{% csrf_token %}
                     {{ form.non_field_errors }}
 
-                    <table border="0">
-                        <tr>
-                            <td width="20%" align="right">
-                                <label for="id_repo">Local Source Repository:</label>
-                                {{ form.repo.errors }}
-                            </td>
-                            <td>
-                                {{ form.repo }}
-                            </td>
-                            <td>
-                                Source code repository where downloaded assets are saved
-                            </td>
-                        </tr>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tabs-1">General</a></li>
+                    <li><a data-toggle="tab" href="#tabs-2">Code Snapshots</a></li>
+                    <li><a data-toggle="tab" href="#tabs-3">Config Snapshots</a></li>
+                </ul>
 
-                        <tr>
-                            <td align="right">
-                                <label for="id_name">Branch Name:</label>
-                                {{ form.name.errors }}
-                            </td>
-                            <td>
-                                {{ form.name }}
-                            </td>
-                            <td>
-                                Name of this branch. Must be legal for source code revision system being used (ie. Git, Subversion, Mercurial, etc)
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_store">API Storage:</label>
-                                {{ form.api_store.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_store }}
-                            </td>
-                            <td>
-                                Directory where downloads will be staged for processing.  The default /tmp is fine in most cases.
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_env">Salesforce Environment:</label>
-                                {{ form.api_env.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_env }}
-                            </td>
-                            <td>
-                                Salesforce environment type
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_user">Salesforce API User:</label>
-                                {{ form.api_user.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_user }}
-                            </td>
-                            <td>
-                                Salesforce API Username
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_pass">Salesforce API Password:</label>
-                                {{ form.api_pass.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_pass }}
-                            </td>
-                            <td>
-                                {% if type = 'Edit' %}
-                                Salesforce API Password - LEAVE BLANK TO KEEP EXISTING PASSWORD
-                                {% else %}
-                                Salesforce API Password
+                <div class="tab-content">
+                    <div id="tabs-1" class="tab-pane fade in active">
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.repo.id_for_label }}">Local Source Repository:</label>
+                          <div class="col-md-5">
+                              {{ form.repo }}
+                              {{ form.repo.errors }}
+                          </div>
+                            <span class="help-block">Source code repository where downloaded assets are saved</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.name.id_for_label }}">Branch Name:</label>
+                          <div class="col-md-5">
+                              {{ form.name }}
+                              {{ form.name.errors }}
+                          </div>
+                          <span class="help-block">Name of this branch. Must be legal for source code revision system being used (ie. Git, Subversion, Mercurial, etc)</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_store.id_for_label }}">API Storage:</label>
+                          <div class="col-md-5">
+                              {{ form.api_store }}
+                              {{ form.api_store.errors }}
+                          </div>
+                          <span class="help-block">Directory where downloads will be staged for processing.  The default /tmp is fine in most cases.</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_env.id_for_label }}">Salesforce Environment:</label>
+                          <div class="col-md-5">
+                              {{ form.api_env }}
+                              {{ form.api_env.errors }}
+                          </div>
+                          <span class="help-block">Salesforce environment type</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_user.id_for_label }}">Salesforce API User:</label>
+                          <div class="col-md-5">
+                              {{ form.api_user }}
+                              {{ form.api_user.errors }}
+                          </div>
+                          <span class="help-block">Salesforce API Username</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_pass.id_for_label }}">Salesforce API Password:</label>
+                          <div class="col-md-5">
+                              {{ form.api_pass }}
+                              {{ form.api_pass.errors }}
+                          </div>
+                          <span class="help-block">
+                                {% if type == 'Edit' %}
+                                    Salesforce API Password - LEAVE BLANK TO KEEP EXISTING PASSWORD
+                                    {% else %}
+                                    Salesforce API Password
                                 {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_pass2">Verify Password:</label>
-                                {{ form.api_pass2.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_pass2 }}
-                            </td>
-                            <td>
-                                Salesforce API Password verification
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_auth">Salesforce API Auth Token:</label>
-                                {{ form.api_auth.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_auth }}
-                            </td>
-                            <td>
-                                Salesforce API authentication token, optional as needed.
-                            </td>
-                        </tr>
+                          </span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_pass2.id_for_label }}">Verify Password:</label>
+                          <div class="col-md-5">
+                              {{ form.api_pass2 }}
+                              {{ form.api_pass2.errors }}
+                          </div>
+                          <span class="help-block">Salesforce API Password verification</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_auth.id_for_label }}">Authentication token:</label>
+                          <div class="col-md-5">
+                              {{ form.api_auth }}
+                              {{ form.api_auth.errors }}
+                          </div>
+                          <span class="help-block">Salesforce API authentication token, optional as needed</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_pod.id_for_label }}">Salesforce Pod:</label>
+                          <div class="col-md-5">
+                              {{ form.api_pod }}
+                              {{ form.api_pod.errors }}
+                          </div>
+                          <span class="help-block">Your assigned Salesforce Pod (cs1, cs4, na1, etc). You can find this value in your browser URL after logging into the environment.</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.enabled.id_for_label }}">Branch Enabled:</label>
+                          <div class="col-md-5">
+                              {{ form.enabled }}
+                              {{ form.enabled.errors }}
+                          </div>
+                          <span class="help-block">Whether or not this branch is active. If inactive, no cron jobs will run</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.order.id_for_label }}">UI Order:</label>
+                          <div class="col-md-5">
+                              {{ form.order }}
+                              {{ form.order.errors }}
+                          </div>
+                          <span class="help-block">Ordering used when listing branches in the manifest</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.api_assets.id_for_label }}">Salesforce Assets:</label>
+                          <div class="col-md-3">
+                              {{ form.api_assets }}
+                              {{ form.api_assets.errors }}
+                          </div>
+                          <span class="help-block">Salesforce configuration assets to download.</span>
+                        </div>
 
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_ver">Salesforce Pod:</label>
-                                {{ form.api_pod.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_pod }}
-                            </td>
-                            <td>
-                                Your assigned Salesforce Pod (cs1, cs4, na1, etc). You can find this value in your browser URL after logging into the environment.
-                            </td>
-                        </tr>
-
-<!--
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_ver">Salesforce API Version:</label>
-                                {{ form.api_ver.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_ver }}
-                            </td>
-                            <td>
-                                Salesforce API version number which must match your WSDL
-                            </td>
-                        </tr>
--->
-                        <tr>
-                            <td align="right">
-                                <label for="id_api_assets">Salesforce Assets:</label>
-                                {{ form.api_assets.errors }}
-                            </td>
-                            <td>
-                                {{ form.api_assets }}
-                            </td>
-                            <td>
-                                Salesforce assets to download, store, and analyze.
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_enabled">Branch Enabled:</label>
-                                {{ form.enabled.errors }}
-                            </td>
-                            <td>
-                                {{ form.enabled }}
-                            </td>
-                            <td>
-                                Whether or not this branch is active.
-                            </td>
-                        </tr>
-
-                        <tr><td span="2"><b>Code-specific CRON refresh</br> <hr /></td></tr>
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">cron Enabled:</label>
-                                {{ form.code_cron_enabled.errors }}
-                            </td>
-                            <td>
-                                {{ form.code_cron_enabled }}
-                            </td>
-                            <td>
-                                Whether or not we should schedule snapshots of this environment.
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label>Code cron type:</label>
-                                {{ form.code_cron_type.errors }}
-                            </td>
-                            <td>
-                                {{ form.code_cron_type }}
-                            </td>
-                            <td>
-                                Type of cron job (Hourly only supported at this time). You can manually change
-                                the cron job yourself for finer levels of control.
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label>Code cron interval:</label>
-                                {{ form.code_cron_interval.errors }}
-                            </td>
-                            <td>
-                                {{ form.code_cron_interval }}
-                            </td>
-                            <td>
-                                How often to run <br />
-                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
-                                ex. if type=Hourly, Interval=1 then run every hour<br />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label>Code cron start:</label>
-                                {{ form.code_cron_start.errors }}
-                            </td>
-                            <td>
-                                {{ form.code_cron_start }}
-                            </td>
-                            <td>
-                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
-                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
-                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
-                            </td>
-                        </tr>
-
-                        <tr><td span="2"><b>Configuration-specific CRON refresh</b <hr /></td></tr>
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">cron Enabled:</label>
-                                {{ form.cron_enabled.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_enabled }}
-                            </td>
-                            <td>
-                                Whether or not we should schedule snapshots of this environment.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_type">Config cron type:</label>
-                                {{ form.cron_type.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_type }}
-                            </td>
-                            <td>
-                                Type of cron job (Hourly only supported at this time). You can manually change
-                                the cron job yourself for finer levels of control.
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_interval">Config cron interval:</label>
-                                {{ form.cron_interval.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_interval }}
-                            </td>
-                            <td>
-                                How often to run <br />
-                                ex. if type=Hourly, Interval=3, then run every 3 hours <br />
-                                ex. if type=Hourly, Interval=1 then run every hour<br />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td align="right">
-                                <label for="id_cron_start">Config cron start:</label>
-                                {{ form.cron_start.errors }}
-                            </td>
-                            <td>
-                                {{ form.cron_start }}
-                            </td>
-                            <td>
-                                When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
-                                ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour<br />
-                                ex. if type=Hourly, Interval=2, Start=0, then run every 2 hours at the top of the hour<br />
-                            </td>
-                        </tr>
+                    </div>
 
 
+                    <div id="tabs-2" class="tab-pane fade">
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.code_cron_enabled.id_for_label }}">Code cron enabled:</label>
+                          <div class="col-md-3">
+                              {{ form.code_cron_enabled }}
+                              {{ form.code_cron_enabled.errors }}
+                          </div>
+                          <span class="help-block">Whether or not we should schedule code snapshots of this environment</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.code_cron_type.id_for_label }}">Code cron type:</label>
+                          <div class="col-md-3">
+                              {{ form.code_cron_type }}
+                              {{ form.code_cron_type.errors }}
+                          </div>
+                          <span class="help-block">Type of cron job (Hourly only supported at this time). You can manually change
+                                    the cron job yourself for finer levels of control.</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.code_cron_interval.id_for_label }}">Code cron interval:</label>
+                          <div class="col-md-3">
+                              {{ form.code_cron_interval }}
+                              {{ form.code_cron_interval.errors }}
+                          </div>
+                          <span class="help-block">How often to run <br />
+                                    ex. if type=Hourly, Interval=3, then run every 3 hours <br />
+                                    ex. if type=Hourly, Interval=1 then run every hour<br /></span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.code_cron_start.id_for_label }}">Code cron start:</label>
+                          <div class="col-md-3">
+                              {{ form.code_cron_start }}
+                              {{ form.code_cron_start.errors }}
+                          </div>
+                          <span class="help-block">When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
+                                    ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hour
+                          </span>
+                        </div>
+                    </div>
 
-                        <tr>
-                            <td align="right">
-                                <label>UI Order:</label>
-                                {{ form.order.errors }}
-                            </td>
-                            <td>
-                                {{ form.order }}
-                            </td>
-                            <td>
-                                Ordering used when listing branches in the manifest
-                            </td>
-                        </tr>
-                    </table>
 
-                    <p>
-                        <br />
-                        <input name="action" type="submit" value="Save" />
-                        <input id="cancelButton" type="button" value="Cancel" />
-                    </p>
-                </form>
+                    <div id="tabs-3" class="tab-pane fade">
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.cron_enabled.id_for_label }}">Config cron enabled:</label>
+                          <div class="col-md-3">
+                              {{ form.cron_enabled }}
+                              {{ form.cron_enabled.errors }}
+                          </div>
+                          <span class="help-block">Whether or not we should schedule config snapshots of this environment</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.cron_type.id_for_label }}">Config cron type:</label>
+                          <div class="col-md-3">
+                              {{ form.cron_type }}
+                              {{ form.cron_type.errors }}
+                          </div>
+                          <span class="help-block">Type of cron job (Hourly only supported at this time). You can manually change
+                                    the cron job yourself for finer levels of control.</span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.cron_interval.id_for_label }}">Config cron interval:</label>
+                          <div class="col-md-3">
+                              {{ form.cron_interval }}
+                              {{ form.cron_interval.errors }}
+                          </div>
+                          <span class="help-block">How often to run <br />
+                                    ex. if type=Hourly, Interval=3, then run every 3 hours <br />
+                                    ex. if type=Hourly, Interval=1 then run every hour<br /></span>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-md-2 control-label" for="{{ form.cron_start.id_for_label }}">Config cron start:</label>
+                          <div class="col-md-3">
+                              {{ form.cron_start }}
+                              {{ form.cron_start.errors }}
+                          </div>
+                          <span class="help-block">When to start, relative to the type. If type is Hourly, Start is in minutes. If type is Daily, Start is an actual time value. <br />
+                                    ex. if type=Hourly, Interval=1, Start=15, then run every hour at 15 past the hours
+                                    </span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <hr />
+                <button id="save-button" class="btn btn-primary" name="action" type="submit" >Save</button>
+                <button class="btn btn-primary" id="cancelButton" type="submit"  >Cancel</button>
+            </form>
             </div>
         </div>
     </div>

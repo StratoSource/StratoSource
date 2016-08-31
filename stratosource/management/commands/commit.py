@@ -14,7 +14,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
-#    
+#
+
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
 from stratosource.models import Branch, Commit
@@ -22,7 +23,6 @@ import subprocess
 import logging
 from datetime import datetime
 import os
-from tzlocal import get_localzone
 
 
 __author__="masmith"
@@ -46,7 +46,6 @@ class Command(BaseCommand):
             author = ""
             commitdate = ""
             comment = ""
-            #here_tz = get_localzone()
             for line in p.stdout:
                 line = line.rstrip()
                 if line.startswith("commit "):
@@ -63,9 +62,8 @@ class Command(BaseCommand):
                 elif line.startswith("Author: "):
                     author = line[8:]
                 elif line.startswith("Date:  "):
+                    logger.debug('parsing date from ' + line[8:-6])
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
-                    #commitdate = commitdate.replace(tzinfo=here_tz)
-#                    commitdate = line[8:]
                 elif len(line) > 4:
                     comment += line.strip()
             if len(hash) > 0:
@@ -87,12 +85,6 @@ class Command(BaseCommand):
         br = Branch.objects.get(repo__name__exact=options['repo'], name__exact=options['branch'])
         if not br: raise CommandError("invalid repo/branch")
 
-#        if len(args) == 3:
-#            start_date = datetime.strptime(args[2], '%m-%d-%Y')
-#        else:
-
-        #here_tz = get_localzone()
-
         #start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
         start_date = datetime(2000, 1, 1, 0, 0)
 
@@ -100,12 +92,15 @@ class Command(BaseCommand):
         commits.reverse()       # !! must be in reverse chronological order from oldest to newest
         prev_commit = None
         for acommit in commits:
+ #           logger.debug('processing commit ' + acommit['hash'])
             try:
                 existing = Commit.objects.get(hash__exact=acommit['hash'])
                 if existing:
                     prev_commit = acommit
+#                    logger.debug('hash exists')
                     continue
             except ObjectDoesNotExist:
+                logger.debug('new hash')
                 pass
 
             logger.info('adding commit %s for branch %s' % (acommit['hash'], br.name))

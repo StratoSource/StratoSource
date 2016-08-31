@@ -17,6 +17,7 @@ import sys
 PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = '/var/sfrepo/config'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -39,6 +40,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrap3',
+    'django.contrib.humanize',
     'stratosource',
 )
 
@@ -53,6 +56,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+
+#import warnings
+#warnings.filterwarnings('error', r"DateTimeField .* received a naive datetime", RuntimeWarning, r'django\.db\.models\.fields')
 
 ROOT_URLCONF = 'ss2.urls'
 
@@ -77,24 +84,50 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ss2.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# detect if running inside Docker
+IN_CONTAINER = 'CONTAINERIZED' in os.environ
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-#        'NAME': 'ss_fte0',                      # Or path to database file if using sqlite3.
-#        'USER': 'fte0',                      # Not used with sqlite3.
-#        'PASSWORD': 'fte0',                  # Not used with sqlite3.
-        'NAME': 'stratosource',                      # Or path to database file if using sqlite3.
-        'USER': 'stratosource',                      # Not used with sqlite3.
-        'PASSWORD': 'stratosource',                  # Not used with sqlite3.
-#        'HOST': '192.168.1.60',                      # Set to empty string for localhost. Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+if IN_CONTAINER and 'dbhost' in os.environ:
+
+    dbport = os.environ['dbport'] if 'dbport' in os.environ else ''
+    dbeng = os.environ['dbengine'] if 'dbengine' in os.environ else 'mysql'
+    DATABASES = {
+        #'default': {
+        #    'ENGINE': 'django.db.backends.sqlite3',
+        #    'NAME': '/tmp/placeholder',
+        #},
+        'default': {
+            'ENGINE': 'django.db.backends.' + dbeng, # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'stratosource',                      # Or path to database file if using sqlite3.
+            'USER': 'stratosource',                      # Not used with sqlite3.
+            'PASSWORD': 'stratosource',                  # Not used with sqlite3.
+            'HOST': os.environ['dbhost'],
+            'PORT': dbport
+        }
     }
-}
 
+else:
+
+    DATABASES = {
+        #'default': {
+        #    'ENGINE': 'django.db.backends.sqlite3',
+        #    'NAME': '/tmp/placeholder',
+        #},
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'stratosource',                      # Or path to database file if using sqlite3.
+            'USER': 'stratosource',                      # Not used with sqlite3.
+            'PASSWORD': 'stratosource',                  # Not used with sqlite3.
+    #        'HOST': '192.168.1.60',                      # Set to empty string for localhost. Not used with sqlite3.
+            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+            'OPTIONS': {
+                'init_command': 'SET sql_mode=STRICT_TRANS_TABLES'
+            }
+        }
+    }
+
+#DATABASE_ROUTERS = ['ss2.dbrouter.SSRouter']
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

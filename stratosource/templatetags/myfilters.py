@@ -25,3 +25,12 @@ def lookup(dict, index):
     if index in dict:
         return dict[index]
     return index
+
+@register.filter(name='runtime')
+def runtime(secs):
+    hours = secs / 3600
+    secs = secs - (hours * 3600)
+    mins = secs / 60
+    secs = secs - (mins * 60)
+    return '{0}h {1}m {2}s'.format(hours, mins, secs)
+

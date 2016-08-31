@@ -17,7 +17,7 @@
 #
 
 from django.template import RequestContext
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, render
 from django import forms
 from stratosource.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule
 from ss2 import settings
@@ -112,18 +112,21 @@ def admin(request):
             cronlist.append(item)
 
     data = {'schedules': schedules, 'crontab': cronlist}
-    return render_to_response('unit_test_config.html', data, context_instance=RequestContext(request))
+    return render(request, 'unit_test_config.html', data)
 
 
 def results(request):
-    batches = UnitTestBatch.objects.all().order_by('-batch_time')[:50]
 
     if request.method == 'GET' and request.GET.__contains__('sendReport'):
         batch_id = request.GET['sendReport']
         UnitTestRunUtil.process_run(batch_id)
+    if request.method == 'GET' and request.GET.__contains__('delete'):
+        batch_id = request.GET['delete']
+        UnitTestRunUtil.delete_batch(batch_id)
 
+    batches = UnitTestBatch.objects.all().order_by('-batch_time')[:50]
     data = {'batches': batches}
-    return render_to_response('unit_testing_results.html', data, context_instance=RequestContext(request))
+    return render(request, 'unit_testing_results.html', data)
 
 
 def ajax_unit_test_resultslist(request, batch_id):
@@ -141,7 +144,7 @@ def ajax_unit_test_resultslist(request, batch_id):
             run.outcome = str(run.failures) + ' of ' + str(run.tests) + ' Tests Failed'
 
     data = {'batch': batch, 'runs': runs}
-    return render_to_response('ajax_unit_testing_batch_list.html', data, context_instance=RequestContext(request))
+    return render(request, 'ajax_unit_testing_batch_list.html', data)
 
 
 def result(request, run_id):
@@ -149,7 +152,7 @@ def result(request, run_id):
     ut_results = UnitTestRunResult.objects.filter(test_run=run)
 
     data = {'run': run, 'results': ut_results}
-    return render_to_response('unit_testing_result.html', data, context_instance=RequestContext(request))
+    return render(request, 'unit_testing_result.html', data)
 
 
 def new_test_schedule(request):
@@ -171,9 +174,8 @@ def new_test_schedule(request):
             return admin(request)
     else:
         form = UnitTestScheduleForm()
-    return render_to_response('edit_unit_testing_schedule.html',
-                              {'form': form, 'type': 'New', 'action': 'new_test_schedule/'},
-                              context_instance=RequestContext(request))
+    return render(request, 'edit_unit_testing_schedule.html',
+                              {'form': form, 'type': 'New', 'action': 'new_test_schedule/'})
 
 
 def edit_test_schedule(request, uts_id):
@@ -198,9 +200,8 @@ def edit_test_schedule(request, uts_id):
     else:
         form = UnitTestScheduleForm(instance=UnitTestSchedule.objects.get(id=uts_id))
 
-    return render_to_response('edit_unit_testing_schedule.html',
-                              {'form': form, 'type': 'Edit', 'action': 'edit_test_schedule/' + uts_id},
-                              context_instance=RequestContext(request))
+    return render(request, 'edit_unit_testing_schedule.html',
+                              {'form': form, 'type': 'Edit', 'action': 'edit_test_schedule/' + uts_id})
 
 
 def unit_test_schedule_admin_form_action(request):

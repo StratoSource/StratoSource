@@ -30,14 +30,6 @@ Requires:       git >= 1.7.1
 Requires:       cgit >= 0.9
 Requires:       unzip
 #
-# Support for PHP-based calendar
-#
-#Requires:       php >= 5.3.3
-#Requires:       php-mysql >= 5.3.3
-#
-# Support for MQ
-#
-#Requires:       python-pika >= 0.9
 
 BuildArch:      noarch
 
@@ -52,16 +44,13 @@ Process git repo dumps of salesforce assets and provide web UI for the results
 # create home dir if not exists
 mkdir -p %{buildroot}/usr/django
 
-# remove all existing files first
-rm -rf %{buildroot}/usr/django/stratosource
-
 # copy in all the files
 cp -R stratosource %{buildroot}/usr/django/
 cp -R ss2 %{buildroot}/usr/django/
 cp -R resources %{buildroot}/usr/django/
 cp *cronjob.sh %{buildroot}/usr/django/
-cp notify.py %{buildroot}/usr/django/
 cp runmanage.sh %{buildroot}/usr/django/
+cp manage.py %{buildroot}/usr/django
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -77,36 +66,35 @@ if [ $? -eq 1 ]; then
   sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
 fi
 
-#
-# Calendaring support
-#
-#eval grep wdcalendar /etc/httpd/conf/httpd.conf
-#if [ $? -eq 1 ]; then
-#    echo "Alias /wdcalendar/ /var/www/html/wdcalendar/" >> /etc/httpd/conf/httpd.conf
-#fi
-#cp -R /usr/django/resources/wdcalendar /var/www/html
+mkdir -p /var/sfrepo/config
+chmod 777 /var/sfrepo /var/sfrepo/config
+ln -s /tmp /var/sftmp
+chmod 777 /var/sftmp
 
 echo 'configure mysql'
 # fix a bug in the mysql rpm installer that does not set correct permissions
 mysql_install_db
 chown -R mysql.mysql /var/lib/mysql
-touch /var/log/mysqld.log
-chown mysql:mysql /var/log/mysqld.log
+touch /var/log/mariadb/mariadb.log
+chmod 666 /var/log/mariadb/mariadb.log
 mkdir /var/run/mysqld
-chown mysql:mysql /var/run/mysqld
+chmod 777 /var/run/mysqld
+#chown mysql:mysql /var/run/mysqld
 
 echo 'configuring cgit'
-eval grep django /etc/cgitrc
+eval grep sfrepo /etc/cgitrc
 if [ $? -eq 1 ]; then
-  echo "include=/usr/django/stratosource/cgitrepo" >>/etc/cgitrc
+  echo "include=/var/sfrepo/config/cgitrepo" >>/etc/cgitrc
 fi
-if [ ! -f /usr/django/cgitrepo ]; then
-  cp /usr/django/resources/cgitrepo /usr/django/stratosource
-  chmod 777 /usr/django/stratosource/cgitrepo
+if [ ! -f /var/sfrepo/config/cgitrepo ]; then
+  cp /usr/django/resources/cgitrepo /var/sfrepo/config
+  chmod 777 /var/sfrepo/config/cgitrepo
 fi
 
 echo 'installing django'
 pip install django
+pip install django-bootstrap3
+pip install tzlocal
 
 echo 'installing pyexcelerator'
 pip install pyexcelerator
@@ -119,18 +107,52 @@ sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
 
 # stratosource configuration requirements
 
-cp /usr/django/resources/my.cnf /etc
+#cp /usr/django/resources/my.cnf /etc
 cp /usr/django/resources/memcached /etc/sysconfig
-cp /usr/django/resources/django.wsgi /usr/django/stratosource
 mkdir /usr/django/logs
 chmod 777 /usr/django/logs
-mkdir /var/sfrepo
-chmod 777 /var/sfrepo
+
+service firewalld stop
+
+# setup autostart services
+chkconfig httpd on
+chkconfig mariadb on
+chkconfig memcached on
+chkconfig firewalld off
+systemctl disable firewalld rolekit
 
 echo 'restarting services'
 service memcached restart
 service httpd restart
-service mysqld restart
+service mariadb restart
+
+
+#
+# create database if needed
+#
+ss_exist=`mysql -u root --execute 'show databases'|grep stratosource|wc -l`
+if [ $ss_exist -eq "0" ]; then
+    mysql -u root -t<<eof
+        create database stratosource;
+        create user 'stratosource'@'localhost' identified by 'stratosource';
+        create user 'stratosource'@'%' identified by 'stratosource';
+        grant all on stratosource.* to 'stratosource'@'localhost' with grant option;
+        flush privileges;
+eof
+fi
+cd /usr/django
+#
+# for MySQL you must turn off foreign key checks before running migration
+#
+mysql -u root -t<<eof
+  set foreign_key_checks=0;
+eof
+./manage.py migrate
+mysql -u root -t<<eof
+  set foreign_key_checks=1;
+eof
+
+# set the initial root account password for easier on-demand config
 
 %files
 %defattr(-,root,root,-)

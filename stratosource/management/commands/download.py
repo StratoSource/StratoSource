@@ -14,17 +14,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
-#    
+#
 from django.core.management.base import BaseCommand, CommandError
-#from django.utils.log import getLogger
 import logging
-import time
-import datetime
 import os
+
+from django.utils import timezone
+
 from stratosource.models import Branch
 from stratosource.management import Utils
-from ss2.settings import LOGGING
-from ss2.settings import USE_TZ
 
 __author__="mark"
 __date__ ="$Sep 7, 2010 9:02:55 PM$"
@@ -51,15 +49,13 @@ class Command(BaseCommand):
 
         agent = Utils.getAgentForBranch(br, logger=logger)
 
-        logger.info('USE_TZ=' + str(USE_TZ))
         path = br.api_store
         if options['type'] == 'code':
             types = ['ApexClass','ApexTrigger','ApexPage','ApexComponent']
         elif options['type'] == 'config':
             types = [aType.strip() for aType in br.api_assets.split(',')]
 
-        stamp = str(int(time.time()))
-        filename = os.path.join(path, '{0}_fetch_{1}.zip'.format(options['type'], stamp))
+        filename = os.path.join(path, '{0}_fetch_{1}_{2}.zip'.format(options['type'], br.repo.name, br.name))
 
         logger.info('fetching audit data')
         chgmap = agent.retrieve_changesaudit(types, br.api_pod)
@@ -72,7 +68,7 @@ class Command(BaseCommand):
         if not downloadOnly:
             from stratosource.management.checkin import perform_checkin, save_objectchanges
             perform_checkin(br.repo.location, filename, br)
-            batch_time = datetime.datetime.now()
+            batch_time = timezone.now()
             logger.debug('saving audit...')
             save_objectchanges(br, batch_time, chgmap, options['type'])
             os.remove(filename)

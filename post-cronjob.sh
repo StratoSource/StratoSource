@@ -10,4 +10,3 @@
 
 #git --git-dir=/var/sfrepo/$2/code/.git push origin $2:$2
 #git --git-dir=/var/sfrepo/$2/code/.git push /var/sfrepo/code/ $2:$2
-python notify.py "Snapshot finished for $1:$2"

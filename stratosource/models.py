@@ -17,11 +17,8 @@
 #    
 from django.db import models
 from django.db.models.signals import pre_save
-from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
-import datetime
-import logging
-
+from django.utils import timezone
 
 
 class ConfigSetting(models.Model):
@@ -47,7 +44,7 @@ class AdminMessage(models.Model):
     sender    = models.CharField(max_length=50, default='unknown')
     subject   = models.CharField(max_length=100)
     body      = models.CharField(max_length=255)
-    event_time= models.DateField(default=datetime.datetime.now)
+    event_time= models.DateField(default=timezone.now)
     handled_by= models.CharField(max_length=100)
 
     def __unicode__(self):
@@ -58,7 +55,7 @@ class Repo(models.Model):
         db_table = 'repo'
 
     name =      models.CharField(max_length=20)
-    location =  models.CharField(max_length=255)
+    location =  models.CharField(max_length=255, blank=True, null=True, default='/var/sfrepo')
 
 
     def __unicode__(self):
@@ -84,7 +81,7 @@ class Branch(models.Model):
     api_user =  models.CharField(max_length=100)
     api_pass =  models.CharField(max_length=100, blank=True, null=True)
     api_auth =  models.CharField(max_length=50, blank=True, null=True)
-    api_store = models.CharField(max_length=100, default='/tmp')
+    api_store = models.CharField(max_length=100, default='/var/sftmp')
     api_assets= models.CharField(max_length=500,
         default='CustomPageWebLink,CustomLabels,CustomApplication,CustomObject,CustomObjectTranslation,Translations,'+
                 'CustomSite,CustomTab,Layout,Portal,Profile,'+
@@ -93,11 +90,11 @@ class Branch(models.Model):
     cron_enabled = models.BooleanField(default=False)
     cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
     run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
-    cron_interval = models.IntegerField(default=1)
-    cron_start = models.CharField(max_length=5, default='0')
+    cron_interval = models.IntegerField(default=3)
+    cron_start = models.CharField(max_length=5, default='10')
     keep_archive = models.BooleanField(default=False)
 
-    code_cron_enabled = models.BooleanField(default=True)
+    code_cron_enabled = models.BooleanField(default=False)
     code_cron_type = models.CharField(max_length=1, choices=CRONFREQ,default='h')
     code_run_status = models.CharField(max_length=1, choices=RUNSTATUS,default='u', blank=True, null=True)
     code_cron_interval = models.IntegerField(default=1)
@@ -107,12 +104,33 @@ class Branch(models.Model):
     def __unicode__(self):
         return self.repo.name + " - " + self.name    
 
+
+class BranchStats(models.Model):
+    class Meta:
+        db_table = 'branch_stats'
+
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    cls_files = models.IntegerField()
+    cls_lines = models.IntegerField()
+    cls_bytes = models.IntegerField()
+    page_files = models.IntegerField()
+    page_lines = models.IntegerField()
+    page_bytes = models.IntegerField()
+    trigger_files = models.IntegerField()
+    trigger_lines = models.IntegerField()
+    trigger_bytes = models.IntegerField()
+    files = models.IntegerField()
+    lines = models.IntegerField()
+    bytes = models.IntegerField()
+    last_updated = models.DateTimeField(default=timezone.now)
+
+
 class BranchLog(models.Model):
     class Meta:
         db_table = 'branch_log'
 
     lastlog = models.CharField(max_length=20000)
-    branch =  models.ForeignKey(Branch)
+    branch =  models.ForeignKey(Branch, on_delete=models.CASCADE)
     logtype = models.CharField(max_length=6, blank=False, null=False)
 
 class Story(models.Model):
@@ -126,7 +144,7 @@ class Story(models.Model):
     release_date =      models.DateField(blank=True,null=True)
     released =          models.BooleanField(default=False)
     done_on_branches =  models.ManyToManyField(Branch)
-    date_added =        models.DateField(blank=False, null=False, default=datetime.datetime.now)
+    date_added =        models.DateField(blank=False, null=False, default=timezone.now)
 
     def __unicode__(self):
         return self.name + " " + self.rally_id
@@ -137,11 +155,11 @@ class Commit(models.Model):
 
     STATUS_TYPES = (('p','Pending Analysis'),('c','Complete'))
 
-    branch =        models.ForeignKey(Branch)
+    branch =        models.ForeignKey(Branch, on_delete=models.CASCADE)
     hash =          models.CharField(max_length=100, db_index=True)
     prev_hash =     models.CharField(max_length=100)
     comment =       models.CharField(max_length=200,blank=True,null=True)
-    date_added =    models.DateTimeField(default=datetime.datetime.now)
+    date_added =    models.DateTimeField(default=timezone.now)
     status =        models.CharField(max_length=1, choices=STATUS_TYPES, default='p')
     parser_ver =    models.CharField(max_length=2, default='01')    # future-proofing SF changes to XML schema
 
@@ -180,7 +198,7 @@ class DeployableObject(models.Model):
     el_name =           models.CharField(max_length=100,blank=True,null=True)
     status =            models.CharField(max_length=1, choices=STATUS_TYPES, default='a')
     release_status =    models.CharField(max_length=1, choices=RELEASE_STATUS, default='r')
-    branch =            models.ForeignKey(Branch, db_index=True)
+    branch =            models.ForeignKey(Branch, db_index=True, on_delete=models.CASCADE)
 
     def __unicode__(self):
         s = self.branch.name + " - " + self.type + " - " + self.filename + " - " + self.status
@@ -194,9 +212,9 @@ class DeploymentPackage(models.Model):
 
     name =               models.CharField(max_length=1000)
     release =            models.ForeignKey(Release, db_index=True)
-    date_added =         models.DateTimeField(default=datetime.datetime.now)
+    date_added =         models.DateTimeField(default=timezone.now)
     last_pushed =        models.DateTimeField(null=True)
-    source_environment = models.ForeignKey(Branch, null=False, related_name='to_deployment_packages')
+    source_environment = models.ForeignKey(Branch, null=False, related_name='to_deployment_packages', on_delete=models.CASCADE)
     deployable_objects = models.ManyToManyField(DeployableObject)
 
 class DeploymentPushStatus(models.Model):
@@ -206,12 +224,12 @@ class DeploymentPushStatus(models.Model):
     RESULT_TYPES = (('n','New'),('i','In Progress'),('s','Successful'),('f','Failed'))
 
     package =            models.ForeignKey(DeploymentPackage)
-    date_attempted =     models.DateField(default=datetime.datetime.now)
+    date_attempted =     models.DateField(default=timezone.now)
     log_output =         models.CharField(max_length=20000)
     result =             models.CharField(max_length=1, choices=RESULT_TYPES, default='n')
     test_only =          models.BooleanField(default=True)
     keep_package =       models.BooleanField(default=False)
-    target_environment = models.ForeignKey(Branch, null=False, related_name='from_deployment_packages')
+    target_environment = models.ForeignKey(Branch, null=False, related_name='from_deployment_packages', on_delete=models.CASCADE)
     package_location =   models.CharField(max_length=200, null=True)
 
 class SalesforceUser(models.Model):
@@ -221,7 +239,7 @@ class SalesforceUser(models.Model):
     userid      = models.CharField(max_length=20, blank=False, null=False)
     name        = models.CharField(max_length=100, blank=False, null=False, db_index=True)
     email       = models.CharField(max_length=100, blank=False, null=False)
-    lastActive  = models.DateTimeField(default=datetime.datetime.now, null=True)
+    lastActive  = models.DateTimeField(default=timezone.now, null=True)
 
 class ReleaseTask(models.Model):
     class Meta:
@@ -241,7 +259,7 @@ class UserChange(models.Model):
     class Meta:
         db_table = 'user_change'
 
-    branch =    models.ForeignKey(Branch, db_index=True)
+    branch =    models.ForeignKey(Branch, db_index=True, on_delete=models.CASCADE)
     apex_id   = models.CharField(max_length=20, blank=True, null=True, unique=False)
     apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False, db_index=True)
     sfuser =    models.ForeignKey(SalesforceUser, db_index=True)
@@ -282,7 +300,7 @@ class DeployableTranslation(models.Model):
     locale =            models.CharField(max_length=10)
     status =            models.CharField(max_length=1, choices=STATUS_TYPES, default='a')
     release_status =    models.CharField(max_length=1, choices=RELEASE_STATUS, default='r')
-    branch =            models.ForeignKey(Branch, db_index=True)
+    branch =            models.ForeignKey(Branch, db_index=True, on_delete=models.CASCADE)
 
     def __unicode__(self):
         s = self.branch.name + " - " + self.label + " - " + self.locale
@@ -309,8 +327,8 @@ class UnitTestBatch(models.Model):
     class Meta:
         db_table = 'unit_test_batch'
 
-    batch_time      = models.DateTimeField(default=datetime.datetime.now, db_index=True)
-    branch          = models.ForeignKey(Branch)
+    batch_time      = models.DateTimeField(default=timezone.now, db_index=True)
+    branch          = models.ForeignKey(Branch, on_delete=models.CASCADE)
     tests           = models.IntegerField(default=0)
     failures        = models.IntegerField(default=0)
     runtime         = models.IntegerField(default=0)
@@ -320,7 +338,7 @@ class UnitTestRun(models.Model):
         db_table = 'unit_test_run'
 
     apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
-    batch           = models.ForeignKey(UnitTestBatch)
+    batch           = models.ForeignKey(UnitTestBatch, on_delete=models.CASCADE)
     class_name      = models.CharField(max_length=200, blank=False, null=False)
     branch          = models.ForeignKey(Branch)
     tests           = models.IntegerField(default=0)
@@ -331,7 +349,7 @@ class UnitTestRunResult(models.Model):
     class Meta:
         db_table = 'unit_test_run_result'
 
-    test_run =  models.ForeignKey(UnitTestRun)
+    test_run =  models.ForeignKey(UnitTestRun, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     method_name = models.CharField(max_length=200)

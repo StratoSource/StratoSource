@@ -22,8 +22,7 @@ from stratosource.models import Story
 import logging
 from django.db import transaction
 
-agilezen_apikey = ConfigCache.get_config_value('agilezen.apikey')
-rest_header = {"X-Zen-ApiKey": agilezen_apikey, "Accept" : "application/json;charset=utf-8"}
+rest_header = {"X-Zen-ApiKey": None, "Accept" : "application/json;charset=utf-8"}
 logger = logging.getLogger('console')    
 agileurl = 'https://agilezen.com/'
 apiurl = 'api/v1/'
@@ -39,6 +38,7 @@ def get_projects(leaves):
     logger.debug('Start getting projects')
     projurl = agileurl+apiurl+'projects'  #?' #+ get_page_query_params(1, 200)
     logger.debug('Retrieving Projects from URL: '+projurl)
+    rest_header['X-Zen-ApiKey'] = ConfigCache.get_config_value('agilezen.apikey')
     response = requests.get(projurl, headers=rest_header)
     
     project_list = {}
@@ -60,6 +60,7 @@ def get_stories(projectIds):
         while not(lastPage):
             storyurl = agileurl+apiurl+'projects/'+ projId +'/stories?'+ get_page_query_params(page, pagesize)
             logger.debug('Retrieving Stories from URL: '+storyurl)
+            rest_header['X-Zen-ApiKey'] = ConfigCache.get_config_value('agilezen.apikey')
             response = requests.get(storyurl, headers=rest_header)
             processed_response = response.json()
             story_list = processed_response[u'items']

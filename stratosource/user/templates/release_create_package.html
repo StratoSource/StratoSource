@@ -2,7 +2,12 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{ release.id }}">{{ release.name }}</a> -> Create Release Package for {{ release.name }}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/releases">Releases</a></li>
+  <li><a href="/release/{{ release.id }}">{{ release.name }}</a> </li>
+  <li class="active">Create Release Package for {{ release.name }}</li>
+</ol>
 {% endblock %}
 
 {% block jscript %}
@@ -12,7 +17,7 @@
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
         <div id="content-main">
             <form id="createPackage" name="createPackage" method="POST">{% csrf_token %}
                 <div class="module">

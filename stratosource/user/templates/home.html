@@ -1,118 +1,141 @@
 
 {% extends 'layout.html' %}
 
+{%  load humanize %}
+
 {% block breadcrumbs %}
-Home
 {% endblock %}
 
 {% block content %}
 
-    <div id="content" class="colMS">
-        <div id="content-main">
-            <table>
-                <tr style="background-color: transparent;">
-                    <td style="vertical-align: top;">        
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">Environments</a></caption>
-                    {% for branch in branches %}
-                                <tr>
-                                    <td scope="row" class="biggertext" colspan="5">
-                                        <strong><a href="/unreleased/{{branch.repo.name}}/{{branch.name}}">{{ branch.repo.name|upper }} - {{ branch.name|upper }}</a></strong>
-                                    </td>
-                                </tr>
-                    {% endfor %}
-                            </table>
-                        </div>
-                        <br/>
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">General Administration</a></caption>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/stories">Manage Stories</a></strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/releases">Manage Releases</a></strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/configs/">StratoSource Configuration</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/djadmin/">Django Configuration</a>
-                                    </td>
-                                </tr>
-                                
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/admin/">Manage Repositories & Branches</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/search">Search Repository</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/cgit/">Browse GIT Repositories</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/repos/">Browse Raw Respository Data</a>
-                                    </td>
-                                </tr>
-                                <!--
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a target="_blank" href="http://{{calendar_host}}/wdcalendar/cal.php">Full Screen Calendar</a></strong>
-                                    </td>
-                                </tr>
-                                -->
-                            </table>
-                        </div>
-                    </td>
-                    <td style="vertical-align: top;">
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">System Monitoring</a></caption>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/unit_testing_results/">Unit Testing Results</a></strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="biggertext">
-                                        <strong><a href="/unit_testing_admin/">Configure Unit Testing Schedule</a></strong>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <br/>
-                        <!--
-                        <div class="module">
-                            <table style="width: 100%;">
-                                <caption><a href="" class="section">My Calendar</a></caption>
-                                <tr>
-                                    <td style="padding: 2px;">
-                                        <iframe style="width:100%; height: 400px; border:0px;" src="http://{{calendar_host}}/wdcalendar/cal.php"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        -->
-                    </td>
-                </td>
-            </tr>
-        </table>
+    <style>
+    .panel-gap {
+        margin-right: 1%;
+    }
+
+    .header {
+        width: 100%;
+        height: 180pt;
+        background-color: #18BC9C;
+    }
+    .img-circle {
+        border-radius: 50%;
+    }
+    </style>
+
+    <div class="container-fluid" >
+        <div class="panel panel-primary col-md-3 panel-gap">
+            <div class="panel-heading">
+                <h4>Environments</h4>
+            </div>
+            <div class="panel-body">
+                {% for branch in branches %}
+                    <p>
+                        <a href="/unreleased/{{branch.repo.name}}/{{branch.name}}">{{ branch.repo.name|upper }} - {{ branch.name|upper }}</a>
+                        {%  if branch.code_run_status == 'e' or branch.config_run_status == 'e' %}
+                            <span style="color:red" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        {%  endif %}
+
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="panel panel-primary col-md-3 panel-gap">
+            <div class="panel-heading">
+                <h4>General Administration</h4>
+            </div>
+            <div class="panel-body">
+                <p><a id="manage-stories" href="/stories">Manage Stories</a></p>
+                <p><a href="/releases">Manage Releases</a></p>
+                <p><a id="configs" href="/configs/">StratoSource Configuration</a></p>
+                <p><a id="manage-repos" href="/admin/">Manage Repositories & Branches</a></p>
+                <p><a href="/search">Search Repository</a></p>
+                <p><a href="/cgit/" target="_blank">Browse GIT Repositories</a></p>
+                <p><a href="/repos/">Browse Raw Respository Data</a></p>
+            </div>
+        </div>
+        <div class="panel panel-primary col-md-3">
+            <div class="panel-heading">
+                <h4>System Monitoring</h4>
+            </div>
+            <div class="panel-body">
+                <p><a href="/unit_testing_results/">Unit Testing Results</a></p>
+                <p><a href="/unit_testing_admin/">Configure Unit Testing Schedule</a></p>
+            </div>
+        </div>
     </div>
 
+    <br />
+    <div class="container-fluid bg-info" style="padding-top: 15px">
+        {%  for stat in stats %}
+            <div class="panel panel-primary col-md-3">
+                <div class="panel-heading">
+                    {{  stat.branch.name }}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed">
+                        <tr>
+                            <th></th>
+                            <th class="text-right">Files</th>
+                            <th class="text-right">Lines</th>
+                            <th class="text-right">Bytes</th>
+                        </tr>
+                        <tr>
+                            <td><label>Classes</label></td>
+                            <td class="text-right">{{  stat.cls_files|intcomma }}</td>
+                            <td class="text-right">{{  stat.cls_lines|intcomma }}</td>
+                            <td class="text-right">{{  stat.cls_bytes|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td><label>Pages</label></td>
+                            <td class="text-right">{{  stat.page_files|intcomma }}</td>
+                            <td class="text-right">{{  stat.page_lines|intcomma }}</td>
+                            <td class="text-right">{{  stat.page_bytes|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td><label>Triggers</label></td>
+                            <td class="text-right">{{  stat.trigger_files|intcomma }}</td>
+                            <td class="text-right">{{  stat.trigger_lines|intcomma }}</td>
+                            <td class="text-right">{{  stat.trigger_bytes|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td class="text-right">{{  stat.files|intcomma }}</td>
+                            <td class="text-right">{{  stat.lines|intcomma }}</td>
+                            <td class="text-right">{{  stat.bytes|intcomma }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        {%  endfor %}
+
+        {%  if unittest != None %}
+        <div class="panel panel-primary col-md-3" style="margin-left: 10px">
+            <div class="panel-heading">
+                Most Recent Unit Test Run
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed">
+                    <tr>
+                        <td>When</td>
+                        <td>{{ unittest.batch_time }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tests</td>
+                        <td>{{ unittest.tests }}</td>
+                    </tr>
+                    <tr>
+                        <td>Failures</td>
+                        <td>{{ unittest.failures }}</td>
+                    </tr>
+                    <tr>
+                        <td>Run time</td>
+                        <td>{{ unittest.runtime|runtime }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
 {% endblock %}

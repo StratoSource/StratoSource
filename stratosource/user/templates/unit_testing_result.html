@@ -2,16 +2,20 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/unit_testing_results/">Unit Test Results</a> -> Unit Test Results for Run from {{ run.batch_time }}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/unit_test_results">Unit Test Results</a></li>
+  <li class="active">Unit Test Results for Run from {{ run.batch_time }</li>
+</ol>
 {% endblock %}
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
-            <div class="module ObjectsList">
-                <table>
+            <div>
+                <table class="table table-condensed table-hover">
                         <tr>
                             <th scope="row">Class.Method</th>
                             <th>Runtime</th>

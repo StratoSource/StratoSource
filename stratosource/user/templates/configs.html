@@ -2,7 +2,10 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> Settings
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Settings</li>
+</ol>
 {% endblock %}
 
 {% block content %}
@@ -31,23 +34,17 @@
         }
     </script>
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
-            <div class="module ObjectsList">
-                <form id="formSettings" name="formSettings" method="POST">{% csrf_token %}
-                    <table>
-                        <caption>
-                            <span><a href="" class="section">Settings</a></span>
-                        </caption>
-                        <tr>
-                            <th scope="row">Config Key</th>
-                            <th>Value</th>
-                        </tr>
-                        {% for setting in settings %}
-                        <tr>
-                            <td scope="row">{{ setting.key }}</td>
-                            <td>
+            <h3>Settings</h3>
+        <hr />
+            <div>
+                <form class="form-horizontal" id="formSettings" name="formSettings" method="POST">{% csrf_token %}
+                    {% for setting in settings %}
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">{{ setting.key }}</label>
+                            <div class="col-md-10">
                                 {% if setting.type == 'check' %}
                                 <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="checkbox" name="newFieledName" value="1" {% if setting.value == '1' %}checked{% endif %}/>
                                 {% else %}
@@ -58,27 +55,28 @@
                                     <input name="key_{{ setting.key }}" id="{{ setting.key }}" type="text" name="newFieledName" value="{{ setting.value }}"/>
                                     {% endif %}
                                 {% endif %}
-                            </td>                            
-                        </tr>
-                        {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
                         <tr>
                             <td scope="row">Configuration Wizards</td>
                             <td>
                                 <ul>
                                     {% if rally_enabled or agilezen_enabled %}
-                                    <li><a href="/rally_projects/">Select Projects</a></li>
+                                    <li><a id="select-projects" href="/rally_projects/">Select Projects</a></li>
                                     {% endif %}
                                 </ul>
                             </td>
                         </tr>
                     </table>
+                    <hr />
                     <div style="padding:5px;">
-                        <input name="saveConfig" onclick="return submitForm();" type="button" value="Save"/>
+                        <button id="save-button" type="button" class="btn btn-primary" name="saveConfig" onclick="return submitForm();">Save</button>
                     </div>
                 </form>
             </div>
         </div>
-        <br class="clear" />
     </div>
 
 

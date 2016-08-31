@@ -16,12 +16,10 @@
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #    
 
-import logging
 import logging.config
 import os
 import datetime
 import pytz
-from django.utils import timezone
 
 from django.db import transaction
 from stratosource.models import  UserChange, SalesforceUser
@@ -98,6 +96,7 @@ def perform_checkin(repodir, zipfile, branch):
     logger.info("Completed checkin")
 
 ##### DEFUNCT #####
+"""
 @transaction.atomic
 def save_userchanges(branch, classes, triggers, pages):
     allchanges = classes + triggers + pages
@@ -135,7 +134,8 @@ def save_userchanges(branch, classes, triggers, pages):
             recent.batch_time = batch_time
             recent.save()
     return batch_time
- 
+ """
+
 @transaction.atomic
 def save_objectchanges(branch, batch_time, chgmap, fetchtype):
     logger.info('Saving object change audit trail')
@@ -152,12 +152,11 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 continue
 
         thirtyDays = datetime.timedelta(days = 30)
-        thirtyDaysAgo = timezone.now() - thirtyDays
-        #thirtyDaysAgo = datetime.datetime.now(pytz.utc) - thirtyDays
+        thirtyDaysAgo = datetime.datetime.now() - thirtyDays
         logger.debug('time window=' + thirtyDaysAgo.isoformat())
         for change in chgmap[aType]:
             #chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
-            chdate_tz = change.lastModifiedDate
+            chdate_tz = change.lastModifiedDate.replace(tzinfo=None)
             if chdate_tz < thirtyDaysAgo:
                 # not interested in old changes, just slows down the process
                 continue
@@ -165,8 +164,9 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
             if userdict.has_key(change.lastModifiedByName):
                 theUser = userdict[change.lastModifiedByName]
                 #logger.debug(change)
-                if theUser.lastActive == None or theUser.lastActive < chdate_tz:
-                    theUser.lastActive = change.lastModifiedDate
+                lastactive = theUser.lastActive  #.replace(tzinfo=pytz.utc)
+                if theUser.lastActive == None or lastactive < chdate_tz:
+                    theUser.lastActive = chdate_tz
                     theUser.save()
             else:
                 theUser = SalesforceUser()

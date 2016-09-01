@@ -522,15 +522,20 @@ def stories(request):
     oneYear = timedelta(days=365)
     oneYearAgo = datetime.now() - oneYear
 
-    sprints = Story.objects.values('sprint').filter(sprint__isnull=False, date_added__gte=oneYearAgo).order_by(
-        'sprint').distinct()
+    if request.method == u'GET' and request.GET.__contains__('history'):
+        sprints = Story.objects.values('sprint').filter(sprint__isnull=False).order_by('sprint').distinct()
+    else:
+        sprints = Story.objects.values('sprint').filter(sprint__isnull=False, date_added__gte=oneYearAgo).order_by('sprint').distinct()
 
     for sprintName in sprints:
         if len(sprintName['sprint']) > 0 and not sprintList.__contains__(sprintName['sprint']):
             sprintList.append(sprintName['sprint'])
 
-    stories = Story.objects.filter(date_added__gte=oneYearAgo)
-    # stories = Story.objects.all()
+    if request.method == u'GET' and request.GET.__contains__('history'):
+        stories = Story.objects.all()
+    else:
+        stories = Story.objects.filter(date_added__gte=oneYearAgo)
+
     if len(sprint) > 0:
         stories = stories.filter(sprint=sprint)
     stories = stories.order_by('sprint', 'rally_id', 'name')

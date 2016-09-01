@@ -38,8 +38,13 @@
                     <input type="hidden" id="releaseid" name="releaseid" value="{{ releaseid }}"/>
                     <table class="table table-condensed table-hover">
                         <caption>
-                            {% if releaseid %}<button type="button" class="btn btn-primary" onclick="document.getElementById('storyForm').submit(); return false;">Synchronize Selected Stories to Release</button>{% endif %}
-                            {% if not releaseid and rally_refresh %}<button id="refresh-stories" type="button" class="btn btn-primary" onclick="window.location='/stories?refresh=true'">Refresh</button>{% endif %}
+                            {% if releaseid %}
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('storyForm').submit(); return false;">Synchronize Selected Stories to Release</button>
+                            {% endif %}
+                            {% if not releaseid and rally_refresh %}
+                                <button id="refresh-stories" type="button" class="btn btn-primary" onclick="window.location='/stories?refresh=true'">Refresh</button>
+                                | <button type="button" class="btn btn-primary" onclick="window.location='/stories?history=true'">Show Historical Stories</button>
+                            {% endif %}
                         </caption>
                             <tr style="background-color: lightgray">
                                 <th scope="row" class="align_center">Select</th>

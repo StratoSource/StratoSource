@@ -18,10 +18,13 @@
 
 from django import forms
 from django.shortcuts import redirect, render
-from stratosource.models import Branch, BranchLog, Repo, DeployableObject, Delta
+
+from stratosource.management import Utils
+from stratosource.models import Branch, BranchLog, Repo, DeployableObject, Delta, EmailTemplateFolder
 from ss2 import settings
 from django.core.exceptions import ObjectDoesNotExist
 from crontab import CronTab, CronItem
+from django.db import transaction
 import subprocess
 import os
 import re
@@ -87,6 +90,7 @@ class BranchForm(forms.ModelForm):
         ('DataCategoryGroup', 'Category groups'),
         ('EmailTemplate', 'Email templates'),
         ('HomePageLayout', 'Home page layout'),
+        ('GlobalPicklist', 'Global Picklist'),
         ('Layout', 'Layouts'),
         ('Portal', 'Portal'),
         ('Profile', 'Profiles'),
@@ -100,7 +104,11 @@ class BranchForm(forms.ModelForm):
         ('ApexComponent', 'Apex Components'),
         ('ReportType', 'Report types'),
         ('Scontrol', 'S-Controls'),
-#        ('StaticResource', 'Static resources'),
+        ('ConnectedApp', 'Connected Apps'),
+        ('CustomPageWebLink', 'Custom Page Web Links'),
+        ('PermissionSet', 'Permission Sets'),
+        ('ExternalDataSource', 'External Data Sources'),
+        #        ('StaticResource', 'Static resources'),
         ('Workflow', 'Workflows'),
         ('ApprovalProcess', 'Approval processes'),
         ('EntitlementTemplate', 'Entitlement templates'),
@@ -194,6 +202,9 @@ def newbranch(request):
             finally:
                 os.chdir(curdir)
 
+            if 'EmailTemplate' in row.api_assets:
+                return edit_branch_details(request, row.id, True)
+
             return adminMenu(request)
     else:
         form = BranchForm()
@@ -232,6 +243,8 @@ def editbranch(request, branch_id):
             row.save()
             updateCrontab(row)
             createCGitEntry(row)
+            if 'EmailTemplate' in row.api_assets:
+                return edit_branch_details(request, branch_id, True)
             return adminMenu(request)
         else:
             logger.debug(form.errors)
@@ -240,6 +253,31 @@ def editbranch(request, branch_id):
         row.api_assets = row.api_assets.split(',')
         form = BranchForm(instance=row)
     return render(request, 'editbranch.html', {'form': form, 'type': 'Edit', 'action': 'editbranch/' + branch_id})
+
+@transaction.atomic
+def edit_branch_details(request, branch_id, from_edit = False):
+
+    branch = Branch.objects.get(id=branch_id)
+    selected = EmailTemplateFolder.objects.filter(branch=branch).order_by('name')
+
+    if not from_edit and request.method == 'POST' and request.POST.__contains__('saveFoldersButton'):
+        folderlist = request.POST.getlist('email_template_folder')
+        for select in selected: select.delete()
+        for folder in folderlist:
+            ef = EmailTemplateFolder()
+            ef.branch = branch
+            ef.name = folder
+            ef.save()
+        return adminMenu(request)
+
+    agent = Utils.getAgentForBranch(branch)
+    folders = agent.getSalesforceEmailTemplateFolders()
+    folders.sort()
+    for select in selected:
+        if select.name in folders:
+            folders.remove(select.name)
+
+    return render(request, 'edit_asset_details.html', {'branch': branch, 'selected': selected, 'folders': folders})
 
 
 def last_log(request, branch_id, logtype):

@@ -373,7 +373,12 @@ class UnitTestSchedule(models.Model):
     cron_interval = models.IntegerField(default=1)
     cron_start = models.CharField(max_length=5, default='0')
 
+class EmailTemplateFolder(models.Model):
+    class Meta:
+        db_table = 'email_template_folder';
 
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, blank=False, null=False)
 
 ###
 # model signals

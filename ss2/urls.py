@@ -83,6 +83,7 @@ urlpatterns = [
     url(r'^lastlog/(\d+)/(.*)$', stratosource.user.admin_views.last_log),
     url(r'^newbranch/', stratosource.user.admin_views.newbranch),
     url(r'^editbranch/(\d+)$', stratosource.user.admin_views.editbranch),
+    url(r'^editbranchdetails/(\d+)$', stratosource.user.admin_views.edit_branch_details),
     url(r'^repo_admin_form_action', stratosource.user.admin_views.repo_form_action),
     url(r'^branch_admin_form_action', stratosource.user.admin_views.branch_form_action),
     url(r'^newrepo/', stratosource.user.admin_views.newrepo),

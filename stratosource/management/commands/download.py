@@ -58,10 +58,10 @@ class Command(BaseCommand):
         filename = os.path.join(path, '{0}_fetch_{1}_{2}.zip'.format(options['type'], br.repo.name, br.name))
 
         logger.info('fetching audit data')
-        chgmap = agent.retrieve_changesaudit(types, br.api_pod)
+        chgmap = agent.retrieve_changesaudit(types)
 
         logger.info('retrieving %s from %s:%s for %s' % (options['type'], br.repo.name, br.name, ','.join(types)))
-        agent.retrieve_meta(types, br.api_pod, filename)
+        agent.retrieve_meta(types, filename)
         agent.close()
         logger.info('finished download')
 

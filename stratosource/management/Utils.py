@@ -48,6 +48,7 @@ def getAgentForBranch(branch, logger = None):
         agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger, proxy_host=proxy_host, proxy_port=proxy_port)
     else:
         agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger)
+    agent.pod = branch.api_pod
 
     agent.login(user, password+authkey,server_url=svcurl)
     return agent

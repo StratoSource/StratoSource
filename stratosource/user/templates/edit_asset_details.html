@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+
+
+{% block breadcrumbs %}
+ <ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/admin"></a>Repos and Branches</li>
+  <li class="active">Email Template Folders - {{ branch.name }}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+
+
+
+<br />
+
+<div class="container">
+    <h3>Email Template Folders</h3>
+    <p>Select the folder(s) you want to track. Only track those you need since these require much more memory and time to retrieve.</p>
+    <p>Unchecking a folder will not remove it from git, only from tracking new changes.</p>
+    <div>
+        <form name="foldersForm" action="/editbranchdetails/{{ branch.id }}" method="post">{% csrf_token %}
+        <table class="table table-condensed table-hover">
+            <tr >
+                <th style="width: 85%;">Folder Name</th>
+            </tr>
+            {% for selected_folder in selected %}
+                <tr>
+                    <td><input id="{{ selected_folder.name }}" type="checkbox" name="email_template_folder" value="{{ selected_folder.name }}" checked/> {{ selected_folder.name }}</td>
+                </tr>
+            {% endfor %}
+            {% for folder in folders %}
+                <tr>
+                    <td><input id="{{ folder }}" type="checkbox" name="email_template_folder" value="{{ folder }}"/> {{ folder }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <button class="btn btn-primary" name="saveFoldersButton" type="submit">Save</button>
+        </form>
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}
+
+

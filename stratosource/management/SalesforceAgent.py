@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #
+import threading
+
 from urlparse import urlparse
 
 from suds.client import Client
@@ -26,11 +28,12 @@ import os
 import httplib, urllib
 import json
 #from mq import MQClient
+from stratosource.models import EmailTemplateFolder
 
 __author__="mark"
 __date__ ="$Aug 15, 2010 9:48:38 PM$"
 
-_API_VERSION = 35.0
+_API_VERSION = 37.0
 _DEFAULT_LOGNAME = '/var/sftmp/agent.log'
 _METADATA_TIMEOUT=60 * 80
 _METADATA_POLL_SLEEP=10
@@ -47,6 +50,34 @@ class LoginError(Exception):
 class Bag:
     def __str__(self):
         return repr(self.__dict__)
+
+#
+# Rxperiement with multithreading and suds, but making it easy to revert with just this boolean
+# because it may cause problems.
+#
+multithreaded = True
+
+class EmailFolderThread (threading.Thread):
+
+    def __init__(self, folder, meta):
+        threading.Thread.__init__(self)
+        self.folder = folder
+        self.meta = meta
+        self.email_paths = []
+        self.done = False
+        self.started = False
+
+    def run(self):
+        self.started = True
+        query = self.meta.factory.create('ListMetadataQuery')
+        query.type = 'EmailTemplate'
+        query.folder = self.folder
+        props = self.meta.service.listMetadata([query], _API_VERSION)
+        for prop in props:
+            self.email_paths.append(prop.fullName)
+        self.done = True
+
+
 
 
 class SalesforceAgent:
@@ -111,8 +142,8 @@ class SalesforceAgent:
 #        self.partner.service.logout()
         self.login_result = None
 
-    def _buildEmailTemplatesPackage(self, pod):
-        rest_conn = self.setupForRest(pod)
+    def getSalesforceEmailTemplateFolders(self):
+        rest_conn = self.setupForRest()
         params = urllib.urlencode({'q': "select Id, Name, DeveloperName from Folder where Type = 'Email'"})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
 
@@ -121,18 +152,53 @@ class SalesforceAgent:
             folders = [record['DeveloperName'] for record in records]
         else:
             folders = []
-        query = self.meta.factory.create('ListMetadataQuery')
-        query.type = 'EmailTemplate'
+        return folders
+
+    def _buildEmailTemplatesPackage(self):
+        folder_rows = EmailTemplateFolder.objects.all()
+        folders = [row.name for row in folder_rows];
+
         emailpaths = []
-        print('folders = %s' % (len(folders),))
-        for folder in folders:
-            query.folder = folder
-            self.logger.debug('listing contents of email folder %s' % folder)
-            #print 'getting props'
-            props = self.meta.service.listMetadata([query], _API_VERSION)
-            for prop in props:
-                #print 'prop is ' + prop.fullName
-                emailpaths.append(prop.fullName)
+        if multithreaded:
+            #
+            # kept 4 threads running at all times to retrieve folder content
+            #
+            threads = [EmailFolderThread(folder, self.meta) for folder in folders]
+            available_slots = 4
+            while True:
+                for i in range(0, len(threads)):
+                    if threads[i].started and threads[i].done:
+                        available_slots += 1
+                        threads[i].started = False
+                    if not threads[i].started and not threads[i].done and available_slots > 0:
+                        self.logger.debug('listing contents of email folder %s' % threads[i].folder)
+                        threads[i].started = True
+                        threads[i].start()
+                        available_slots -= 1
+                time.sleep(1)
+                if available_slots >= 4:
+                    break
+
+            # collect up the results of each thread
+            for i in range(0,len(threads)):
+                if not threads[i].done:
+                    print('oops! a thread is still running')
+                emailpaths.extend(threads[i].email_paths)
+        else:
+            #
+            # single threading version
+            #
+            query = self.meta.factory.create('ListMetadataQuery')
+            query.type = 'EmailTemplate'
+            emailpaths = []
+            print('folders = %s' % (len(folders),))
+            for folder in folders:
+                query.folder = folder
+                self.logger.debug('listing contents of email folder %s' % folder)
+                props = self.meta.service.listMetadata([query], _API_VERSION)
+                for prop in props:
+                    emailpaths.append(prop.fullName)
+
         ptm = self.meta.factory.create('PackageTypeMembers')
         ptm.name = 'EmailTemplate'
         ptm.members = [emailpath for emailpath in emailpaths]
@@ -149,13 +215,24 @@ class SalesforceAgent:
         ptm.members = [prop.fullName for prop in props]
         return ptm
 
+    def _buildMetaPackage(self, querytype):
+        self.logger.info('loading ' + querytype)
+        query = self.meta.factory.create('ListMetadataQuery')
+        query.type = querytype
+        props = self.meta.service.listMetadata([query], _API_VERSION)
+        self.logger.info('%s contains %d objects' % (querytype, len(props)))
+        ptm = self.meta.factory.create('PackageTypeMembers')
+        ptm.name = querytype
+        ptm.members = [prop.fullName for prop in props]
+        return ptm
+
     def retrieve_objectchanges(self):
         query = self.meta.factory.create('ListMetadataQuery')
         query.type = 'CustomObject'
         props = self.meta.service.listMetadata([query], _API_VERSION)
         return props
 
-    def retrieve_changesaudit(self, types, pod):
+    def retrieve_changesaudit(self, types):
         supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','ApexComponent','Workflow','ApprovalProcess']
 
         # get intersection of requested types and those we support
@@ -169,31 +246,31 @@ class SalesforceAgent:
             query.type = aType
             results[aType] = self.meta.service.listMetadata([query], _API_VERSION)
             self.logger.debug('Loaded %d records for type %s' % (len(results[aType]), aType))
-        
+
         #
         # now do the types that diverge from the norm
         #
 
-#        rest_conn = self.setupForRest(pod)
-#        self.logger.info('loading changes for EmailTemplate')
-#        tmpemails = self._getEmailChangesMap(rest_conn)
-#        etemplates = []
-#        for tmpemail in tmpemails:
-#            template = Bag()
-#            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
-#            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
-#            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
-#            template.__dict__['id'] = tmpemail['Id']
-#            lmd = tmpemail['LastModifiedDate'][0:-9]
-#            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
-#            etemplates.append(template)
-#        results['EmailTemplate'] = etemplates
-#        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
+    #        rest_conn = self.setupForRest(pod)
+    #        self.logger.info('loading changes for EmailTemplate')
+    #        tmpemails = self._getEmailChangesMap(rest_conn)
+    #        etemplates = []
+    #        for tmpemail in tmpemails:
+    #            template = Bag()
+    #            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
+    #            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
+    #            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
+    #            template.__dict__['id'] = tmpemail['Id']
+    #            lmd = tmpemail['LastModifiedDate'][0:-9]
+    #            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
+    #            etemplates.append(template)
+    #        results['EmailTemplate'] = etemplates
+    #        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
         return results
 
-    def setupForRest(self, pod):
+    def setupForRest(self):
         self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
-        serverloc = pod + '.salesforce.com'
+        serverloc = self.pod + '.salesforce.com'
         self.logger.info('connecting to REST endpoint at %s' % serverloc)
         httpcon = httplib.HTTPSConnection(serverloc)
         if not self.proxy_host is None: httpcon.set_tunnel(self.proxy_host, self.proxy_port)
@@ -250,7 +327,7 @@ class SalesforceAgent:
         data['records'] = recs
         return data
 
-    def retrieve_meta(self, types, pod, outputname='/var/sftmp/retrieve.zip'):
+    def retrieve_meta(self, types, outputname='/var/sftmp/retrieve.zip'):
         if not self.login_result:
             raise Exception('Initialization error: not logged in')
         if not self.meta:
@@ -262,11 +339,14 @@ class SalesforceAgent:
         pkg.version = _API_VERSION
         pkg.apiAccessLevel = 'Unrestricted'
         pkgtypes = []
+        print("fetching types {}".format(types))
         for type in types:
             if type == 'CustomObject':
                 pkgtypes.append(self._buildCustomObjectsPackage())
             elif type == 'EmailTemplate':
-                pkgtypes.append(self._buildEmailTemplatesPackage(pod))
+                pkgtypes.append(self._buildEmailTemplatesPackage())
+            elif type == 'GlobalPicklist':
+                pkgtypes.append(self._buildMetaPackage('GlobalPicklist'))
             else:
                 pkgtype = self.meta.factory.create('PackageTypeMembers')
                 pkgtype.members = ['*']

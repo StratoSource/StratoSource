@@ -124,7 +124,6 @@ class BranchStats(models.Model):
     bytes = models.IntegerField()
     last_updated = models.DateTimeField(default=timezone.now)
 
-
 class BranchLog(models.Model):
     class Meta:
         db_table = 'branch_log'

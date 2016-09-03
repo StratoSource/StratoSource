@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #
+import json
+import os
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -24,6 +26,7 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from pyral import RallyRESTAPIError
 
+from stratosource.management.Utils import doGrep
 from stratosource.models import DeploymentPushStatus, DeploymentPackage, Story, Release, DeployableObject, \
     DeployableTranslation, Delta, Branch, ConfigSetting, SalesforceUser, Repo, BranchStats, UnitTestBatch
 from stratosource.user import rallyintegration
@@ -307,24 +310,6 @@ def search(request):
             'selectedRepo': selectedrepo, 'selectedBranch': selectedbranch}
     return render(request,'search.html', data)
 
-
-def doGrep(codedir, ext, text):
-    import os, subprocess
-    os.chdir(codedir)
-    cmd = "grep -i '{0}' *.{1}".format(text, ext)
-    print('STARTING ' + cmd)
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    output = ps.communicate()[0]
-    lines = output.split('\n')
-    results = []
-    for line in lines:
-        i = line.find('\t')
-        if i != -1:
-            filename = line[0:i]
-            results.append({'filename': filename, 'match': line[i:].strip()})
-    return results
-
-
 def releases(request):
     unreleased = Release.objects.filter(released__exact=False)
 
@@ -435,9 +420,14 @@ def unreleased(request, repo_name, branch_name):
                 deltaMap[delta.object] = delta.getDeltaType() + user + changeDate
 
     userList = SalesforceUser.objects.values('name').order_by('name').distinct()
-    users = []
-    for u in userList:
-        users.append(u['name'])
+    users = [u['name'] for u in userList]
+
+    todofile = os.path.join(branch.repo.location, '..', 'annotations_' + branch.name + '.txt')
+    if os.path.exists(todofile):
+        with open(todofile, 'r') as f:
+            annotations = json.loads(f.read())['annotations']
+    else:
+        annotations = []
 
     data = {
         'branch_name': branch_name,
@@ -452,7 +442,8 @@ def unreleased(request, repo_name, branch_name):
         'username': username,
         'go': go,
         'objectTypes': objectTypes,
-        'selectedType': typeFilter
+        'selectedType': typeFilter,
+        'todos': annotations
     }
     return render(request,'unreleased.html', data)
 

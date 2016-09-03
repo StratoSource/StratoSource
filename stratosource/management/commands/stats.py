@@ -23,6 +23,8 @@ import logging
 import time
 import datetime
 import os
+
+from stratosource.management.Utils import doGrep
 from stratosource.models import Branch, BranchStats
 from stratosource.management import Utils
 from ss2.settings import LOGGING
@@ -86,5 +88,20 @@ class Command(BaseCommand):
             bs.files = bs.cls_files + bs.page_files + bs.trigger_files
             bs.lines = bs.cls_lines + bs.page_lines + bs.trigger_lines
             bs.bytes = bs.cls_bytes + bs.page_bytes + bs.trigger_bytes
-
             bs.save()
+
+            #
+            # process anotations
+            #
+            root = os.path.join(branch.repo.location, 'unpackaged')
+            output = []
+            outer = { 'annotations': output}
+            output.extend(doGrep(os.path.join(root, 'classes'), 'cls', '@todo'))
+            output.extend(doGrep(os.path.join(root, 'triggers'), 'trigger', '@todo'))
+            output.extend(doGrep(os.path.join(root, 'pages'), 'page', '@todo'))
+            for item in output:
+                match = item['match']
+                item['match'] =  match[match.find('@todo') + 5:].strip()
+            with open(os.path.join(branch.repo.location, '..', 'annotations_' + branch.name + '.txt'), 'w+') as f:
+                f.write(json.dumps(outer, indent=4))
+

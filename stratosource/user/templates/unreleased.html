@@ -229,7 +229,7 @@
 
         <br />
         <hr />
-        <div class="panel" id="content-main" style="white-space: nowrap; padding: 5px; margin-bottom: 10px; margin-top: 10px;">
+        <div class="panel" style="white-space: nowrap; padding: 5px; margin-bottom: 10px; margin-top: 10px;">
             <span>Key:</span>
             <span style="border: 1px; border-style: solid;">&#x21B7; - Repeated Action</span>
             <span class="label label-default" style="border: 1px; border-style: solid;">Changed</span>
@@ -237,6 +237,29 @@
             <span class="label" style="color: #555555; background-color: #f0d1ab; border: 1px; border-style: solid;">Release Pending & Changed Again (Conflict)</span>
         </div>
 
+        <div class="panel panel-info" id="todo-list">
+            <div class="panel-heading">
+                @todo
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed table-striped">
+                    <tr>
+                        <th>File</th>
+                        <th>Line</th>
+                        <th>Text</th>
+                    </tr>
+                    <tbody>
+                    {%  for todo in todos %}
+                        <tr>
+                            <td>{{ todo.filename }}</td>
+                            <td>{{ todo.linenum }}</td>
+                            <td>{{ todo.match }}</td>
+                        </tr>
+                    {%  endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 

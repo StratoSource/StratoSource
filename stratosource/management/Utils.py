@@ -32,8 +32,6 @@ def getAgentForBranch(branch, logger = None):
     password = branch.api_pass
     authkey = branch.api_auth
     if authkey is None: authkey = ''
-    path = branch.api_store
-    types = branch.api_assets.split(',')
     svcurl = 'https://' + branch.api_env + '.salesforce.com/services/Soap/u/' + CSBase.CS_SF_API_VERSION #branch.api_ver
 
 #    print("user='%s' path='%s' types=[%s] url='%s'", user, path, ' '.join(types), svcurl)
@@ -48,8 +46,24 @@ def getAgentForBranch(branch, logger = None):
         agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger, proxy_host=proxy_host, proxy_port=proxy_port)
     else:
         agent = SalesforceAgent(partner_wsdl, meta_wsdl, clientLogger=logger)
-    agent.pod = branch.api_pod
 
     agent.login(user, password+authkey,server_url=svcurl)
     return agent
 
+def doGrep(codedir, ext, text):
+    import os, subprocess
+    os.chdir(codedir)
+    cmd = "grep -in '{0}' *.{1}".format(text, ext)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    output = ps.communicate()[0]
+    lines = output.split('\n')
+    results = []
+    for line in lines:
+        parts = line.split(':')
+        if len(parts) >= 3:
+            filename = parts[0]
+            linenum = parts[1]
+            text = ':'.join(parts[2:])
+
+            results.append({'filename': filename, 'match': text.strip(), 'linenum': linenum})
+    return results

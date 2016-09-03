@@ -131,6 +131,7 @@ class SalesforceAgent:
 
         self.meta.set_options(soapheaders=self.sid)
         self.meta.set_options(location=self.login_result.metadataServerUrl)
+        self.serverloc = urlparse(self.login_result.serverUrl).netloc
 
     def close(self):
         if not self.login_result:
@@ -270,9 +271,8 @@ class SalesforceAgent:
 
     def setupForRest(self):
         self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
-        serverloc = self.pod + '.salesforce.com'
         self.logger.info('connecting to REST endpoint at %s' % serverloc)
-        httpcon = httplib.HTTPSConnection(serverloc)
+        httpcon = httplib.HTTPSConnection(self.serverloc)
         if not self.proxy_host is None: httpcon.set_tunnel(self.proxy_host, self.proxy_port)
         return httpcon
 

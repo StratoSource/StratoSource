@@ -237,6 +237,7 @@
             <span class="label" style="color: #555555; background-color: #f0d1ab; border: 1px; border-style: solid;">Release Pending & Changed Again (Conflict)</span>
         </div>
 
+        {% if todos|length > 0 %}
         <div class="panel panel-info" id="todo-list">
             <div class="panel-heading">
                 @todo
@@ -260,6 +261,7 @@
                 </table>
             </div>
         </div>
+        {% endif %}
     </div>
 
 

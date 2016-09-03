@@ -422,12 +422,15 @@ def unreleased(request, repo_name, branch_name):
     userList = SalesforceUser.objects.values('name').order_by('name').distinct()
     users = [u['name'] for u in userList]
 
-    todofile = os.path.join(branch.repo.location, '..', 'annotations_' + branch.name + '.txt')
-    if os.path.exists(todofile):
-        with open(todofile, 'r') as f:
-            annotations = json.loads(f.read())['annotations']
-    else:
-        annotations = []
+    annotations = []
+    if ConfigCache.get_config_value('show.todo') == '1':
+        todofile = os.path.join(branch.repo.location, '..', 'annotations_' + branch.name + '.txt')
+        try:
+            if os.path.exists(todofile):
+                with open(todofile, 'r') as f:
+                    annotations = json.loads(f.read())['annotations']
+        except:
+            pass
 
     data = {
         'branch_name': branch_name,

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
+from stratosource.models import ConfigSetting
 
 
 class Migration(migrations.Migration):
@@ -12,6 +13,10 @@ class Migration(migrations.Migration):
     dependencies = [
         ('stratosource', '0001_initial'),
     ]
+
+
+    def populate_config(apps, schema_editor):
+        ConfigSetting(key='show.todo', value='1', thype='check', allow_delete=False, masked=False).save()
 
     operations = [
         migrations.CreateModel(
@@ -84,4 +89,5 @@ class Migration(migrations.Migration):
             name='branch',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='stratosource.Branch'),
         ),
+        migrations.RunPython(populate_config),
     ]

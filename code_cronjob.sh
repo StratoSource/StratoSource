@@ -17,8 +17,9 @@ trap onexit INT ERR
 
 function onexit()
 {    
-    cd "$BASEDIR" >>$LOG_NAME 2>&1
     local exit_status=${1:-$?}
+
+    cd "$BASEDIR"
     
     echo Exiting with status $exit_status
 

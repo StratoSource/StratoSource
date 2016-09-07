@@ -77,7 +77,6 @@ class Branch(models.Model):
     repo =  models.ForeignKey(Repo)
     name =  models.CharField(max_length=30)
     api_env =   models.CharField(max_length=10, default='test')     # "test" or "login"
-    api_pod =   models.CharField(max_length=10, default='cs4')
     api_user =  models.CharField(max_length=100)
     api_pass =  models.CharField(max_length=100, blank=True, null=True)
     api_auth =  models.CharField(max_length=50, blank=True, null=True)

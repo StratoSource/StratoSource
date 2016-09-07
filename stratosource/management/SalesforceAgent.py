@@ -271,7 +271,7 @@ class SalesforceAgent:
 
     def setupForRest(self):
         self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
-        self.logger.info('connecting to REST endpoint at %s' % serverloc)
+        self.logger.info('connecting to REST endpoint at %s' % self.serverloc)
         httpcon = httplib.HTTPSConnection(self.serverloc)
         if not self.proxy_host is None: httpcon.set_tunnel(self.proxy_host, self.proxy_port)
         return httpcon

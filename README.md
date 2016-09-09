@@ -1,4 +1,23 @@
 
+StratoSource is a configuration and release management tool for Salesforce(tm) development.
+
+####Features
+* Track code and configuration changes to a sandbox or production.
+* Optionally integrate with [Rally](https://www.rallydev.com) or [AgileZen](http://www.agilezen.com) for story population.
+* Tag changes to stories, and stories to releases.
+* Use the Release Manifest to view all tagged changes for a release.
+* Detects when the same config or code item changes across two pending releases and issues warning.
+* Releases include list of tasks to be performed manually during a package push.
+* Changes are tracked in a git repository.
+* Includes integrated cgit to provide git-level change inspection from the browser.
+* Export changed/added custom labels to spreadsheet to send to translation vendors.
+* and more...
+
+Stratosource does not perform code or config pushes. 
+
+
+
+
 ##Stratosource v2 Notes
 
 ### KNOWN WORKING CONFIGURATIONS

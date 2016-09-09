@@ -39,7 +39,7 @@ def createrelease(request):
         try:
             release = Release()
             release.name = request.GET['name']
-            reldate = datetime.strptime(request.GET['estRelDate'] + 'T09:09:09', '%b. %d, %YT%H:%M:%S')
+            reldate = datetime.strptime(request.GET['estRelDate'], '%m/%d/%Y')
             release.est_release_date = reldate
             release.save()
             results = {'success':True}
@@ -62,11 +62,8 @@ def updaterelease(request):
             date = ''
             name = ''
             reldate = None
-            try:
-                reldate = datetime.strptime(request.GET['date'] + 'T09:09:09', '%b. %d, %YT%H:%M:%S')
-            except Exception as ex:
-                reldate = datetime.strptime(request.GET['date'] + 'T09:09:09', '%B %d, %YT%H:%M:%S')
-                
+            reldate = datetime.strptime(request.GET['date'], '%m/%d/%Y')
+
             release.est_release_date = reldate
             name = request.GET['name']
             release.name = name

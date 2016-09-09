@@ -77,7 +77,7 @@ function markReleased(id, name, branch, refreshPage){
             if (json.success && !refreshPage){
                 refreshReleases();
             } if (json.success && refreshPage) {
-                location.reload();
+                location.reload();up
             } else {
                 alert(json.error);
             }

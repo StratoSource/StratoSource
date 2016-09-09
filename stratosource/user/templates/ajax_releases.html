@@ -11,15 +11,15 @@
                             <td> {{ release.released }} </td>
                             <td> 
                                 {% if not release.released %}
-                                <span id="relDateRO{{ release.id }}">{{ release.est_release_date }}</span>
+                                <span id="relDateRO{{ release.id }}">{{ release.est_release_date|date:"SHORT_DATE_FORMAT" }}</span>
                                 <span id="relDate{{ release.id }}" style="display: none;">
-                                    <input name="estRelDate{{ release.id }}" type="text" onchange="calChanged = true;" id="estRelDate{{ release.id }}" value="{{ release.est_release_date }}" readonly>
+                                    <input name="estRelDate{{ release.id }}" type="text" onchange="calChanged = true;" id="estRelDate{{ release.id }}" value="{{ release.est_release_date|date:"SHORT_DATE_FORMAT" }}" readonly>
                                 </span>
                                 {% else %}
-                                    {{ release.est_release_date }}
+                                    {{ release.est_release_date|date:"SHORT_DATE_FORMAT" }}
                                 {% endif %}
                             </td>
-                            <td> {{ release.release_date }}  </td>
+                            <td> {{ release.release_date|date:"SHORT_DATE_FORMAT" }}  </td>
                             <td align="right"> 
                                 {% if not release.released %}
                                     <input id="edit{{ release.id }}" type="submit" value="Edit" onclick="editReleaseStart('{{release.id}}'); return false;">
@@ -32,7 +32,7 @@
                         </tr>
                         <script type="text/javascript">
                             $(function() {
-                                    $( "#estRelDate{{ release.id }}" ).datepicker({ dateFormat: 'M. dd, yy' });
+                                    $( "#estRelDate{{ release.id }}" ).datepicker({ dateFormat: 'mm/dd/yy' });
                             });
                         </script>
                     {% empty %}

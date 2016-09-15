@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 elif line.startswith("Author: "):
                     author = line[8:]
                 elif line.startswith("Date:  "):
-                    logger.debug('parsing date from ' + line[8:-6])
+                    #logger.debug('parsing date from ' + line[8:-6])
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
                 elif len(line) > 4:
                     comment += line.strip()

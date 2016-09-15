@@ -10,6 +10,7 @@ rm -rf $LOG_NAME || true
 BASEDIR=$(dirname "$0")
 REPO=$1
 BRANCH=$2
+SUCCESS='false'
 
 # Execute function error() receiving ERROR or TERM signal
 #
@@ -23,7 +24,8 @@ function onexit()
     
     echo Exiting with status $exit_status
 
-    if [ $exit_status -eq "99" ]
+    if [ $SUCCESS == "true" ]
+#    if [ $exit_status -eq "99" ]
         then
         python manage.py storelog $REPO $BRANCH $LOG_NAME code d
         exit 0
@@ -55,6 +57,8 @@ cd "$BASEDIR" >>$LOG_NAME 2>&1
 ./post-cronjob.sh $REPO $BRANCH code >>$LOG_NAME 2>&1
 
 #rm $LOG_NAME
+
+SUCCESS='true'
 
 cd $BASEDIR
 python manage.py stats

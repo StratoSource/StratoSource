@@ -35,13 +35,14 @@
                                 <td scope="row" style="text-align:right;">Package Name:</td>
                                 <td>
                                     <input type="text" size="50" maxlength="200" name="txtName" id="txtName" value="{{branch.repo.name|capfirst}} - {{branch.name|capfirst}}, {{release.name}} Deployment"/>
-                                    <input type="hidden" name="sourceBranchId" id="sourceBranchId" value="{{branch.id}}"/>
+                                    <input type="hidden" name="sourceBranchId" id="sourceBranchId" value="{{from_branch.id}}"/>
+                                    <input type="hidden" name="releaseId" id="releaseId" value="{{ release.id }}"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td scope="row" style="text-align:right;">Source Environment:</td>
                                 <td>
-                                    {{branch.repo.name|capfirst}} - {{branch.name|capfirst}}
+                                    {{from_branch.repo.name|capfirst}} - {{from_branch.name|capfirst}}
                                 </td>
                             </tr>
                         </table>
@@ -114,6 +115,6 @@
                 </div>
             </form>
         </div>
-        <br class="clear" />
+
     </div>
 {% endblock %}

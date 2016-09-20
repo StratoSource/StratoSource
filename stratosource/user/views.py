@@ -130,12 +130,15 @@ def home(request):
     return render(request, 'home.html', data)
 
 
-def create_release_package(request, release_id):
-    release = Release.objects.get(id=release_id)
+def create_release_package(request):
+
+    release_id = None
+    branch_id = None
     branches = Branch.objects.filter(enabled__exact=True).order_by('order')
-    data = {'release': release, 'branches': branches}
 
     if request.method == u'POST':
+        release_id = request.POST.get('releaseId')
+        release = Release.objects.get(id=release_id)
         release_package = DeploymentPackage()
         release_package.release = release
         release_package.name = request.POST.get('txtName')
@@ -150,11 +153,15 @@ def create_release_package(request, release_id):
         return redirect('/release/' + str(release_package.release.id))
 
     if request.method == u'GET':
+        release_id = request.GET.get('release_id')
+        branch_id = request.GET.get('branch_id')
+        release = Release.objects.get(id=release_id)
+        from_branch = Branch.objects.get(id=branch_id)
+
         manifest = []
-        branch = Branch.objects.get(id=request.GET.get('sourceBranchId'))
         for story in release.stories.all():
-            deployables = DeployableObject.objects.filter(pending_stories=story, branch=branch)
-            dep_objects = DeployableObject.objects.filter(released_stories=story, branch=branch)
+            deployables = DeployableObject.objects.filter(pending_stories=story, branch=from_branch)
+            dep_objects = DeployableObject.objects.filter(released_stories=story, branch=from_branch)
             deployables.select_related()
             dep_objects.select_related()
             manifest += list(deployables)
@@ -162,7 +169,7 @@ def create_release_package(request, release_id):
 
             manifest.sort(key=lambda object: object.type + object.filename)
 
-            data = {'release': release, 'manifest': manifest, 'branches': branches, 'branch': branch}
+            data = {'release': release, 'manifest': manifest, 'branches': branches, 'from_branch': from_branch}
 
     return render(request,'release_create_package.html', data)
 

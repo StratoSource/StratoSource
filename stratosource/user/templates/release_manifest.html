@@ -80,7 +80,8 @@
                 <h4>Manifest of Changed Objects in {{release.name}}</h4>
                 <span class="sectionActions">
                     {% if null != branch.id %}
-                    <a href="/export_labels_form?release_id={{release.id}}&branch_id={{branch.id}}">Export Labels</a>
+                    <a href="/export_labels_form?release_id={{release.id}}&branch_id={{branch.id}}">Export Labels</a> |
+                    <a href="/release_create_package?release_id={{release.id}}&branch_id={{branch.id}}">Create Package</a>
                     {% endif %}
                     <!-- Hiding until package deployment is ready
                     {% if null != branch.id %}

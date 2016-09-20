@@ -18,15 +18,8 @@
 import logging
 import logging.config
 from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist
-from stratosource.models import Story, Branch, DeployableObject
-from stratosource.management import Utils
+from stratosource.models import Story, Branch, DeployableObject, Release
 from stratosource.management import Deployment
-import subprocess
-import os
-from zipfile import ZipFile
-from lxml import etree
-import stratosource.admin.management.CSBase # used to initialize logging
 
 
 __author__="masmith"
@@ -34,8 +27,18 @@ __date__ ="$Sep 22, 2010 2:11:52 PM$"
 
 
 class Command(BaseCommand):
+    args = ''
 
-#    def deploy(self, objectList, from_branch, to_branch):
+
+    help = 'deploy assets to Salesforce'
+
+
+    def add_arguments(self, parser):
+        parser.add_argument('from', help='source branch name')
+        parser.add_argument('to', help='dest branch name')
+        parser.add_argument('release', help='release id')
+
+    #    def deploy(self, objectList, from_branch, to_branch):
 #        for object in objectList:
 #            print object.status, object.filename, object.type, object.el_name, object.el_subtype
 #        output_name = generatePackage(objectList, from_branch, to_branch)
@@ -58,17 +61,20 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        if len(args) < 6: raise CommandError('usage: deploy <source repo> <source branch> <dest repo> <dest branch> story <storyid>')
+        release = Release.objects.get(id=options['release'])
+        from_branch = Branch.objects.get(name=options['from'])
+        to_branch = Branch.objects.get(name=options['to'])
 
-        if args[4] == 'story':
-            stories = [Story.objects.get(rally_id = storyid) for storyid in args[5:]]
-#            story = Story.objects.get(rally_id=args[5])
-            if not story: raise CommandException("invalid story")
-            from_branch = Branch.objects.get(repo__name__exact=args[0], name__exact=args[1])
-            if not from_branch: raise CommandException("invalid source branch")
-            to_branch = Branch.objects.get(repo__name__exact=args[2], name__exact=args[3])
-            if not to_branch: raise CommandException("invalid destination branch")
-            #self.deploy_stories([story], from_branch, to_branch)
-            self.deploy_stories(stories, from_branch, to_branch)
+        manifest = []
+        for story in release.stories.all():
+            deployables = DeployableObject.objects.filter(pending_stories=story, branch=from_branch)
+            dep_objects = DeployableObject.objects.filter(released_stories=story, branch=from_branch)
+            deployables.select_related()
+            dep_objects.select_related()
+            manifest += list(deployables)
+            manifest += list(dep_objects)
+
+        manifest.sort(key=lambda object: object.type + object.filename)
+        self.deploy_stories(release.stories.all(), from_branch, to_branch)
 
 

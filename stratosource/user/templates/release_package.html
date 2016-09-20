@@ -12,7 +12,7 @@
 
 {% block content %}
 
-    <div id="content" class="colMS">
+    <div id="content" class="container-fluid">
 
         <div id="content-main">
             <form id="releaseNotes" name="releaseNotes" method="POST">{% csrf_token %}
@@ -26,13 +26,16 @@
                 </div>
                 <div class="module ObjectsList" style="max-width: 600px;">
                     <h3 class="sectionHeader">Release Attempts</h3>
-                    <table>
+                    <table class="table table-condensed table-striped">
+                    <thead>
                         <tr>
                             <th>Date</th>
                             <th>Target Environment</th>
                             <th>Status / Result:</th>
                             <th>Action</th>
                         </tr>
+                       </thead>
+                    <tbody>
                     {% for ra in release_attempts %}
                         <tr>
                             <td>{{ra.date_attempted}}</td>
@@ -46,6 +49,7 @@
                             <td><a href="/release_push_status/{{ra.id}}">View</a></td>
                         </tr>
                     {% endfor %}
+                    </tbody>
                     </table>
                 </div>
                 <div class="module ObjectsList">
@@ -58,13 +62,16 @@
                     {% endif %}
                     <h3 class="sectionHeader">{{ object.type|title }}</h3>
                     <div id="{{ object.type|title }}List">
-                        <table>
+                        <table class="table table-condensed table-striped">
+                        <thead>
                             <tr>
                                 <th>Object Name</th>
                                 <th>Element Type</th>
                                 <th>Element Name</th>
                                 <th>Stories</th>
                             </tr>
+                        </thead>
+                    <tbody>
                     {% endifchanged %}
                             <tr>
                                 <td>
@@ -93,6 +100,7 @@
                                 </td>
                             </tr>
                     {% if forloop.last %}
+                        </tbody>
                         </table>
                         <br/>
                     </div>

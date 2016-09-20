@@ -37,7 +37,7 @@ typeMap = {'fields': 'CustomField','validationRules': 'ValidationRule',
             'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
             'components': 'ApexComponent'}
 SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
-_API_VERSION = "29.0"
+_API_VERSION = "35.0"
 
 
 def createFileCache(map):
@@ -178,9 +178,6 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     doc = etree.Element('Package') #, nsmap=defaultNS)
     etree.SubElement(doc, 'version').text = "{0}".format(_API_VERSION)
 
-    destructive = etree.Element('Package') #, nsmap=defaultNS)
-    etree.SubElement(destructive, 'version').text = "{0}".format(_API_VERSION)
-
     if retain_package:
         output_name = os.path.join(packagedir,  'deploy_%s_%s.zip' % (from_branch.name, to_branch.name))
     else:
@@ -213,8 +210,7 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
             #
             for object in itemlist:
                 if object.status == 'd':
-                    registerChange(destructive, object, type)
-                    logger.info('removing: %s %s %s', object.filename, object.el_name, object.el_subtype)
+                    pass
                 else:
                     if not objectPkgMap.has_key(object.filename): objectPkgMap[object.filename] = []
                     changes = objectPkgMap[object.filename]
@@ -228,17 +224,16 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
         elif type == 'labels':
             for obj in itemlist:
                 if object.status == 'd':
-                    registerChange(destructive, obj, type)
-                    logger.info('removing: %s %s', object.filename, object.el_name)
+                    pass
                 else:
                     registerChange(doc, obj, type)
                     fragment = generateObjectChanges(doc, cache, obj)
                     print('fragment:%s' % (fragment,))
                     labelchanges += fragment
         elif type in ['pages','classes','triggers']:
-            writeFileDefinitions(doc, destructive, type, itemlist, cache, myzip)
+            writeCodeFileDefinitions(doc, type, itemlist, cache, myzip)
         elif type == 'layouts':
-            writeLayoutDefinitions(doc, destructive, type, itemlist, cache, myzip)
+            writeLayoutDefinitions(doc, type, itemlist, cache, myzip)
         else:
             logger.warn('Type not supported: %s' % type)
 
@@ -250,8 +245,6 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     xml = etree.tostring(doc, xml_declaration=True, encoding='UTF-8', pretty_print=True)
     myzip.writestr('package.xml', xml)
 
-    xml = etree.tostring(destructive, xml_declaration=True, encoding='UTF-8', pretty_print=True)
-    myzip.writestr('destructiveChanges.xml', xml)
     myzip.close()
     return output_name
 
@@ -284,7 +277,7 @@ def registerChange(doc, member, filetype):
         etree.SubElement(el, 'name').text = typeMap[filetype]
         logger.info('registering: %s - %s', object_name + '.' + el_name, typeMap[filetype])
 
-def writeLayoutDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache, zipfile):
+def writeLayoutDefinitions(packageDoc, filetype, filelist, cache, zipfile):
     logger = logging.getLogger('deploy')
     for member in filelist:
         print('member filename=%s, el_type=%s' % (member.filename, member.el_type))
@@ -294,11 +287,8 @@ def writeLayoutDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache
             zipfile.writestr(filetype+'/'+member.filename, cache.get(member.filename))
             registerChange(packageDoc, member, filetype)
             logger.info('storing: %s', member.filename)
-        else:
-            logger.info('removing: %s', member.filename)
-            registerChange(destructiveDoc, member, filetype)
 
-def writeFileDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache, zipfile):
+def writeCodeFileDefinitions(packageDoc, filetype, filelist, cache, zipfile):
     logger = logging.getLogger('deploy')
     for member in filelist:
         print('member filename=%s, el_type=%s' % (member.filename, member.el_type))
@@ -311,10 +301,6 @@ def writeFileDefinitions(packageDoc, destructiveDoc, filetype, filelist, cache, 
             zipfile.writestr(filetype+'/'+member.filename+'-meta.xml', getMetaForFile(os.path.join('unpackaged',filetype,member.filename)))
             registerChange(packageDoc, member, filetype)
             logger.info('storing: %s', member.filename)
-# need another solution - this fails if the file is already gone in SF
-#        else:
-#            logger.info('removing: %s', member.filename)
-            registerChange(destructiveDoc, member, filetype)
 
 def writeLabelDefinitions(filename, element, zipfile):
     xml = '<?xml version="1.0" encoding="UTF-8"?>'\

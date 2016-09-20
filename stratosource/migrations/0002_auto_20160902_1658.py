@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
 
 
     def populate_config(apps, schema_editor):
-        ConfigSetting(key='show.todo', value='1', thype='check', allow_delete=False, masked=False).save()
+        ConfigSetting(key='show.todo', value='1', type='check', allow_delete=False, masked=False).save()
 
     operations = [
         migrations.CreateModel(

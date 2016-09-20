@@ -21,7 +21,7 @@ from stratosource.models import Story, Branch, DeployableObject
 from stratosource.management import Utils
 import subprocess
 import os
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 from lxml import etree
 
 
@@ -37,29 +37,18 @@ typeMap = {'fields': 'CustomField','validationRules': 'ValidationRule',
             'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
             'components': 'ApexComponent'}
 SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
-_API_VERSION = "35.0"
+_API_VERSION = "37.0"
 
 
 def createFileCache(map):
     cache = {}
     for type,list in map.items():
-        if type == 'objects' or type == 'labels' or type == 'layouts':
-            for object in list:
-                try:
-                    path = os.path.join('unpackaged',type,object.filename)
-                    f = open(path)
-                    cache[object.filename] = f.read()
-                    f.close()
-                except IOError:
-                    print('** not able to load ' + path)
-                    pass    # caused by a new file added, not present on current branch
-        else:
-            for object in list:
-                path = os.path.join('unpackaged',type,object.filename)
-                if os.path.exists(path):
-                    f = open(path)
-                    cache[object.filename] = f.read()
-                    f.close()
+        for object in list:
+            path = os.path.join('unpackaged',type,object.filename)
+            if os.path.exists(path):
+                f = open(path)
+                cache[object.filename] = f.read()
+                f.close()
     return cache
 
 def findXmlNode(doc, object, subtype = None):
@@ -175,14 +164,14 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     logger = logging.getLogger('deploy')
 
     defaultNS = { None: 'http://soap.sforce.com/2006/04/metadata'}
-    doc = etree.Element('Package') #, nsmap=defaultNS)
+    doc = etree.Element('Package', nsmap=defaultNS)
     etree.SubElement(doc, 'version').text = "{0}".format(_API_VERSION)
 
     if retain_package:
         output_name = os.path.join(packagedir,  'deploy_%s_%s.zip' % (from_branch.name, to_branch.name))
     else:
         output_name = '/tmp/deploy_%s_%s.zip' % (from_branch.name, to_branch.name)
-    myzip = ZipFile(output_name, 'w')
+    myzip = ZipFile(output_name, 'w', compression=ZIP_DEFLATED)
 
     logger.info('building %s', output_name)
     # create map and group by type
@@ -193,9 +182,9 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
         if not hasDuplicate(olist, object): olist.append(object)
     cache = createFileCache(map)
     
-    objectPkgMap = {}   # holds all nodes to be added/updated, keyed by object/file name
+    #objectPkgMap = {}   # holds all nodes to be added/updated, keyed by object/file name
 
-    labelchanges = ''
+    #labelchanges = ''
     for type,itemlist in map.items():
         if not typeMap.has_key(type):
             logger.error('** Unhandled type {0} - skipped'.format(type))
@@ -209,38 +198,27 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
             # then process them at the end
             #
             for object in itemlist:
-                if object.status == 'd':
-                    pass
-                else:
-                    if not objectPkgMap.has_key(object.filename): objectPkgMap[object.filename] = []
-                    changes = objectPkgMap[object.filename]
-                    registerChange(doc, object, type)
-                    if object.el_name is None:
-                        print('el_name is None so skipping fragment extraction')
-                        pass
-                    else:
-                        fragment = generateObjectChanges(doc, cache, object)
-                        changes.append(fragment)
+                registerObjectChanges(doc, cache, itemlist, myzip)
         elif type == 'labels':
             for obj in itemlist:
                 if object.status == 'd':
                     pass
                 else:
-                    registerChange(doc, obj, type)
-                    fragment = generateObjectChanges(doc, cache, obj)
-                    print('fragment:%s' % (fragment,))
-                    labelchanges += fragment
+                    registerLabelChanges(doc, cache, itemlist, myzip)
+#                    fragment = generateObjectChanges(doc, cache, obj)
+#                    print('fragment:%s' % (fragment,))
+#                    labelchanges += fragment
         elif type in ['pages','classes','triggers']:
-            writeCodeFileDefinitions(doc, type, itemlist, cache, myzip)
+            registerCodeChanges(doc, type, itemlist, cache, myzip)
         elif type == 'layouts':
             writeLayoutDefinitions(doc, type, itemlist, cache, myzip)
         else:
             logger.warn('Type not supported: %s' % type)
 
-    if len(labelchanges) > 0:
-        writeLabelDefinitions(obj.filename, labelchanges, myzip)
+    #if len(labelchanges) > 0:
+        #writeLabelDefinitions(obj.filename, labelchanges, myzip)
 
-    writeObjectDefinitions(to_branch.repo, doc,  objectPkgMap, cache, myzip)
+    #writeObjectDefinitions(to_branch.repo, doc,  objectPkgMap, cache, myzip)
 
     xml = etree.tostring(doc, xml_declaration=True, encoding='UTF-8', pretty_print=True)
     myzip.writestr('package.xml', xml)
@@ -248,9 +226,62 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
     myzip.close()
     return output_name
 
-#
-# register an item to the package.xml or destructive.xml document
-#
+
+def registerLabelChanges(doc, cache, members, zipfile):
+
+    labelchanges = ''
+    for obj in members:
+        if obj.status == 'd':
+            continue
+        fragment = generateObjectChanges(doc, cache, obj)
+        print('fragment:%s' % (fragment,))
+        labelchanges += fragment
+
+    writeLabelDefinitions('CustomLabels.labels', labelchanges, zipfile)
+
+    #
+    # add only the requested labels to package.xml
+    #
+    el = etree.SubElement(doc, 'types')
+    etree.SubElement(el, 'name').text = typeMap['labels']
+    for member in members:
+        if member.status == 'd':
+            continue
+        etree.SubElement(el, 'members').text = member.el_name
+
+def registerObjectChanges(doc, cache, members, zipfile):
+
+    objectPkgMap = {}   # holds all nodes to be added/updated, keyed by object/file name
+
+    types_el = etree.SubElement(doc, 'types')
+    etree.SubElement(types_el, 'name').text = typeMap['objects']
+    changes = ''
+    for member in members:
+        if member.status == 'd':
+            continue
+        if member.el_name is None:
+            continue
+
+        if not objectPkgMap.has_key(member.filename): objectPkgMap[member.filename] = []
+        changes = objectPkgMap[member.filename]
+
+        el_name = member.el_name
+        object_name = member.filename[0:member.filename.find('.')]
+        if member.el_type == 'recordTypes':
+            filetype = 'recordTypes'
+        elif el_name.find(':') > 0:
+            el_name = el_name.split(':')[0]
+            filetype = 'recordTypes'
+        else:
+            filetype = 'fields'
+        etree.SubElement(types_el, 'members').text = object_name + '.' + el_name
+
+        fragment = generateObjectChanges(doc, cache, member)
+        changes.append(fragment)
+
+    writeObjectDefinitions(doc, objectPkgMap, cache, zipfile)
+
+
 def registerChange(doc, member, filetype):
     logger = logging.getLogger('deploy')
 
@@ -288,19 +319,28 @@ def writeLayoutDefinitions(packageDoc, filetype, filelist, cache, zipfile):
             registerChange(packageDoc, member, filetype)
             logger.info('storing: %s', member.filename)
 
-def writeCodeFileDefinitions(packageDoc, filetype, filelist, cache, zipfile):
+def registerCodeChanges(packageDoc, filetype, filelist, cache, zipfile):
     logger = logging.getLogger('deploy')
+    names_for_package = []
     for member in filelist:
         print('member filename=%s, el_type=%s' % (member.filename, member.el_type))
         if member.filename.find('.') > 0:
             object_name = member.filename[0:member.filename.find('.')]
-#                object_name = member.filename[:-(len(member.el_type) + 1)]
+            names_for_package.append(object_name)
         ## !! assumes the right-side branch is still current in git !!
-        if os.path.isfile(os.path.join('unpackaged',filetype,member.filename)):
+        if member.filename in cache:
             zipfile.writestr(filetype+'/'+member.filename, cache.get(member.filename))
             zipfile.writestr(filetype+'/'+member.filename+'-meta.xml', getMetaForFile(os.path.join('unpackaged',filetype,member.filename)))
-            registerChange(packageDoc, member, filetype)
             logger.info('storing: %s', member.filename)
+
+    #
+    # add entries to package.xml
+    #
+    el = etree.SubElement(packageDoc, 'types')
+    for name in names_for_package:
+        etree.SubElement(el, 'members').text = name
+    etree.SubElement(el, 'name').text = typeMap[filetype]
+
 
 def writeLabelDefinitions(filename, element, zipfile):
     xml = '<?xml version="1.0" encoding="UTF-8"?>'\
@@ -309,21 +349,12 @@ def writeLabelDefinitions(filename, element, zipfile):
     xml += '</CustomLabels>'
     zipfile.writestr('labels/'+filename, xml)
 
-def writeObjectDefinitions(to_repo,  doc,  objectMap, filecache, zipfile):
+def writeObjectDefinitions(doc,  objectMap, filecache, zipfile):
     logger = logging.getLogger('deploy')
 
     objdeflist = set(objectMap.keys())
     for objdef in objdeflist:
-        path_to_objdef = os.path.join(to_repo.location,  'unpackaged', 'objects', objdef)
-        if not os.path.isfile(path_to_objdef):
-            # Object definition does not exist in destination repo, so assume it's a new object
-            object_name = objdef[0:objdef.find('.')]
-            zipfile.writestr('objects/' + objdef,  filecache.get(objdef))
-            el = etree.SubElement(doc, 'types')
-            etree.SubElement(el, 'members').text = object_name
-            etree.SubElement(el, 'name').text = typeMap['objects']
-            logger.info('registering: %s', objdef)
-        else:
+        if objdef in filecache:
             # Object exists at destination, just record the changes
             elementList = objectMap[objdef]
             #if len(elementList) == 0:

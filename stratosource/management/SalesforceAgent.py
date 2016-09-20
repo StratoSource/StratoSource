@@ -385,9 +385,8 @@ class SalesforceAgent:
 
     def deploy(self, zipfilename,  checkOnly = False):
         zipfile = open(zipfilename, 'rb')
-        zip = zipfile.read()
+        zip64 = binascii.b2a_base64(zipfile.read())
         zipfile.close()
-        zip64 = binascii.b2a_base64(zip)
         deploy_options = self.meta.factory.create('DeployOptions')
         deploy_options.allowMissingFiles = 'false'
         deploy_options.autoUpdatePackage = 'true'
@@ -396,23 +395,24 @@ class SalesforceAgent:
         deploy_options.performRetrieve = 'false'
         deploy_options.purgeOnDelete = 'false'
         deploy_options.rollbackOnError = 'true'
-        deploy_options.runAllTests = 'false'
+        #deploy_options.runTests = 'false'
         deploy_options.singlePackage = 'true'
+        deploy_options.testLevel = 'NoTestRun'  # values NoTestRun, RunSpecifiedTests, RunLocalTests, RunAllTestsInOrg
 
         result = self.meta.service.deploy(zip64, deploy_options)
+        asyncResultId = result.id
         countdown = _DEPLOY_TIMEOUT
         while not result.done:
             self.logger.info('polling..%s' % str(countdown))
             time.sleep(_DEPLOY_POLL_SLEEP)
             countdown -= _DEPLOY_POLL_SLEEP
             if countdown <= 0: raise Exception('Deployment timed out')
-            result = self.meta.service.checkRetrieveStatus([result.id])[0]
-            print(result)
-            print("Status is: %s" % result.state)
-        if result.state != 'Completed':
-            raise Exception(result.message)
-        deployResult = self.meta.service.checkDeployStatus(result.id)
-        return deployResult
+            result = self.meta.service.checkDeployStatus([asyncResultId], False)
+
+        result = self.meta.service.checkDeployStatus([asyncResultId], True)
+        if not result.success:
+            raise Exception('Deployment failed')
+        return result
 
 
 if __name__ == "__main__":

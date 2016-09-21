@@ -116,39 +116,30 @@ def findXmlSubnode(doc, object):
         logging.getLogger('deploy').info('Unknown object type: ' + object.type)
     return None
 
-def generateObjectChanges(doc,  cache, object):
-    if object.status == 'd': return None
-    doc = etree.XML(cache[object.filename])
-    print('looking for name=%s, type=%s' % (object.el_name, object.el_type))
-    if object.el_type == 'validationRules':
-        xml = findXmlNode(doc, object, subtype = object.el_type)
-    elif object.el_name.find(':') >= 0:
-        # recordType node
-        xml = findXmlSubnode(doc, object)
-    else:
-        xml = findXmlNode(doc, object)
+def findChanges(doc, filename, cache, objects):
 
-    if not xml:
-        logging.getLogger('deploy').info("Did not find XML node for %s.%s.%s.%s" % (object.filename,object.el_type,object.el_name,object.el_subtype))
-        return None
-        
+    doc = etree.XML(cache[filename])
+    buf = ''
+    for object in objects:
+        if object.status == 'd': return None
+        print('looking for name=%s, type=%s' % (object.el_name, object.el_type))
+        if object.el_name.find(':') >= 0:
+            # recordType node
+            xml = findXmlSubnode(doc, object)
+        else:
+            xml = findXmlNode(doc, object)
+
+        if not xml:
+            logging.getLogger('deploy').info("Did not find XML node for %s.%s.%s.%s" % (object.filename,object.el_type,object.el_name,object.el_subtype))
+            return None
+        xml.append(buf)
+
     return xml
 
 
 def getMetaForFile(filename):
     with open(filename+'-meta.xml', 'r') as f:
         return f.read()
-
-def buildCustomObjectDefinition(filepath, itemlist):
-    # break into submap of objects and fields
-    m = {}
-    for item in itemlist:
-        if not m.has_key(item.filename): m[item.filename] = []
-        m[item.filename].append(m.el_name)
-    for objname,fieldlist in m.items():
-        doc = etree.XML(cache[objname])
-        # make a list of existing fields from the object
-        existingfields = []
 
 def hasDuplicate(objectlist, obj):
     for o in objectlist:
@@ -193,21 +184,9 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
         logger.info('PROCESSING TYPE %s', type)
 
         if type == 'objects':
-            #
-            # For objects we need to collect a list of all field/list/recordtype/et.al changes
-            # then process them at the end
-            #
-            for object in itemlist:
-                registerObjectChanges(doc, cache, itemlist, myzip)
+            registerObjectChanges(doc, cache, itemlist, myzip)
         elif type == 'labels':
-            for obj in itemlist:
-                if object.status == 'd':
-                    pass
-                else:
-                    registerLabelChanges(doc, cache, itemlist, myzip)
-#                    fragment = generateObjectChanges(doc, cache, obj)
-#                    print('fragment:%s' % (fragment,))
-#                    labelchanges += fragment
+            registerLabelChanges(doc, cache, itemlist, myzip)
         elif type in ['pages','classes','triggers']:
             registerCodeChanges(doc, type, itemlist, cache, myzip)
         elif type == 'layouts':
@@ -229,15 +208,8 @@ def generatePackage(objectList, from_branch, to_branch,  retain_package,  packag
 
 def registerLabelChanges(doc, cache, members, zipfile):
 
-    labelchanges = ''
-    for obj in members:
-        if obj.status == 'd':
-            continue
-        fragment = generateObjectChanges(doc, cache, obj)
-        print('fragment:%s' % (fragment,))
-        labelchanges += fragment
-
-    writeLabelDefinitions('CustomLabels.labels', labelchanges, zipfile)
+    fragments = findChanges(doc, 'CustomLabels.labels', cache, [member for member in members if member.status != 'd'])
+    writeLabelDefinitions('CustomLabels.labels', fragments, zipfile)
 
     #
     # add only the requested labels to package.xml
@@ -249,37 +221,128 @@ def registerLabelChanges(doc, cache, members, zipfile):
             continue
         etree.SubElement(el, 'members').text = member.el_name
 
-def registerObjectChanges(doc, cache, members, zipfile):
+def registerObjectChanges(packagedoc, cache, members, zipfile):
+    logger = logging.getLogger('deploy')
 
     objectPkgMap = {}   # holds all nodes to be added/updated, keyed by object/file name
 
-    types_el = etree.SubElement(doc, 'types')
-    etree.SubElement(types_el, 'name').text = typeMap['objects']
-    changes = ''
+    newdocs = {}
+
+    #
+    # build a map by object
+    #
     for member in members:
         if member.status == 'd':
             continue
         if member.el_name is None:
             continue
 
-        if not objectPkgMap.has_key(member.filename): objectPkgMap[member.filename] = []
+        if not objectPkgMap.has_key(member.filename):
+            objectPkgMap[member.filename] = []
         changes = objectPkgMap[member.filename]
+        changes.append(member)
 
-        el_name = member.el_name
-        object_name = member.filename[0:member.filename.find('.')]
-        if member.el_type == 'recordTypes':
-            filetype = 'recordTypes'
-        elif el_name.find(':') > 0:
-            el_name = el_name.split(':')[0]
-            filetype = 'recordTypes'
-        else:
-            filetype = 'fields'
-        etree.SubElement(types_el, 'members').text = object_name + '.' + el_name
+    #
+    # separate out the types
+    #
+    fieldMap = {}
+    listviewMap = {}
+    validationruleMap = {}
+    field_found = listview_found = validationrules_found = False
+    for filename,items in objectPkgMap.items():
+        m = [item for item in items if item.el_type == 'fields']
+        if len(m) > 0:
+            fieldMap[filename] = m
+            field_found = True
 
-        fragment = generateObjectChanges(doc, cache, member)
-        changes.append(fragment)
+        m = [item for item in items if item.el_type == 'listViews']
+        if len(m) > 0:
+            listviewMap[filename] = m
+            listview_found = True
 
-    writeObjectDefinitions(doc, objectPkgMap, cache, zipfile)
+        m = [item for item in items if item.el_type == 'validationRules']
+        if len(m) > 0:
+            validationruleMap[filename] = m
+            validationrules_found = True
+
+    if field_found:
+        #
+        # FIELDS
+        #
+        types_el = etree.SubElement(packagedoc, 'types')
+        etree.SubElement(types_el, 'name').text = typeMap['fields']
+        for filename,fields in fieldMap.items():
+            object_name = filename[0:filename.find('.')]
+            #
+            # add members to package.xml
+            #
+            for field in fields:
+                etree.SubElement(types_el, 'members').text = object_name + '.' + field.el_name
+
+            #
+            # now dice up the object definition by removing all fields we are not deploying
+            #
+            newdoc = etree.XML(cache[filename]) if filename not in newdocs else newdocs[filename]
+            newdocs[filename] = newdoc
+            remove_inapplicable_elements(newdoc, fields, SF_NAMESPACE + 'fields')
+
+    if listview_found:
+        #
+        # LISTVIEWS
+        #
+        types_el = etree.SubElement(packagedoc, 'types')
+        etree.SubElement(types_el, 'name').text = typeMap['listViews']
+        for filename,listviews in listviewMap.items():
+            object_name = filename[0:filename.find('.')]
+            #
+            # add members to package.xml
+            #
+            for listview in listviews:
+                etree.SubElement(types_el, 'members').text = object_name + '.' + listview.el_name
+
+            #
+            # now dice up the object definition by removing all fields we are not deploying
+            #
+            newdoc = etree.XML(cache[filename]) if filename not in newdocs else newdocs[filename]
+            newdocs[filename] = newdoc
+            remove_inapplicable_elements(newdoc, listviews, SF_NAMESPACE + 'listViews')
+
+    if validationrules_found:
+        #
+        # VALIDATION RULES
+        #
+        slice_and_dice(packagedoc, cache, validationruleMap, 'validationRules', newdocs)
+
+
+    for filename,newdoc in newdocs.items():
+        writeObjectDefinition(filename, newdoc, zipfile)
+
+
+def slice_and_dice(packagedoc, cache, maps, element_name, newdocs):
+    types_el = etree.SubElement(packagedoc, 'types')
+    etree.SubElement(types_el, 'name').text = typeMap[element_name]
+    for filename, items in maps.items():
+        object_name = filename[0:filename.find('.')]
+        #
+        # add members to package.xml
+        #
+        for item in items:
+            etree.SubElement(types_el, 'members').text = object_name + '.' + item.el_name
+
+        #
+        # now dice up the object definition by removing all fields we are not deploying
+        #
+        newdoc = etree.XML(cache[filename]) if filename not in newdocs else newdocs[filename]
+        newdocs[filename] = newdoc
+        remove_inapplicable_elements(newdoc, items, SF_NAMESPACE + element_name)
+
+
+def remove_inapplicable_elements(newdoc, items, element_name):
+    deploy = [item.el_name for item in items]
+    for child in newdoc.findall(element_name):
+        node = child.find('fullName')
+        if node is not None and node.text not in deploy:
+            newdoc.remove(child)
 
 
 def registerChange(doc, member, filetype):
@@ -349,24 +412,10 @@ def writeLabelDefinitions(filename, element, zipfile):
     xml += '</CustomLabels>'
     zipfile.writestr('labels/'+filename, xml)
 
-def writeObjectDefinitions(doc,  objectMap, filecache, zipfile):
-    logger = logging.getLogger('deploy')
+def writeObjectDefinition(filename, doc,  zipfile):
 
-    objdeflist = set(objectMap.keys())
-    for objdef in objdeflist:
-        if objdef in filecache:
-            # Object exists at destination, just record the changes
-            elementList = objectMap[objdef]
-            #if len(elementList) == 0:
-            #    objectxml = filecache.get(objdef)
-            #else:
-            if elementList is not None:
-                objectxml = '<?xml version="1.0" encoding="UTF-8"?>'\
-                                '<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">'
-                objectxml += '\n'.join(sorted(elementList))
-                objectxml += '</CustomObject>'
-                zipfile.writestr('objects/'+objdef, objectxml)
-        
+    xml = etree.tostring(doc, xml_declaration=True, encoding='UTF-8', pretty_print=True)
+    zipfile.writestr('objects/' + filename, xml)
 
 
 def resetLocalRepo(branch_name):

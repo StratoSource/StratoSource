@@ -622,6 +622,7 @@ def analyze_commit(branch, commit):
         #        logger.debug("Type: %s" % otype)
         if otype == 'objects':
             analyze_object_changes(olist, lFileCache, rFileCache, 'fields', commit)
+            analyze_object_changes(olist, lFileCache, rFileCache, 'fieldSets', commit)
             analyze_object_changes(olist, lFileCache, rFileCache, 'validationRules', commit)
             analyze_object_changes(olist, lFileCache, rFileCache, 'webLinks', commit)
             analyze_object_changes(olist, lFileCache, rFileCache, 'recordTypes', commit)

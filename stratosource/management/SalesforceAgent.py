@@ -389,7 +389,7 @@ class SalesforceAgent:
         zipfile.close()
         deploy_options = self.meta.factory.create('DeployOptions')
         deploy_options.allowMissingFiles = 'false'
-        deploy_options.autoUpdatePackage = 'true'
+        deploy_options.autoUpdatePackage = 'false'
         deploy_options.checkOnly = 'true' if checkOnly else 'false'
         deploy_options.ignoreWarnings = 'false'
         deploy_options.performRetrieve = 'false'

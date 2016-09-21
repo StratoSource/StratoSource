@@ -214,7 +214,7 @@ def push_release_package(request, release_package_id):
         #    push_package.result = 'i'
         #    push_package.save()
 
-        Deployment.deployPackage(push_package)
+        Deployment.deploy_package(push_package)
 
         return redirect('/release_push_status/' + str(push_package.id))
 

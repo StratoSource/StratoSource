@@ -205,11 +205,15 @@ class SalesforceAgent:
         ptm.members = [emailpath for emailpath in emailpaths]
         return ptm
 
-    def _buildCustomObjectsPackage(self):
-        self.logger.info('loading Salesforce catalog for custom field discovery')
+    def get_custom_objects(self):
         query = self.meta.factory.create('ListMetadataQuery')
         query.type = 'CustomObject'
         props = self.meta.service.listMetadata([query], _API_VERSION)
+        return props
+
+    def _buildCustomObjectsPackage(self):
+        self.logger.info('loading Salesforce catalog for custom field discovery')
+        props = self.get_custom_objects()
         self.logger.info('catalog contains %d objects' % len(props))
         ptm = self.meta.factory.create('PackageTypeMembers')
         ptm.name = 'CustomObject'
@@ -415,5 +419,3 @@ class SalesforceAgent:
         return result
 
 
-if __name__ == "__main__":
-    print "Hello World"

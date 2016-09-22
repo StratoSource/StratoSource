@@ -71,5 +71,5 @@ class Command(BaseCommand):
             batch_time = timezone.now()
             logger.debug('saving audit...')
             save_objectchanges(br, batch_time, chgmap, options['type'])
-            os.remove(filename)
+            #os.remove(filename)
 

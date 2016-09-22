@@ -32,6 +32,7 @@ typeMap = {'fields': 'CustomField', 'validationRules': 'ValidationRule',
            'objects': 'CustomObject', 'classes': 'ApexClass', 'labels': 'CustomLabel',
            'triggers': 'ApexTrigger', 'layouts': 'Layout',
            'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
+           'webLinks': 'WebLink', 'fieldSets': 'FieldSet',
            'components': 'ApexComponent'}
 SF_NAMESPACE = '{http://soap.sforce.com/2006/04/metadata}'
 _API_VERSION = "37.0"
@@ -143,7 +144,7 @@ def has_duplicate(objectlist, obj):
     return False
 
 
-def generate_package(object_list, from_branch, to_branch, retain_package, packagedir):
+def generate_package(sfagent, object_list, from_branch, to_branch, retain_package, packagedir):
     global cache
 
     logger = logging.getLogger('deploy')
@@ -178,7 +179,8 @@ def generate_package(object_list, from_branch, to_branch, retain_package, packag
         logger.info('PROCESSING TYPE %s', eltype)
 
         if eltype == 'objects':
-            register_object_changes(packagedoc, cache, itemlist, myzip)
+            existing_sobjects = sfagent.get_custom_objects()
+            register_object_changes(packagedoc, cache, itemlist, myzip, [so.fullName + '.object' for so in existing_sobjects])
         elif eltype == 'labels':
             register_label_changes(packagedoc, cache, itemlist, myzip)
         elif eltype in ['pages', 'classes', 'triggers']:
@@ -197,6 +199,7 @@ def generate_package(object_list, from_branch, to_branch, retain_package, packag
     myzip.writestr('package.xml', xml)
 
     myzip.close()
+    cache = {}
     return output_name
 
 
@@ -215,7 +218,7 @@ def register_label_changes(packagedoc, filecache, members, zipfile):
         etree.SubElement(el, 'members').text = member.el_name
 
 
-def register_object_changes(packagedoc, cache, members, zipfile):
+def register_object_changes(packagedoc, cache, members, zipfile, existing_sobjects):
     logger = logging.getLogger('deploy')
 
     objectPkgMap = {}  # holds all nodes to be added/updated, keyed by object/file name
@@ -248,6 +251,14 @@ def register_object_changes(packagedoc, cache, members, zipfile):
     for filename, items in objectPkgMap.items():
         newdoc = etree.XML(cache[filename]) if filename not in newdocs else newdocs[filename]
         newdocs[filename] = newdoc
+
+        if filename not in existing_sobjects:
+            # this ia a new sobject, handle it differently
+            types_el = etree.SubElement(packagedoc, 'types')
+            etree.SubElement(types_el, 'name').text = typeMap['objects']
+            etree.SubElement(types_el, 'members').text = filename[0:filename.find('.')]
+            continue
+
         # ------------------------------------------------------------
         m = [item for item in items if item.el_type == 'fields']
         if len(m) > 0:
@@ -441,14 +452,14 @@ def resetLocalRepo(branch_name):
 
 def deploy(objectList, from_branch, to_branch, testOnly=False, retain_package=False, packagedir='/tmp'):
     if packagedir == None: packagedir = '/tmp'
+    agent = Utils.getAgentForBranch(to_branch, logger=logging.getLogger('deploy'))
     os.chdir(from_branch.repo.location)
     resetLocalRepo(from_branch.name)
-    for object in objectList:
-        print(object.status, object.filename, object.type, object.el_name, object.el_subtype)
-    output_name = generate_package(objectList, from_branch, to_branch, retain_package, packagedir)
-    agent = Utils.getAgentForBranch(to_branch, logger=logging.getLogger('deploy'));
+#    for object in objectList:
+#        print(object.status, object.filename, object.type, object.el_name, object.el_subtype)
+    output_name = generate_package(agent, objectList, from_branch, to_branch, retain_package, packagedir)
     results = agent.deploy(output_name, testOnly)
-    if not retain_package: os.unlink(output_name);
+    if not retain_package: os.unlink(output_name)
     return results
 
 

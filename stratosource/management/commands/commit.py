@@ -25,8 +25,8 @@ from datetime import datetime
 import os
 
 
-__author__="masmith"
-__date__ ="$Sep 22, 2010 2:11:52 PM$"
+__author__ = "masmith"
+__date__ = "$Sep 22, 2010 2:11:52 PM$"
 
 logger = logging.getLogger('console')
 
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
                 elif len(line) > 4:
                     comment += line.strip()
-            if len(hash) > 0:
+            if len(hash) > 0 and 'Stratosource' in comment:
                 map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
                 commits.append(map)
             p.stdout.close()

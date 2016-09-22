@@ -268,8 +268,12 @@ def edit_branch_details(request, branch_id, from_edit = False):
             ef.save()
         return adminMenu(request)
 
-    agent = Utils.getAgentForBranch(branch)
-    folders = agent.getSalesforceEmailTemplateFolders()
+    try:
+        agent = Utils.getAgentForBranch(branch)
+        folders = agent.getSalesforceEmailTemplateFolders()
+    except Exception as ex:
+        return render(request, 'error.html', {'error_message': str(ex) })
+
     folders.sort()
     for select in selected:
         if select.name in folders:

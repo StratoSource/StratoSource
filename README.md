@@ -38,9 +38,9 @@ The quickest path to a working installation is a new VM.
    a. To build: Clone the git repo. In the home directory run resources/buildrpm.sh.  The RPM will be under latest/
    b. Pre-built: the RPM under latest/ is already built, based on the master branch.
 3. Copy the RPM to the new VM.
-4. As root, install the RPM on the VM: ```sudo dnf install -y <rpm filename>```
+4. As root, install the RPM on the VM: ```sudo yum install -y <rpm filename>```
 5. Reboot the VM.  IMPORTANT, to disable selinux.
-6. Point your browser to https://<vm ip address>
+6. Point your browser to *http://vm ip address*
 7. Your new MySQL database root account has no password. Please set one now for security.
 8. Installation should be complete.
 

@@ -19,13 +19,11 @@
 import logging.config
 import os
 import datetime
-import pytz
-
 from django.db import transaction
-from stratosource.models import  UserChange, SalesforceUser
+from stratosource.models import UserChange, SalesforceUser
 
-__author__="mark"
-__date__ ="$Oct 6, 2010 8:41:36 PM$"
+__author__ = "mark"
+__date__ = "$Oct 6, 2010 8:41:36 PM$"
 
 
 SFAPIAssetMap = {
@@ -44,10 +42,9 @@ SFAPIAssetMap = {
 logger = logging.getLogger('console')
 
 
-
 def perform_checkin(repodir, zipfile, branch):
 
-    CMDLOG = repodir + '/../checkin.log'
+    cmdlog = repodir + '/../checkin.log'
 
     os.chdir(repodir)
 
@@ -56,15 +53,16 @@ def perform_checkin(repodir, zipfile, branch):
     logger.info("zipfile " + zipfile)
     logger.info("branch " + branch.name)
 
+
     logger.debug('checkout')
-    os.system('git reset --hard ' + branch.name + ' >>' + CMDLOG)
+    os.system('git reset --hard ' + branch.name + ' >>' + cmdlog)
 
 #    logger.debug('checking deletes')
 #    logger.info("Getting list of deleted files")
 #    os.system('git reset --hard %s >> %s' % (branch.name, CMDLOG))
 #    os.system('rm -rf %s/*' % repodir)
 
-    os.system('unzip -o -qq %s >> %s' % (zipfile, CMDLOG))
+    os.system('unzip -o -qq %s >> %s' % (zipfile, cmdlog))
 
 #    p = Popen(['git','status'], stdin=PIPE, stdout=PIPE)
 #    (r, w) = (p.stdin, p.stdout)
@@ -89,11 +87,12 @@ def perform_checkin(repodir, zipfile, branch):
 
 #    logger.info("Laying down changes")
 
-    os.system('git add * >> %s' % CMDLOG)
-    os.system('git commit -m "incremental snapshot for %s on `date`" >> %s' % (branch.name, CMDLOG))
+    os.system('git add * >> %s' % cmdlog)
+    os.system('git commit -m "Stratosource incremental snapshot for %s on `date`" >> %s' % (branch.name, cmdlog))
 
 
     logger.info("Completed checkin")
+
 
 ##### DEFUNCT #####
 """
@@ -136,6 +135,7 @@ def save_userchanges(branch, classes, triggers, pages):
     return batch_time
  """
 
+
 @transaction.atomic
 def save_objectchanges(branch, batch_time, chgmap, fetchtype):
     logger.info('Saving object change audit trail')
@@ -145,40 +145,40 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
     for aType in chgmap.keys():
         logger.debug('Type: %s' % aType)
         if fetchtype == 'code':
-            if not aType in ['ApexClass','ApexTrigger','ApexPage','ApexComponent']:
+            if not aType in ['ApexClass', 'ApexTrigger', 'ApexPage', 'ApexComponent']:
                 continue
         elif fetchtype == 'config':
-            if aType in ['ApexClass','ApexTrigger','ApexPage','ApexComponent']:
+            if aType in ['ApexClass', 'ApexTrigger', 'ApexPage', 'ApexComponent']:
                 continue
 
-        thirtyDays = datetime.timedelta(days = 30)
-        thirtyDaysAgo = datetime.datetime.now() - thirtyDays
-        logger.debug('time window=' + thirtyDaysAgo.isoformat())
+        thirty_days = datetime.timedelta(days = 30)
+        thirty_days_ago = datetime.datetime.now() - thirty_days
+        logger.debug('time window=' + thirty_days_ago.isoformat())
         for change in chgmap[aType]:
             #chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
             chdate_tz = change.lastModifiedDate.replace(tzinfo=None)
-            if chdate_tz < thirtyDaysAgo:
+            if chdate_tz < thirty_days_ago:
                 # not interested in old changes, just slows down the process
                 continue
 
-            if userdict.has_key(change.lastModifiedByName):
-                theUser = userdict[change.lastModifiedByName]
+            if change.lastModifiedByName in userdict:
+                the_user = userdict[change.lastModifiedByName]
                 #logger.debug(change)
-                lastactive = theUser.lastActive  #.replace(tzinfo=pytz.utc)
-                if theUser.lastActive == None or lastactive < chdate_tz:
-                    theUser.lastActive = chdate_tz
-                    theUser.save()
+                lastactive = the_user.lastActive  # .replace(tzinfo=pytz.utc)
+                if the_user.lastActive == None or lastactive < chdate_tz:
+                    the_user.lastActive = chdate_tz
+                    the_user.save()
             else:
-                theUser = SalesforceUser()
-                theUser.userid = change.lastModifiedById[0:15]
-                theUser.name = change.lastModifiedByName
-                theUser.lastActive = chdate_tz
-                theUser.save()
-                userdict[theUser.name] = theUser
-                logger.debug('new salesforce user: ' + theUser.name)
+                the_user = SalesforceUser()
+                the_user.userid = change.lastModifiedById[0:15]
+                the_user.name = change.lastModifiedByName
+                the_user.lastActive = chdate_tz
+                the_user.save()
+                userdict[the_user.name] = the_user
+                logger.debug('new salesforce user: ' + the_user.name)
 
             fullName = change.fullName
-            if SFAPIAssetMap.has_key(aType):
+            if aType in SFAPIAssetMap:
                 fix = SFAPIAssetMap[aType]
                 if fix.endswith(':'):
                     fullName = fix + fullName
@@ -192,7 +192,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id
-                recent.sfuser = theUser
+                recent.sfuser = the_user
                 recent.apex_name = fullName
                 recent.last_update = chdate_tz
                 recent.batch_time = batch_time
@@ -203,11 +203,11 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
 
             #logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
             if recent.last_update is None or recent.last_update < chdate_tz:
-                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (theUser.userid, recent.last_update, chdate_tz))
+                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (the_user.userid, recent.last_update, chdate_tz))
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id
-                recent.sfuser = theUser
+                recent.sfuser = the_user
                 recent.apex_name = fullName
                 recent.last_update = chdate_tz
                 recent.batch_time = batch_time

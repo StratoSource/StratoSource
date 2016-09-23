@@ -33,7 +33,7 @@ typeMap = {'fields': 'CustomField', 'validationRules': 'ValidationRule',
            'triggers': 'ApexTrigger', 'layouts': 'Layout',
            'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
            'webLinks': 'WebLink', 'fieldSets': 'FieldSet',
-           'components': 'ApexComponent'}
+           'components': 'ApexComponent', 'email': 'EmailTemplate' }
 SF_NAMESPACE = '{http://soap.sforce.com/2006/04/metadata}'
 _API_VERSION = "37.0"
 
@@ -187,6 +187,8 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
             register_code_changes(packagedoc, eltype, itemlist, cache, myzip)
         elif eltype == 'layouts':
             write_layout_definitions(packagedoc, eltype, itemlist, cache, myzip)
+        elif eltype == 'email':
+            register_email_changes(packagedoc, eltype, cache, itemlist, myzip)
         else:
             logger.warn('Type not supported: %s' % eltype)
 
@@ -201,6 +203,26 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
     myzip.close()
     cache = {}
     return output_name
+
+def register_email_changes(packagedoc, filetype, filecache, filelist, zipfile):
+    names_for_package = []
+    for member in filelist:
+        print('member filename=%s, el_type=%s' % (member.filename, member.el_type))
+        if member.filename.find('.') > 0:
+            object_name = member.filename[0:member.filename.find('.')]
+            names_for_package.append(object_name)
+        if member.filename in filecache:
+            zipfile.writestr(filetype + '/' + member.filename, filecache.get(member.filename))
+            zipfile.writestr(filetype + '/' + member.filename + '-meta.xml',
+                             get_meta_for_file(os.path.join('unpackaged', filetype, member.filename)))
+
+    #
+    # add entries to package.xml
+    #
+    el = etree.SubElement(packagedoc, 'types')
+    for name in names_for_package:
+        etree.SubElement(el, 'members').text = name
+    etree.SubElement(el, 'name').text = typeMap[filetype]
 
 
 def register_label_changes(packagedoc, filecache, members, zipfile):

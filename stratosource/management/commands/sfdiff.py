@@ -103,14 +103,13 @@ def getDiffNames(left, right):
         entry = entry.rstrip()
         if entry == '.gitignore': continue
         if len(entry) > 1 and not entry.endswith('.xml'):
-            logger.debug('  entry={0}'.format(entry))
+            #logger.debug('  entry={0}'.format(entry))
             parts = entry.split('/')
             type = parts[1]
-            # print 'type=' + type
-            a, b = os.path.split(entry)
-            # base,type = os.path.split(a)
+            name = '/'.join(parts[2:])  # put trailing components back together to support folder-based assets
+#            a, b = os.path.split(entry)
             if not map.has_key(type): map[type] = []
-            map[type].append(b)
+            map[type].append(name)
             changedList.append(entry)
 
     changedList.sort()
@@ -168,7 +167,6 @@ def compareObjectMaps(lmap, rmap):
     missing = {}
     updates = {}
 
-    print '>>> compareObjectMaps: mapsize=%d' % len(lmap)
     for lname, lnodestring in lmap.items():
         # find the field in the other file
         if rmap.has_key(lname):
@@ -249,32 +247,35 @@ def getAllObjectChanges(objectName, lFileCache, rFileCache, elementname, resolve
 ##
 
 def createFileCache(hash, map, branch_name):
-    logger.debug('cwd=' + os.getcwd())
-    #    tmpbranch = branch_name + '_sfdiff'
+
     subprocess.check_call(["git", "checkout", branch_name])
-    #    if branchExists(tmpbranch):
-    #        logger.debug('removing temp branch')
-    #        subprocess.check_call(["git", "branch", "-D", tmpbranch])
-    #    subprocess.check_call(["git", "checkout", "-b", tmpbranch, branch_name])
-    subprocess.check_call(["git", "checkout", branch_name])
-    os.system('git reset --hard {0}'.format(hash))
-    cache = {}
-    for type, list in map.items():
-        if type in ('objects', 'labels', 'translations', 'objectTranslations', 'workflows'):
-            for objectName in list:
-                try:
-                    path = os.path.join(CODE_BASE, type, objectName)
-                    f = open(path)
-                    cache[objectName] = f.read()
-                    f.close()
-                except IOError:
-                    # print '** not able to load ' + path
-                    pass  # caused by a new file added, not present on current branch
-        else:
-            for objectName in list:
-                if os.path.isfile(os.path.join(CODE_BASE, type, objectName)):
-                    cache[objectName] = None
-    return cache
+
+    try:
+        tmpbranch = branch_name + '_sfdiff'
+        if branchExists(tmpbranch):
+            subprocess.check_call(["git", "branch", "-D", tmpbranch])
+        subprocess.check_call(["git", "checkout", "-b", tmpbranch, hash])
+
+    #    os.system('git reset --hard {0}'.format(hash))
+        cache = {}
+        for type, list in map.items():
+            if type in ('objects', 'labels', 'translations', 'objectTranslations', 'workflows'):
+                for objectName in list:
+                    try:
+                        path = os.path.join(CODE_BASE, type, objectName)
+                        f = open(path)
+                        cache[objectName] = f.read()
+                        f.close()
+                    except IOError:
+                        # print '** not able to load ' + path
+                        pass  # caused by a new file added, not present on current branch
+            else:
+                for objectName in list:
+                    if os.path.isfile(os.path.join(CODE_BASE, type, objectName)):
+                       cache[objectName] = None
+        return cache
+    finally:
+        subprocess.check_call(["git", "checkout", branch_name])
 
 
 def getDeployable(branch, objectName, objectType, el_type, el_name, el_subtype=None):
@@ -613,7 +614,7 @@ def analyze_commit(branch, commit):
     omap = getDiffNames(lhash, rhash)
 
     ##
-    # load all changed files from each hash into a map for performance
+    # load all changed files from each hash into a map for performance (config only)
     ##
     lFileCache = createFileCache(lhash, omap, branch.name)
     rFileCache = createFileCache(rhash, omap, branch.name)

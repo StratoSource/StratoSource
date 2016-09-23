@@ -212,6 +212,8 @@ def newbranch(request):
 
 def editbranch(request, branch_id):
     if request.method == 'POST':
+        if 'cancelButton' in request.POST:
+            return adminMenu(request)
         form = BranchForm(request.POST)
         if form.is_valid():
             # Process the data in form.cleaned_data

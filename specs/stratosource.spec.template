@@ -56,61 +56,69 @@ cp manage.py %{buildroot}/usr/django
 rm -rf $RPM_BUILD_ROOT
 
 %post
-echo 'configuring apache'
+
+FIRST_INSTALL='no'
 
 eval grep django /etc/httpd/conf/httpd.conf
 # if apache not already configured for django, do it now
 if [ $? -eq 1 ]; then
+  echo 'configuring apache'
+  FIRST_INSTALL='yes'
   SITEPKG=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
   cat  < /usr/django/resources/httpd-append.conf >> /etc/httpd/conf/httpd.conf 
   sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
 fi
 
-mkdir -p /var/sfrepo/config
-chmod 777 /var/sfrepo /var/sfrepo/config
-ln -s /tmp /var/sftmp
-chmod 777 /var/sftmp
+if [ $FIRST_INSTALL == 'yes' ]; then
+  mkdir -p /var/sfrepo/config
+  chmod 777 /var/sfrepo /var/sfrepo/config
+  ln -s /tmp /var/sftmp
+  chmod 777 /var/sftmp
 
-echo 'configure mysql'
-# fix a bug in the mysql rpm installer that does not set correct permissions
-mysql_install_db
-chown -R mysql.mysql /var/lib/mysql
-touch /var/log/mariadb/mariadb.log
-chmod 666 /var/log/mariadb/mariadb.log
-mkdir /var/run/mysqld
-chmod 777 /var/run/mysqld
-#chown mysql:mysql /var/run/mysqld
+  echo 'configure mysql'
+  # fix a bug in the mysql rpm installer that does not set correct permissions
+  mysql_install_db
+  chown -R mysql.mysql /var/lib/mysql
+  touch /var/log/mariadb/mariadb.log
+  chmod 666 /var/log/mariadb/mariadb.log
+  mkdir /var/run/mysqld
+  chmod 777 /var/run/mysqld
+  #chown mysql:mysql /var/run/mysqld
 
-echo 'configuring cgit'
-eval grep sfrepo /etc/cgitrc
-if [ $? -eq 1 ]; then
-  echo "include=/var/sfrepo/config/cgitrepo" >>/etc/cgitrc
+  echo 'configuring cgit'
+  eval grep sfrepo /etc/cgitrc
+  if [ $? -eq 1 ]; then
+    echo "include=/var/sfrepo/config/cgitrepo" >>/etc/cgitrc
+  fi
+
+  # disable selinux
+  sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
+
+  echo 'installing django'
+  pip install django
+  pip install django-bootstrap3
+  pip install tzlocal
+
+  echo 'installing pyexcelerator'
+  pip install pyexcelerator
+
+  echo 'installing pyral'
+  pip install pyral
+
+  # stratosource configuration requirements
+
+  #cp /usr/django/resources/my.cnf /etc
+  cp /usr/django/resources/memcached /etc/sysconfig
+  mkdir /usr/django/logs
+  chmod 777 /usr/django/logs
+
 fi
+
 if [ ! -f /var/sfrepo/config/cgitrepo ]; then
   cp /usr/django/resources/cgitrepo /var/sfrepo/config
   chmod 777 /var/sfrepo/config/cgitrepo
 fi
 
-echo 'installing django'
-pip install django
-pip install django-bootstrap3
-pip install tzlocal
-
-echo 'installing pyexcelerator'
-pip install pyexcelerator
-
-echo 'installing pyral'
-pip install pyral
-
-# disable selinux
-sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
-
-# stratosource configuration requirements
-
-#cp /usr/django/resources/my.cnf /etc
-cp /usr/django/resources/memcached /etc/sysconfig
-mkdir /usr/django/logs
-chmod 777 /usr/django/logs
 
 service firewalld stop
 
@@ -141,6 +149,7 @@ if [ ! -d /var/lib/mysql/stratosource ]; then
             flush privileges;
 eof
 #    fi
+fi
 
 cd /usr/django
 #

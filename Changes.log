@@ -3,13 +3,15 @@ Stratosource v2 Changelog
 =========================
 
 
-2.0.2
+2.1.2
 -----
 * Converted email template downloading to by-folder only instead of defaulting to all, which was blowing up memory due to size.
 * Added new configuration types: GlobalPicklist and ConnectedApp
 * Corrected rpm installation script to properly do upgrades after initial install.
 * Removed "salesforce pod" from branch configuration as it was overkill.
 * Added @todo scanning and display on the Unreleased page.
+* Continued work on deployments.
+* Various small bugs fixed and UI elements tweaked.
 
 2.0.1
 -----

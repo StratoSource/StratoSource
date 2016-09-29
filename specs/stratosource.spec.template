@@ -24,6 +24,7 @@ Requires:       wget >= 1.12
 #Requires:       subversion >= 1.6.9
 Requires:       git >= 1.7.1
 Requires:       cgit >= 0.9
+Requires:       python-lxml
 Requires:       unzip
 #
 

@@ -6,5 +6,5 @@ pyral
 requests
 suds-jurko
 python-memcached
-lxml
+
 

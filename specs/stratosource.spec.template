@@ -11,18 +11,14 @@ URL:            http://www.StratoSource.com/
 Source0:        %{name}-%{version}-%{release}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
-Requires:       python >= 2.7.5
-Requires:       python-suds >= 0.3.9
-Requires:       python-requests >= 0.11
+Requires:       python >= 2.7.2
 Requires:       python-pip >= 0.8
 Requires:       memcached >= 1.4.4
-Requires:       python-memcached >= 1.43
-Requires:       python-lxml >= 2.2.3
 Requires:       mysql
 Requires:       mariadb-server
 Requires:       httpd >= 2.2.15
 Requires:       mod_wsgi >= 3.1
-Requires:       mod_auth_kerb >= 5.4
+#Requires:       mod_auth_kerb >= 5.4
 Requires:       MySQL-python >= 1.2.3
 Requires:       wget >= 1.12
 #Requires:       subversion >= 1.6.9
@@ -59,14 +55,11 @@ rm -rf $RPM_BUILD_ROOT
 
 FIRST_INSTALL='no'
 
-eval grep django /etc/httpd/conf/httpd.conf
 # if apache not already configured for django, do it now
-if [ $? -eq 1 ]; then
+if [ ! -f /etc/httpd/conf.d/stratosource.conf ]; then
   echo 'configuring apache'
   FIRST_INSTALL='yes'
-  SITEPKG=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
-  cat  < /usr/django/resources/httpd-append.conf >> /etc/httpd/conf/httpd.conf 
-  sed -i "s|PYTHON_SITEPKG|$SITEPKG|" /etc/httpd/conf/httpd.conf
+  cp /usr/django/resources/httpd.conf /etc/httpd/conf.d/stratosource.conf
 fi
 
 if [ $FIRST_INSTALL == 'yes' ]; then
@@ -94,16 +87,8 @@ if [ $FIRST_INSTALL == 'yes' ]; then
   # disable selinux
   sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
 
-  echo 'installing django'
-  pip install django
-  pip install django-bootstrap3
-  pip install tzlocal
-
-  echo 'installing pyexcelerator'
-  pip install pyexcelerator
-
-  echo 'installing pyral'
-  pip install pyral
+  echo 'installing python dependencies'
+  pip install -r /usr/django/resources/dependencies.txt
 
   # stratosource configuration requirements
 
@@ -170,6 +155,8 @@ cd /usr/django
 /usr/django/*
 
 %changelog
+* Thu Sep 29 2016 Mark Smith
+  - Cleaned up the installation/update process a bit; making apache config a module
 * Thu Aug 4 2016 Mark Smith
   - Updated to support new Stratosource (ss2)
 * Thu Dec 18 2014 Mark Smith

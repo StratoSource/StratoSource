@@ -1,0 +1,10 @@
+django
+django-bootstrap3
+tzlocal
+pyexcelerator
+pyral
+requests
+suds-jurko
+python-memcached
+lxml
+

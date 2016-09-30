@@ -10,42 +10,20 @@
 </ol>
 {% endblock %}
 
-{% block jscript %}
-    <script src="/static/js/cs_release_management1.0.js" type="text/javascript"></script>
-    <script src="/static/js/cs_releases1.0.js" type="text/javascript"></script>
-{% endblock %}
-
 {% block content %}
 
-    <div id="content" class="container-fluid">
+    <div id="content" class="container">
         <div id="content-main">
-            <form id="createPackage" name="createPackage" method="POST">{% csrf_token %}
-                <div class="module">
-                    <div class="section">
-                            <span class="section">Create Release Package</span>
-                            <span class="sectionActions">
-                                <a href="#" onclick="document.forms[0].submit(); return false;">Create Package</a>
-                            </span>
-                    </div>
-                </div>
-                <div class="module" style="max-width: 1000px;">
-                    <div>
-                        <table style="font-weight: bold;">
-                            <tr>
-                                <td scope="row" style="text-align:right;">Package Name:</td>
-                                <td>
-                                    <input type="text" size="50" maxlength="200" name="txtName" id="txtName" value="{{branch.repo.name|capfirst}} - {{branch.name|capfirst}}, {{release.name}} Deployment"/>
-                                    <input type="hidden" name="sourceBranchId" id="sourceBranchId" value="{{from_branch.id}}"/>
-                                    <input type="hidden" name="releaseId" id="releaseId" value="{{ release.id }}"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td scope="row" style="text-align:right;">Source Environment:</td>
-                                <td>
-                                    {{from_branch.repo.name|capfirst}} - {{from_branch.name|capfirst}}
-                                </td>
-                            </tr>
-                        </table>
+            <form class="form-inline form-condensed form-hover" id="createPackage" name="createPackage" method="POST">{% csrf_token %}
+                <input type="hidden" name="sourceBranchId" id="sourceBranchId" value="{{from_branch.id}}"/>
+                <input type="hidden" name="releaseId" id="releaseId" value="{{ release.id }}"/>
+                <div class="panel panel-info">
+                    <div class="panel-body">
+                        <div class="form-group">
+                          <label class="control-label" for="txtName">Package Name:</label>
+                          <input class="form-control" type="text" size="50" maxlength="200" name="txtName" id="txtName" value="{{from_branch.name}} {{release.name}} Deployment"/>
+                        </div>
+                        <button id="save-button" class="btn btn-primary form-control" name="action" type="submit" >Create Package</button>
                     </div>
                 </div>
                 <div class="module ObjectsList" style="max-width: 1000px;">
@@ -58,14 +36,17 @@
                     {% endif %}
                     <h3 class="sectionHeader">{{ object.type|title }}</h3>
                     <div id="{{ object.type|title }}List">
-                        <table>
-                            <tr>
-                                <th scope="row" width="60px" class="align_center">Include?</th>
-                                <th>Object Name</th>
-                                <th>Element Type</th>
-                                <th>Element Name</th>
-                                <th>Stories</th>
-                            </tr>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th scope="row" width="60px" class="align_center">Include?</th>
+                                    <th>Object Name</th>
+                                    <th>Element Type</th>
+                                    <th>Element Name</th>
+                                    <th>Stories</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                     {% endifchanged %}
                             <tr>
                                 <td class="align_center" width="60px">
@@ -97,6 +78,7 @@
                                 </td>
                             </tr>
                     {% if forloop.last %}
+                        </tbody>
                         </table>
                         <br/>
                     </div>

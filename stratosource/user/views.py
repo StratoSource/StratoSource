@@ -174,6 +174,12 @@ def create_release_package(request):
     return render(request,'release_create_package.html', data)
 
 
+def deployment_dashboard(request):
+    packages = DeploymentPackage.objects.all().order_by('-date_added')
+    attempts = DeploymentPushStatus.objects.all().order_by('-date_attempted')
+
+    return render(request, 'deployment.html', { 'packages': packages, 'attempts': attempts })
+
 def release_package(request, release_package_id):
     release_package = DeploymentPackage.objects.get(id=release_package_id)
 

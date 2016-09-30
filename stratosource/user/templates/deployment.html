@@ -1,0 +1,75 @@
+
+{% extends 'layout.html' %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Deployment</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+
+    <div id="content" class="container">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h4>Defined Packages</h4>
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Last Attempt</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for package in packages %}
+                            <tr>
+                                <td><label class="label label-primary" onclick="window.location='/release_push_package/{{ package.id }}'">Deploy</label></td>
+                                <td>{{ package.name }}</td>
+                                <td>{{ package.last_pushed }}</td>
+                                <td>{{ package.source_environment.name }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3">No packages defined.  Packages are created from the Manifest view of a release.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h4>Attempts</h4>
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Target</th>
+                            <th>Date Deployed</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attempt in attempts %}
+                            <tr>
+                                <td>{{ attempt.name }}</td>
+                                <td>{{ attempt.target_environment.name }}</td>
+                                <td>{{ attempt.date_attempted }}</td>
+                                <td>{{ attempt.result }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4">No attempts yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

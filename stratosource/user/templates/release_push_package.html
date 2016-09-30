@@ -2,67 +2,46 @@
 {% extends 'layout.html' %}
 
 {% block breadcrumbs %}
-<a href="/">Home</a> -> <a href="/releases">Manage Releases</a> -> <a href="/release/{{ release_package.release.id }}">{{ release_package.release.name }}</a> -> Create Release Package for {{ release_package.release.name }}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="deployment">Deployments</a></li>
+  <li class="active">Deploy - {{ release_package.name }}</li>
+</ol>
 {% endblock %}
 
-{% block jscript %}
-    <script src="/static/js/cs_release_management1.0.js" type="text/javascript"></script>
-    <script src="/static/js/cs_releases1.0.js" type="text/javascript"></script>
-{% endblock %}
 
 {% block content %}
 
-    <div id="content" class="container-fluid">
+    <div id="content" class="container">
 
         <div id="content-main">
-            <form id="releaseNotes" name="releaseNotes" method="POST">{% csrf_token %}
-                <div class="module">
-                    <div class="section">
-                            <span class="section">Release Package {{release_package.name}}</span>
-                            <span class="sectionActions">
-                                <a href="#" onclick="if ($('#cboToBranch').val() == 'none'){ alert('Please select a target environment'); } else { document.forms[0].submit(); } return false;">Deploy</a>
-                            </span>
-                    </div>
+        {% if branches|length == 1 %}
+            <h3>One or more additional branches must be defined in order to perform a deployment</h3>
+        {% else %}
+            <form class="form-horizontal form-condensed form-hover" id="releaseDeploy" name="releaseDeploy" method="POST">{% csrf_token %}
+                <div class="form-group">
+                    <label class="col-md-3 form-check-label" for="keep_generated">Keep generated package?</label>
+                    <input class="form-check-input" type="checkbox" id="keep_generated" name="keep_generated" value="0"/>
                 </div>
-                <div class="module" style="max-width: 1000px;">
-                    <div>
-                        <table>
-                            <tr>
-                                <td scope="row" class="label">Package Name:</td>
-                                <td>
-                                    {{ release_package.name }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td scope="row" class="label">Source Environment:</td>
-                                <td>
-                                    {{ release_package.source_environment.repo.name|capfirst }} - {{ release_package.source_environment.name|capfirst }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td scope="row" class="label">Keep generated package?</td>
-                                <td>
-                                    <input type="checkbox" name="chkKeepGenerated" id="chkKeepGenerated" value="1"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td scope="row" class="label">Target Environment:</td>
-                                <td>
-                                    <select name="cboToBranch" id="cboToBranch">
-                                        <option value="none">-- Select a Branch --</option>
-                                        {% for br in branches %}
-                                            {% if br.id != release_package.source_environment.id %}
-                                            <option value="{{br.id}}">{{br.repo.name|capfirst}} - {{br.name|capfirst}}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="form-group">
+                    <label class="col-md-3 form-check-label" for="test_only">Only run tests?</label>
+                    <input class="form-check-input" type="checkbox" id="test_only" name="test_only" value="0"/>
                 </div>
+                <div class="form-group">
+                    <label class="col-md-3 custom-select-label" for="target_env">Target environment</label>
+                    <select class="custom-select" name="target_env" id="target_env">
+                        <option value="none">-- Select a Branch --</option>
+                        {% for br in branches %}
+                            {% if br.id != release_package.source_environment.id %}
+                            <option value="{{br.id}}">{{br.repo.name}} - {{br.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                </div>
+                <button class="btn btn-primary" type="submit">Begin Deployment</button>
             </form>
+        {% endif %}
         </div>
-        <br class="clear" />
     </div>
 {% endblock %}

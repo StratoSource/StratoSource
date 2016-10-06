@@ -52,6 +52,10 @@ def getAgentForBranch(branch, logger = None):
 
 def doGrep(codedir, ext, text):
     import os, subprocess
+
+    if not os.path.isdir(codedir):
+        return []
+
     os.chdir(codedir)
     cmd = "grep -in '{0}' *.{1}".format(text, ext)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)

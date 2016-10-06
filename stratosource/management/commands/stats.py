@@ -17,6 +17,8 @@
 #
 import json
 import subprocess
+from string import lower
+
 from django.core.management.base import BaseCommand, CommandError
 #from django.utils.log import getLogger
 import logging
@@ -34,7 +36,11 @@ logger = logging.getLogger('console')
 
 
 def code_stats(adir, pattern):
-    files = os.listdir(adir)
+    try:
+        files = os.listdir(adir)
+    except:
+        return 0, 0, 0
+
     lines = 0
     bytes = 0
     filecnt = 0
@@ -96,12 +102,12 @@ class Command(BaseCommand):
             root = os.path.join(branch.repo.location, 'unpackaged')
             output = []
             outer = { 'annotations': output}
-            output.extend(doGrep(os.path.join(root, 'classes'), 'cls', '@todo'))
-            output.extend(doGrep(os.path.join(root, 'triggers'), 'trigger', '@todo'))
-            output.extend(doGrep(os.path.join(root, 'pages'), 'page', '@todo'))
+            output.extend(doGrep(os.path.join(root, 'classes'), 'cls', '@todo\|todo[: ]'))
+            output.extend(doGrep(os.path.join(root, 'triggers'), 'trigger', '@todo\|todo[: ]'))
+            output.extend(doGrep(os.path.join(root, 'pages'), 'page', '@todo\|todo[: ]'))
             for item in output:
                 match = item['match']
-                item['match'] =  match[match.find('@todo') + 5:].strip()
+                item['match'] =  match[lower(match).find('todo'):].strip()
             with open(os.path.join(branch.repo.location, '..', 'annotations_' + branch.name + '.txt'), 'w+') as f:
                 f.write(json.dumps(outer, indent=4))
 

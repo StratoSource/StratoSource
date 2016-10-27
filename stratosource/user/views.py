@@ -21,6 +21,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
+import sys
 from django.utils.encoding import smart_str
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
@@ -200,27 +201,19 @@ def push_release_package(request, release_package_id):
     release_package = DeploymentPackage.objects.get(id=release_package_id)
 
     if request.method == u'POST':
-        branch = Branch.objects.get(id=request.POST.get('cboToBranch'))
+        branch = Branch.objects.get(id=request.POST.get('target_env'))
 
         push_package = DeploymentPushStatus()
         push_package.package = release_package
-        push_package.keep_package = request.POST.get('chkKeepGenerated') == '1'
+        push_package.keep_package = request.POST.get('keep_generated') == '1'
         push_package.package_location = '/tmp'
-        push_package.test_only = True
+        push_package.test_only = False
         push_package.target_environment = branch
         push_package.save()
 
-        #
-        # TODO: Fork project off
-        #
-        # pr = subprocess.Popen(os.path.join(settings.ROOT_PATH, 'cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/tmp/ssRun.out 2>&1 &', shell=True)
-        # logger.debug('Started With pid ' + str(pr.pid))
-        # pr.wait()
-        # if pr.returncode == 0:
-        #    push_package.result = 'i'
-        #    push_package.save()
-
-        Deployment.deploy_package(push_package)
+        if os.fork() == 0:
+            Deployment.deploy_package(push_package)
+            sys.exit()
 
         return redirect('/release_push_status/' + str(push_package.id))
 

@@ -143,8 +143,8 @@ def get_stories(projectIds):
 
     for projectid in projectIds:
         print('projectid=%s' % (projectid,))
-        queriedStories = session.get('Story', query='Project.ObjectID = "' + projectid + '"', fetch='FormattedID,Name,CreationDate,Iteration')
-        queriedDefects = session.get('Defect', query='Project.ObjectID = "' + projectid + '"', fetch=True)
+        queriedStories = session.get('Story', query='Project.ObjectID = "' + projectid + '"', fetch='FormattedID,Name,CreationDate,Iteration', _disableAugments=True)
+        queriedDefects = session.get('Defect', query='Project.ObjectID = "' + projectid + '"', fetch=True, _disableAugments=True)
         queriedStories = list(queriedStories)
         queriedDefects = list(queriedDefects)
         for result in queriedStories + queriedDefects:

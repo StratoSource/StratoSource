@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+chmod 777 /var/sfrepo /var/sftmp
 # start apache httpd
 apachectl
 

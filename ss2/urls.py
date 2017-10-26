@@ -28,7 +28,7 @@ urlpatterns = [
 #    url(r'^djadmin/', include(admin.site.urls)),
 
     url(r'^$', stratosource.user.views.home),
-    url(r'^setup/(?P<stage>\d+)$', stratosource.user.setup_views.setup),
+    url(r'^setup/(?P<stage>.+)$', stratosource.user.setup_views.setup),
     url(r'^configs/', stratosource.user.views.configs),
     url(r'^unit_testing_results/', stratosource.user.unit_testing_views.results),
     url(r'^unit_testing_result/(.+)$', stratosource.user.unit_testing_views.result),

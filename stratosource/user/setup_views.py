@@ -13,7 +13,7 @@ def setup_createdb(username = None, password = None):
     ##
     # NOTE: this may not be officially supported (ie. I'm hacking)
     #
-    conn = connections['ss']
+    conn = connections['default']
     if username and password:
         conn.settings_dict['USER'] = username
         conn.settings_dict['PASSWORD'] = password
@@ -33,7 +33,7 @@ def setup_createdbuser():
     ##
     # NOTE: this may not be officially supported (ie. I'm hacking)
     #
-    conn = connections['ss']
+    conn = connections['default']
     c = conn.cursor()
     host = conn.settings_dict['HOST']
     driver = conn.settings_dict['ENGINE']
@@ -51,26 +51,29 @@ def setup_createdbuser():
 
 def setup_createtables():
     from django.core.management import call_command
-    call_command('migrate', '--run-syncdb', database='ss', interactive=False)
+    call_command('migrate', '--run-syncdb', database='default', interactive=False)
 
-    import uuid
-
-    ConfigSetting(key='uuid', value=uuid.uuid1(), allow_delete=False, masked=False).save()
-    for name in 'rally.login,email.host,email.from'.split(','):
-        ConfigSetting(key=name, value='', allow_delete=False, masked=False).save()
-    for name in 'rally.enabled,agilezen.enabled'.split(','):
-        ConfigSetting(key=name, value='', type='check', allow_delete=False, masked=False).save()
-    for name in 'rally.password,agilezen.apikey'.split(','):
-        ConfigSetting(key=name, value='', allow_delete=False, masked=True).save()
+    # update: this config setup is being done in the migrations module
+    # import uuid
+    #
+    # ConfigSetting(key='uuid', value=uuid.uuid1(), allow_delete=False, masked=False).save()
+    # for name in 'rally.login,email.host,email.from'.split(','):
+    #     ConfigSetting(key=name, value='', allow_delete=False, masked=False).save()
+    # for name in 'rally.enabled,agilezen.enabled'.split(','):
+    #     ConfigSetting(key=name, value='', type='check', allow_delete=False, masked=False).save()
+    # for name in 'rally.password,agilezen.apikey'.split(','):
+    #     ConfigSetting(key=name, value='', allow_delete=False, masked=True).save()
 
 
 def setup(request, stage):
     from django.db import connections
 
+    if stage == 'start':
+        return render(request, 'setup.html', {'stage': '10'})
     if stage == '20':
         # check database connection
         try:
-            conn = connections['ss']
+            conn = connections['default']
             conn.cursor()
             return render(request, 'setup.html', {'stage': '30'})
         except Exception as ex:
@@ -103,7 +106,7 @@ def setup(request, stage):
             setup_createtables()
             return render_to_response('setup.html', {'stage': '50'})
         except Exception as ex2:
-            return render_to_response('setup.html', {'error': str(ex2)})
+            return render_to_response('setup.html', {'status': 'error', 'desc': str(ex2)})
 
     if stage == '50':
         # filesystem check
@@ -114,7 +117,7 @@ def setup(request, stage):
                     testfile.close()
                 except OSError as e:
                     if e.errno == errno.EACCES:
-                        return render_to_response('setup.html', {'stage': '57', 'error': str(e)})
+                        return render_to_response('setup.html', {'stage': '57', 'status': 'error', 'desc': 'Unable to write to repo directory'})
             else:
                 if os.path.isdir('/var/sfrepo'):
                     try:

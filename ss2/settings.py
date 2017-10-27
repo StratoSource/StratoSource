@@ -91,6 +91,9 @@ if IN_CONTAINER and 'dbhost' in os.environ:
 
     dbport = os.environ['dbport'] if 'dbport' in os.environ else ''
     dbeng = os.environ['dbengine'] if 'dbengine' in os.environ else 'mysql'
+    dbname = os.environ['dbname'] if 'dbname' in os.environ else 'stratosource'
+    dbuser = os.environ['dbuser'] if 'dbuser' in os.environ else 'stratosource'
+    dbpass = os.environ['dbpass'] if 'dbpass' in os.environ else 'stratosource'
     DATABASES = {
         #'default': {
         #    'ENGINE': 'django.db.backends.sqlite3',
@@ -98,9 +101,9 @@ if IN_CONTAINER and 'dbhost' in os.environ:
         #},
         'default': {
             'ENGINE': 'django.db.backends.' + dbeng, # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'stratosource',                      # Or path to database file if using sqlite3.
-            'USER': 'stratosource',                      # Not used with sqlite3.
-            'PASSWORD': 'stratosource',                  # Not used with sqlite3.
+            'NAME': dbname,                      # Or path to database file if using sqlite3.
+            'USER': dbuser,                      # Not used with sqlite3.
+            'PASSWORD': dbpass,                  # Not used with sqlite3.
             'HOST': os.environ['dbhost'],
             'PORT': dbport
         }

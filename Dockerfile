@@ -11,7 +11,7 @@ pip install django django-bootstrap3 pyexcelerator pyral tzlocal
 
 RUN yum -y install httpd python-suds python-requests python-memcached python-lxml mod_wsgi MySQL-python wget git cgit unzip
 
-RUN cat < /usr/django/resources/httpd-append.conf >> /etc/httpd/conf/httpd.conf
+RUN cp /usr/django/resources/httpd.conf /etc/httpd/conf.d/stratosource.conf
 
 VOLUME /var/sfrepo
 VOLUME /var/sftmp

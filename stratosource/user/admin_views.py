@@ -62,12 +62,15 @@ class RepoForm(forms.ModelForm):
                     #
                     # initialize the git repo
                     #
-                    output = subprocess.check_output(['git','init'])
+                    output = subprocess.check_output(['/usr/bin/git','init'])
                     subprocess.check_output(['touch','.gitignore'])
-                    subprocess.check_output(['git', 'add','.gitignore'])
-                    subprocess.check_output(['git','commit','-m','"initial commit"'])
+                    subprocess.check_output(['/usr/bin/git', 'config', 'user.email', '"me@example.com"'])
+                    subprocess.check_output(['/usr/bin/git', 'config', 'user.name', '"me"'])
+                    subprocess.check_output(['/usr/bin/git', 'add','.gitignore'])
+                    subprocess.check_output(['/usr/bin/git','commit','-m','"initial commit"'])
                 except Exception as ex:
-                    self._errors["location"] = self.error_class(['Unable to create git repository in ' + path])
+#                    self._errors["name"] = self.error_class(['Unable to create git repository in ' + path])
+                    self._errors["name"] = self.error_class(['Unable to create git repository in ' + path, str(ex)])
                 finally:
                     os.chdir(curdir)
         return cleaned_data

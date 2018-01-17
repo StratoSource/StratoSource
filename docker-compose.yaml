@@ -1,0 +1,16 @@
+web:
+  build: .
+  ports:
+    - 8080:80
+  environment:
+    dbhost: db
+  links:
+    - db
+
+db:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: stratosource
+    MYSQL_USER: stratosource
+    MYSQL_PASSWORD: stratosource
+    MYSQL_DATABASE: stratosource

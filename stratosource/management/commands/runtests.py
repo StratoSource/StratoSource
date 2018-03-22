@@ -48,8 +48,7 @@ class Command(BaseCommand):
 
         self.agent = Utils.getAgentForBranch(self.branch)
         self.rest_headers = {"Authorization": "OAuth %s" % self.agent.getSessionId(), "Content-Type": "application/json" }
-        serverloc = self.branch.api_pod + '.salesforce.com'
-        self.rest_conn = httplib.HTTPSConnection(serverloc)
+        self.rest_conn = httplib.HTTPSConnection(self.agent.getServerLocation())
         self.startTests()
         self.monitorTests()
         self.rest_conn.close()

@@ -115,7 +115,7 @@ class SalesforceAgent:
         return self.sid.sessionId
         
     def getServerLocation(self):
-        return urlparse(self.login_result.serverUrl).netloc
+        return self.serverloc # urlparse(self.login_result.serverUrl).netloc
 
     def login(self, user, password, server_url = None):
         if server_url: self.partner.set_options(location=server_url)

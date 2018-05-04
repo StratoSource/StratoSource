@@ -89,7 +89,7 @@ if [ $FIRST_INSTALL == 'yes' ]; then
   sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
 
   echo 'installing python dependencies'
-  pip install -r /usr/django/resources/dependencies.txt
+  pip install -r /usr/django/resources/requirements.txt
 
   # stratosource configuration requirements
 

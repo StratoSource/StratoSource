@@ -2,7 +2,8 @@ django
 django-bootstrap3
 tzlocal
 pyexcelerator
-pyral
+pyral >= 1.4.1
+suds-requests
 requests
 suds-jurko
 python-memcached

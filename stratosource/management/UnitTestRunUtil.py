@@ -51,8 +51,10 @@ def email_results(batch, failures, runs):
         return
 
     template = get_template('unit_test_results_email.html')
-    c = Context({'batch': batch, 'failures': failures, 'long_runners': long_runners,
-                 'long_runner_classes': long_runner_classes})
+#    c = Context({'batch': batch, 'failures': failures, 'long_runners': long_runners,
+#                 'long_runner_classes': long_runner_classes})
+    c = {'batch': batch, 'failures': failures, 'long_runners': long_runners,
+                 'long_runner_classes': long_runner_classes}
 
     subject = 'Unit test results for ' + batch.branch.name.upper() + ' started at ' + str(batch.batch_time)
     from_email, to = from_address, schedule.results_email_address

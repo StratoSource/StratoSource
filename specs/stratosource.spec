@@ -1,0 +1,166 @@
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+
+Name:           stratosource
+Version: 2.1.3
+Release: 0
+Summary:        Process git repo dumps of salesforce assets and provide web UI for the results
+
+Group:          Applications/Internet
+License:        GPL
+URL:            http://www.StratoSource.com/
+Source0:        %{name}-%{version}-%{release}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+
+Requires:       python >= 2.7.2
+Requires:       python-pip >= 0.8
+Requires:       memcached >= 1.4.4
+Requires:       mysql
+Requires:       mariadb-server
+Requires:       httpd >= 2.2.15
+Requires:       mod_wsgi >= 3.1
+#Requires:       mod_auth_kerb >= 5.4
+Requires:       MySQL-python >= 1.2.3
+Requires:       wget >= 1.12
+#Requires:       subversion >= 1.6.9
+Requires:       git >= 1.7.1
+Requires:       cgit >= 0.9
+Requires:       python-lxml
+Requires:       unzip
+#
+
+BuildArch:      noarch
+
+
+%description
+Process git repo dumps of salesforce assets and provide web UI for the results
+
+%prep
+%setup -q
+
+%install
+# create home dir if not exists
+mkdir -p %{buildroot}/usr/django
+
+# copy in all the files
+cp -R stratosource %{buildroot}/usr/django/
+cp -R ss2 %{buildroot}/usr/django/
+cp -R resources %{buildroot}/usr/django/
+cp *cronjob.sh %{buildroot}/usr/django/
+cp runmanage.sh %{buildroot}/usr/django/
+cp manage.py %{buildroot}/usr/django
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+
+FIRST_INSTALL='no'
+
+# if apache not already configured for django, do it now
+if [ ! -f /etc/httpd/conf.d/stratosource.conf ]; then
+  echo 'configuring apache'
+  FIRST_INSTALL='yes'
+  cp /usr/django/resources/httpd.conf /etc/httpd/conf.d/stratosource.conf
+fi
+
+if [ $FIRST_INSTALL == 'yes' ]; then
+  mkdir -p /var/sfrepo/config
+  chmod 777 /var/sfrepo /var/sfrepo/config
+  ln -s /tmp /var/sftmp
+  chmod 777 /var/sftmp
+
+  echo 'configure mysql'
+  # fix a bug in the mysql rpm installer that does not set correct permissions
+  mysql_install_db
+  chown -R mysql.mysql /var/lib/mysql
+  touch /var/log/mariadb/mariadb.log
+  chmod 666 /var/log/mariadb/mariadb.log
+  mkdir /var/run/mysqld
+  chmod 777 /var/run/mysqld
+  #chown mysql:mysql /var/run/mysqld
+
+  echo 'configuring cgit'
+  eval grep sfrepo /etc/cgitrc
+  if [ $? -eq 1 ]; then
+    echo "include=/var/sfrepo/config/cgitrepo" >>/etc/cgitrc
+  fi
+
+  # disable selinux
+  sed -i "s|SELINUX=enforcing|SELINUX=disabled|" /etc/selinux/config
+
+  echo 'installing python dependencies'
+  pip install -r /usr/django/resources/dependencies.txt
+
+  # stratosource configuration requirements
+
+  #cp /usr/django/resources/my.cnf /etc
+  cp /usr/django/resources/memcached /etc/sysconfig
+  mkdir /usr/django/logs
+  chmod 777 /usr/django/logs
+
+fi
+
+if [ ! -f /var/sfrepo/config/cgitrepo ]; then
+  cp /usr/django/resources/cgitrepo /var/sfrepo/config
+  chmod 777 /var/sfrepo/config/cgitrepo
+fi
+
+
+service firewalld stop
+
+# setup autostart services
+chkconfig httpd on
+chkconfig mariadb on
+chkconfig memcached on
+chkconfig firewalld off
+systemctl disable firewalld rolekit
+
+echo 'restarting services'
+service memcached restart
+service httpd restart
+service mariadb restart
+
+
+#
+# create database if needed
+#
+if [ ! -d /var/lib/mysql/stratosource ]; then
+#    ss_exist=`mysql -u root --execute 'show databases'|grep stratosource|wc -l`
+#    if [ $ss_exist -eq "0" ]; then
+        mysql -u root -t<<eof
+            create database stratosource;
+            create user 'stratosource'@'localhost' identified by 'stratosource';
+            create user 'stratosource'@'%' identified by 'stratosource';
+            grant all on stratosource.* to 'stratosource'@'localhost' with grant option;
+            flush privileges;
+eof
+#    fi
+fi
+
+cd /usr/django
+#
+# for MySQL you must turn off foreign key checks before running migration
+#
+#echo 'performing database update'
+#mysql -u root -t<<eof
+#  set foreign_key_checks=0;
+#eof
+./manage.py migrate --fake-initial
+#echo 'performing post database update'
+#mysql -u root -t<<eof
+#  set foreign_key_checks=1;
+#eof
+
+%files
+%defattr(-,root,root,-)
+/usr/django/*
+
+%changelog
+* Thu Sep 29 2016 Mark Smith
+  - Cleaned up the installation/update process a bit; making apache config a module
+* Thu Aug 4 2016 Mark Smith
+  - Updated to support new Stratosource (ss2)
+* Thu Dec 18 2014 Mark Smith
+  - Updated spec to be more compatible with newer releases of dependencies
+* Fri Nov 5 2010 Mark Smith
+  - Initial work on spec

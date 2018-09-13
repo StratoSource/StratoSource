@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+suds-jurko = "*"
+django = "*"
+django-humanize = "*"
+"django-bootstrap4" = "*"
+pyral = "*"
+lxml = "*"
+"psycopg2" = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"

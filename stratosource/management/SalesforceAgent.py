@@ -15,9 +15,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with StratoSource.  If not, see <http://www.gnu.org/licenses/>.
 #
+import http
 import threading
-
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from suds.client import Client
 import suds
@@ -25,20 +25,20 @@ import binascii
 import time
 import logging
 import os
-import httplib, urllib
+import urllib
 import json
-#from mq import MQClient
 from stratosource.models import EmailTemplateFolder
 
-__author__="mark"
-__date__ ="$Aug 15, 2010 9:48:38 PM$"
+__author__ = "mark"
+__date__ = "$Aug 15, 2010 9:48:38 PM$"
 
 _API_VERSION = 37.0
 _DEFAULT_LOGNAME = '/var/sftmp/agent.log'
-_METADATA_TIMEOUT=60 * 80
-_METADATA_POLL_SLEEP=10
-_DEPLOY_TIMEOUT=6 * 10 * 60   # 1 hour
-_DEPLOY_POLL_SLEEP=10
+_METADATA_TIMEOUT = 60 * 80
+_METADATA_POLL_SLEEP = 10
+_DEPLOY_TIMEOUT = 6 * 10 * 60  # 1 hour
+_DEPLOY_POLL_SLEEP = 10
+
 
 class LoginError(Exception):
     def __init__(self, value):
@@ -47,9 +47,11 @@ class LoginError(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 class Bag:
     def __str__(self):
         return repr(self.__dict__)
+
 
 #
 # Rxperiement with multithreading and suds, but making it easy to revert with just this boolean
@@ -57,7 +59,8 @@ class Bag:
 #
 multithreaded = True
 
-class EmailFolderThread (threading.Thread):
+
+class EmailFolderThread(threading.Thread):
 
     def __init__(self, folder, meta):
         threading.Thread.__init__(self)
@@ -78,21 +81,19 @@ class EmailFolderThread (threading.Thread):
         self.done = True
 
 
-
-
 class SalesforceAgent:
 
-    def __init__(self, partner_wsdl_url, metadata_wsdl_url = None, clientLogger = None, proxy_host=None, proxy_port=None):
+    def __init__(self, partner_wsdl_url, metadata_wsdl_url=None, clientLogger=None, proxy_host=None, proxy_port=None):
         if clientLogger is None:
-#            logging.basicConfig(level=logging.DEBUG)
-#            self.logname = _DEFAULT_LOGNAME
+            #            logging.basicConfig(level=logging.DEBUG)
+            #            self.logname = _DEFAULT_LOGNAME
             self.logger = logging.getLogger(__file__)
         else:
             self.logger = clientLogger
         self.login_result = None
 
         proxyDict = dict()
-        if not proxy_host is None and not proxy_port is None and len(proxy_host) > 0 and len(proxy_port) > 0:
+        if proxy_host is not None and proxy_port is not None and len(proxy_host) > 0 and len(proxy_port) > 0:
             proxyDict['http'] = 'http://%s:%s' % (proxy_host, proxy_port)
             proxyDict['https'] = 'https://%s:%s' % (proxy_host, proxy_port)
             os.environ['http_proxy'] = proxyDict['https']
@@ -108,21 +109,21 @@ class SalesforceAgent:
 
     def set_logname(self, name):
         self.logname = name
-        logging.basicConfig(filename=name,level=logging.DEBUG)
+        logging.basicConfig(filename=name, level=logging.DEBUG)
         self.logger = logging.getLogger(__file__)
 
     def getSessionId(self):
         return self.sid.sessionId
-        
+
     def getServerLocation(self):
         return urlparse(self.login_result.serverUrl).netloc
 
-    def login(self, user, password, server_url = None):
+    def login(self, user, password, server_url=None):
         if server_url: self.partner.set_options(location=server_url)
         try:
             self.login_result = self.partner.service.login(user, password)
         except suds.WebFault as sf:
-#            MQClient().publish(str(sf), level='error').close()
+            #            MQClient().publish(str(sf), level='error').close()
             raise LoginError(str(sf))
         self.sid = self.partner.factory.create('SessionHeader')
         self.sid.sessionId = self.login_result.sessionId
@@ -136,11 +137,11 @@ class SalesforceAgent:
     def close(self):
         if not self.login_result:
             raise Exception('Initialization error: not logged in')
-    #
-    # try to avoid timeouts by not logging out, which invalidates shared session of other
-    # jobs using the same salesforce api credentials.
-    #
-#        self.partner.service.logout()
+        #
+        # try to avoid timeouts by not logging out, which invalidates shared session of other
+        # jobs using the same salesforce api credentials.
+        #
+        #        self.partner.service.logout()
         self.login_result = None
 
     def getSalesforceEmailTemplateFolders(self):
@@ -148,7 +149,7 @@ class SalesforceAgent:
         params = urllib.urlencode({'q': "select Id, Name, DeveloperName from Folder where Type = 'Email'"})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
 
-        if not data == None:
+        if data != None:
             records = data['records']
             folders = [record['DeveloperName'] for record in records]
         else:
@@ -181,7 +182,7 @@ class SalesforceAgent:
                     break
 
             # collect up the results of each thread
-            for i in range(0,len(threads)):
+            for i in range(0, len(threads)):
                 if not threads[i].done:
                     print('oops! a thread is still running')
                 emailpaths.extend(threads[i].email_paths)
@@ -238,7 +239,7 @@ class SalesforceAgent:
         return props
 
     def retrieve_changesaudit(self, types):
-        supportedtypelist = ['ApexClass','ApexPage','ApexTrigger','ApexComponent','Workflow','ApprovalProcess']
+        supportedtypelist = ['ApexClass', 'ApexPage', 'ApexTrigger', 'ApexComponent', 'Workflow', 'ApprovalProcess']
 
         # get intersection of requested types and those we support
         typelist = list(set(supportedtypelist) & set(types))
@@ -256,44 +257,47 @@ class SalesforceAgent:
         # now do the types that diverge from the norm
         #
 
-    #        rest_conn = self.setupForRest(pod)
-    #        self.logger.info('loading changes for EmailTemplate')
-    #        tmpemails = self._getEmailChangesMap(rest_conn)
-    #        etemplates = []
-    #        for tmpemail in tmpemails:
-    #            template = Bag()
-    #            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
-    #            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
-    #            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
-    #            template.__dict__['id'] = tmpemail['Id']
-    #            lmd = tmpemail['LastModifiedDate'][0:-9]
-    #            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
-    #            etemplates.append(template)
-    #        results['EmailTemplate'] = etemplates
-    #        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
+        #        rest_conn = self.setupForRest(pod)
+        #        self.logger.info('loading changes for EmailTemplate')
+        #        tmpemails = self._getEmailChangesMap(rest_conn)
+        #        etemplates = []
+        #        for tmpemail in tmpemails:
+        #            template = Bag()
+        #            template.__dict__['fullName'] = tmpemail['DeveloperName'] + '.email'
+        #            template.__dict__['lastModifiedById'] = tmpemail['LastModifiedById']
+        #            template.__dict__['lastModifiedByName'] = tmpemail['LastModifiedBy']['Name']
+        #            template.__dict__['id'] = tmpemail['Id']
+        #            lmd = tmpemail['LastModifiedDate'][0:-9]
+        #            template.__dict__['lastModifiedDate'] = datetime.datetime.strptime(lmd, '%Y-%m-%dT%H:%M:%S')
+        #            etemplates.append(template)
+        #        results['EmailTemplate'] = etemplates
+        #        self.logger.debug('Loaded %d EmailTemplate records' % len(etemplates))
         return results
 
     def setupForRest(self):
-        self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json" }
+        self.rest_headers = {"Authorization": "OAuth %s" % self.getSessionId(), "Content-Type": "application/json"}
         self.logger.info('connecting to REST endpoint at %s' % self.serverloc)
-        httpcon = httplib.HTTPSConnection(self.serverloc)
+        httpcon = http.client.HTTPSConnection(self.serverloc)
         if not self.proxy_host is None: httpcon.set_tunnel(self.proxy_host, self.proxy_port)
         return httpcon
 
     def _getChangesMap(self, rest_conn, sfobject, withstatus=True):
         if withstatus:
-            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
+            params = urllib.urlencode({
+                                          'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where Status = 'Active' and NamespacePrefix = '' order by name" % sfobject})
         else:
-            params = urllib.urlencode({'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
+            params = urllib.urlencode({
+                                          'q': "select Id, Name, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from %s where NamespacePrefix = '' order by name" % sfobject})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
-        if not data == None:
+        if data != None:
             return data['records']
         return None
 
     def _getEmailChangesMap(self, rest_conn):
-        params = urllib.urlencode({'q': "select Id, Name, DeveloperName, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from EmailTemplate where NamespacePrefix = '' order by name"})
+        params = urllib.urlencode({
+                                      'q': "select Id, Name, DeveloperName, LastModifiedById, LastModifiedBy.Name, LastModifiedBy.Email, LastModifiedDate from EmailTemplate where NamespacePrefix = '' order by name"})
         data = self._invokeGetREST(rest_conn, "query/?%s" % params)
-        if not data == None:
+        if data != None:
             return data['records']
         return None
 
@@ -307,7 +311,7 @@ class SalesforceAgent:
         data = json.loads(resultPayload)
         return data
 
-    def _invokeGetREST(self,rest_conn,  url):
+    def _invokeGetREST(self, rest_conn, url):
         self.logger.debug('invoking /services/data/v%s/%s' % (_API_VERSION, url))
         rest_conn.request("GET", '/services/data/v%s/%s' % (_API_VERSION, url), headers=self.rest_headers)
         response = rest_conn.getresponse()
@@ -327,14 +331,14 @@ class SalesforceAgent:
                 data = json.loads(resultPayload)
                 recs.extend(data['records'])
             else:
-              break
+                break
         data['records'] = recs
         return data
 
     def retrieve_meta(self, types, outputname='/var/sftmp/retrieve.zip'):
         if not self.login_result:
             raise Exception('Initialization error: not logged in')
-        if not self.meta:
+        if self.meta is None:
             raise Exception('metadata API not initialized')
         request = self.meta.factory.create('RetrieveRequest')
         request.apiVersion = _API_VERSION
@@ -367,27 +371,29 @@ class SalesforceAgent:
             self.logger.info('polling.. %s' % str(countdown))
             time.sleep(_METADATA_POLL_SLEEP)
             countdown -= _METADATA_POLL_SLEEP
-            if countdown <= 0: break
+            if countdown <= 0:
+                break
             retrieveResult = self.meta.service.checkRetrieveStatus([asyncResultId], False)[0]
-            if retrieveResult: break
+            if retrieveResult:
+                break
 
-        #if retrieveResult.state != 'Completed':
+        # if retrieveResult.state != 'Completed':
         #    self.logger.error('Retrieving package: ' + retrieveResult.message)
         #    MQClient().publish('Metadata retrieval did not complete: %s' % (asyncResult.message,), level='error').close()
         #    raise Exception(asyncResult.message)
 
         result = self.meta.service.checkRetrieveStatus([asyncResultId], True)
 
-    #    if result.messages != None and len(result.messages) > 0:
-    #        print 'Error: ' + '\n'.join([r.problem for r in result.messages])
-    #        raise Exception('Retrieval error: ' + result.messages[0].problem)
+        #    if result.messages != None and len(result.messages) > 0:
+        #        print 'Error: ' + '\n'.join([r.problem for r in result.messages])
+        #        raise Exception('Retrieval error: ' + result.messages[0].problem)
 
         zip = binascii.a2b_base64(result.zipFile)
         out = open(outputname, 'w')
         out.write(zip)
         out.close()
 
-    def deploy(self, zipfilename,  checkOnly = False):
+    def deploy(self, zipfilename, checkOnly=False):
         zipfile = open(zipfilename, 'rb')
         zip64 = binascii.b2a_base64(zipfile.read())
         zipfile.close()
@@ -399,7 +405,7 @@ class SalesforceAgent:
         deploy_options.performRetrieve = 'false'
         deploy_options.purgeOnDelete = 'false'
         deploy_options.rollbackOnError = 'true'
-        #deploy_options.runTests = 'false'
+        # deploy_options.runTests = 'false'
         deploy_options.singlePackage = 'true'
         deploy_options.testLevel = 'NoTestRun'  # values NoTestRun, RunSpecifiedTests, RunLocalTests, RunAllTestsInOrg
 
@@ -417,5 +423,3 @@ class SalesforceAgent:
         if not result.success:
             raise Exception('Deployment failed')
         return result
-
-

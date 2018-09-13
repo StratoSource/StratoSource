@@ -25,7 +25,6 @@ import sys
 from django.utils.encoding import smart_str
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from pyral import RallyRESTAPIError
 
 from stratosource.management.Utils import doGrep
 from stratosource.models import DeploymentPushStatus, DeploymentPackage, Story, Release, DeployableObject, \
@@ -112,8 +111,8 @@ def verify_configuration():
 
 
 def home(request):
-#    if not verify_configuration():
-#        return render(request,'setup.html', {'stage': '10'})
+    #    if not verify_configuration():
+    #        return render(request,'setup.html', {'stage': '10'})
 
     branches = Branch.objects.filter(enabled=True).order_by('order')
     bstats = BranchStats.objects.filter(branch__enabled=True).order_by('branch__order')
@@ -122,17 +121,16 @@ def home(request):
     except Exception:
         utrecent = None
 
-    data = { 'branches' : branches, 'stats': bstats, 'unittest': utrecent }
+    data = {'branches': branches, 'stats': bstats, 'unittest': utrecent}
 
-    #data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
-    #if data['calendar_host'] == 'localhost':
+    # data['calendar_host'] = ConfigCache.get_config_value('calendar.host')
+    # if data['calendar_host'] == 'localhost':
     #    data['calendar_host'] = request.get_host().split(':')[0]
 
     return render(request, 'home.html', data)
 
 
 def create_release_package(request):
-
     release_id = None
     branch_id = None
     branches = Branch.objects.filter(enabled__exact=True).order_by('order')
@@ -172,14 +170,15 @@ def create_release_package(request):
 
             data = {'release': release, 'manifest': manifest, 'branches': branches, 'from_branch': from_branch}
 
-    return render(request,'release_create_package.html', data)
+    return render(request, 'release_create_package.html', data)
 
 
 def deployment_dashboard(request):
     packages = DeploymentPackage.objects.all().order_by('-date_added')
     attempts = DeploymentPushStatus.objects.all().order_by('-date_attempted')
 
-    return render(request, 'deployment.html', { 'packages': packages, 'attempts': attempts })
+    return render(request, 'deployment.html', {'packages': packages, 'attempts': attempts})
+
 
 def release_package(request, release_package_id):
     release_package = DeploymentPackage.objects.get(id=release_package_id)
@@ -187,7 +186,7 @@ def release_package(request, release_package_id):
     release_attempts = DeploymentPushStatus.objects.filter(package=release_package)
 
     data = {'release_package': release_package, 'release_attempts': release_attempts}
-    return render(request,'release_package.html', data)
+    return render(request, 'release_package.html', data)
 
 
 def delete_release_package(request, release_package_id):
@@ -220,17 +219,17 @@ def push_release_package(request, release_package_id):
     branches = Branch.objects.filter(enabled__exact=True).order_by('order')
     data = {'release_package': release_package, 'branches': branches}
 
-    return render(request,'release_push_package.html', data)
+    return render(request, 'release_push_package.html', data)
 
 
 def release_push_status(request, release_package_push_id):
     push_package = DeploymentPushStatus.objects.get(id=release_package_push_id)
     data = {'push_package': push_package}
 
-    return render(request,'release_push_status.html', data)
+    return render(request, 'release_push_status.html', data)
 
 
-#def export_labels(request, release_id, selectionError=False):
+# def export_labels(request, release_id, selectionError=False):
 #    data = {'repos': Repo.objects.all()}
 #    data['release'] = Release.objects.get(id=release_id)
 #    data['release_id'] = release_id
@@ -286,7 +285,7 @@ def manifest(request, release_id):
     branches = Branch.objects.filter(enabled__exact=True).order_by('order')
 
     data = {'release': release, 'manifest': manifest, 'branches': branches, 'branch': branch}
-    return render(request,'release_manifest.html', data)
+    return render(request, 'release_manifest.html', data)
 
 
 def search(request):
@@ -314,13 +313,14 @@ def search(request):
 
     data = {'results': results, 'repos': repos, 'branches': branches, 'searchText': searchtext,
             'selectedRepo': selectedrepo, 'selectedBranch': selectedbranch}
-    return render(request,'search.html', data)
+    return render(request, 'search.html', data)
+
 
 def releases(request):
     unreleased = Release.objects.filter(released__exact=False)
 
     data = {'unreleased_list': unreleased, 'branches': Branch.objects.filter(enabled__exact=True).order_by('order')}
-    return render(request,'releases.html', data)
+    return render(request, 'releases.html', data)
 
 
 def release(request, release_id):
@@ -339,7 +339,7 @@ def release(request, release_id):
 
     data = {'release': release, 'avail_stories': stories, 'branches': branches,
             'deployment_packages': deployment_packages}
-    return render(request,'release.html', data)
+    return render(request, 'release.html', data)
 
 
 def unreleased(request, repo_name, branch_name):
@@ -454,7 +454,7 @@ def unreleased(request, repo_name, branch_name):
         'selectedType': typeFilter,
         'todos': annotations
     }
-    return render(request,'unreleased.html', data)
+    return render(request, 'unreleased.html', data)
 
 
 def object(request, object_id):
@@ -462,7 +462,7 @@ def object(request, object_id):
     deltas = Delta.objects.filter(object__filename=object.filename, object__branch__id=object.branch.id).order_by(
         'commit__branch__name', '-commit__date_added')
     data = {'object': object, 'deltas': deltas}
-    return render(request,'object.html', data)
+    return render(request, 'object.html', data)
 
 
 def stories(request):
@@ -525,7 +525,8 @@ def stories(request):
     if request.method == u'GET' and request.GET.__contains__('history'):
         sprints = Story.objects.values('sprint').filter(sprint__isnull=False).order_by('sprint').distinct()
     else:
-        sprints = Story.objects.values('sprint').filter(sprint__isnull=False, date_added__gte=oneYearAgo).order_by('sprint').distinct()
+        sprints = Story.objects.values('sprint').filter(sprint__isnull=False, date_added__gte=oneYearAgo).order_by(
+            'sprint').distinct()
 
     for sprintName in sprints:
         if len(sprintName['sprint']) > 0 and not sprintList.__contains__(sprintName['sprint']):
@@ -548,7 +549,7 @@ def stories(request):
         # stories = stories.extra(select={'rally_id': 'CAST(rally_id AS INTEGER)'}).extra(order_by = ['rally_id'])
     stories.select_related()
     stories_refresh_enabled = (ConfigCache.get_config_value('rally.enabled') == '1') or (
-        ConfigCache.get_config_value('agilezen.enabled') == '1')
+            ConfigCache.get_config_value('agilezen.enabled') == '1')
     data = {'stories': stories, 'rally_refresh': stories_refresh_enabled, 'releaseid': releaseid,
             'in_release': in_release, 'sprintList': sprintList, 'sprint': sprint}
 
@@ -624,7 +625,7 @@ def instory(request, story_id):
         data['branch_name'] = request.GET['branch_name']
         data['repo_name'] = request.GET['repo_name']
 
-    return render(request,'in_story.html', data)
+    return render(request, 'in_story.html', data)
 
 
 def rally_projects(request):
@@ -653,4 +654,4 @@ def rally_projects(request):
             projects.append(project)
 
     data = {'projects': projects}
-    return render(request,'rally_projects.html', data)
+    return render(request, 'rally_projects.html', data)

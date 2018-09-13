@@ -21,7 +21,7 @@ from django.utils import timezone
 
 from stratosource.management import ConfigCache
 from stratosource.models import Story
-from ss2 import settings
+from ss3 import settings
 from operator import attrgetter
 import logging
 from django.db import transaction

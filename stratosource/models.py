@@ -74,7 +74,7 @@ class Branch(models.Model):
     )
 
     order = models.IntegerField(default=0)
-    repo =  models.ForeignKey(Repo)
+    repo =  models.ForeignKey(Repo, on_delete = models.CASCADE)
     name =  models.CharField(max_length=30)
     api_env =   models.CharField(max_length=10, default='test')     # "test" or "login"
     api_user =  models.CharField(max_length=100)
@@ -209,7 +209,7 @@ class DeploymentPackage(models.Model):
         db_table = 'deployment_package'
 
     name =               models.CharField(max_length=1000)
-    release =            models.ForeignKey(Release, db_index=True)
+    release =            models.ForeignKey(Release, on_delete = models.CASCADE, db_index=True)
     date_added =         models.DateTimeField(default=timezone.now)
     last_pushed =        models.DateTimeField(null=True)
     source_environment = models.ForeignKey(Branch, null=False, related_name='to_deployment_packages', on_delete=models.CASCADE)
@@ -221,7 +221,7 @@ class DeploymentPushStatus(models.Model):
 
     RESULT_TYPES = (('n','New'),('i','In Progress'),('s','Successful'),('f','Failed'))
 
-    package =            models.ForeignKey(DeploymentPackage)
+    package =            models.ForeignKey(DeploymentPackage, on_delete = models.CASCADE)
     date_attempted =     models.DateField(default=timezone.now)
     log_output =         models.CharField(max_length=20000)
     result =             models.CharField(max_length=1, choices=RESULT_TYPES, default='n')
@@ -249,9 +249,9 @@ class ReleaseTask(models.Model):
     name =           models.CharField(max_length=1000)
     done_in_branch = models.CharField(max_length=100)
     order =          models.IntegerField(default=0)
-    user =           models.ForeignKey(SalesforceUser, blank=True, null=True, db_index=True)  
-    release =        models.ForeignKey(Release, blank=True, null=True, db_index=True)
-    story =          models.ForeignKey(Story, blank=True, null=True, db_index=True)
+    user =           models.ForeignKey(SalesforceUser, on_delete = models.DO_NOTHING, blank=True, null=True, db_index=True)
+    release =        models.ForeignKey(Release, on_delete = models.DO_NOTHING, blank=True, null=True, db_index=True)
+    story =          models.ForeignKey(Story, on_delete = models.DO_NOTHING, blank=True, null=True, db_index=True)
     
 class UserChange(models.Model):
     class Meta:
@@ -260,7 +260,7 @@ class UserChange(models.Model):
     branch =    models.ForeignKey(Branch, db_index=True, on_delete=models.CASCADE)
     apex_id   = models.CharField(max_length=20, blank=True, null=True, unique=False)
     apex_name = models.CharField(max_length=200, blank=False, null=False, unique=False, db_index=True)
-    sfuser =    models.ForeignKey(SalesforceUser, db_index=True)
+    sfuser =    models.ForeignKey(SalesforceUser, on_delete=models.DO_NOTHING, db_index=True)
     batch_time = models.DateTimeField()
     last_update = models.DateTimeField()
     object_type = models.CharField(max_length=20, blank=False, null=False)
@@ -271,10 +271,10 @@ class Delta(models.Model):
 
     DELTA_TYPES = (('a','Add'),('d','Delete'),('u','Update'))
 
-    object =        models.ForeignKey(DeployableObject)
-    commit =        models.ForeignKey(Commit)
+    object =        models.ForeignKey(DeployableObject, on_delete=models.CASCADE)
+    commit =        models.ForeignKey(Commit, on_delete=models.CASCADE)
     delta_type =    models.CharField(max_length=1,choices=DELTA_TYPES)
-    user_change =   models.ForeignKey(UserChange, blank=True, null=True)
+    user_change =   models.ForeignKey(UserChange, on_delete=models.CASCADE, blank=True, null=True)
 
     def __unicode__(self):
         return self.object.__unicode__() + " - " + self.delta_type
@@ -308,8 +308,8 @@ class TranslationDelta(models.Model):
     class Meta:
         db_table = 'translation_delta'
 
-    translation =   models.ForeignKey(DeployableTranslation)
-    commit =        models.ForeignKey(Commit)
+    translation =   models.ForeignKey(DeployableTranslation, on_delete=models.CASCADE)
+    commit =        models.ForeignKey(Commit, on_delete=models.CASCADE)
     delta_type =    models.CharField(max_length=1,choices=Delta.DELTA_TYPES)
 
     def __unicode__(self):
@@ -338,7 +338,7 @@ class UnitTestRun(models.Model):
     apex_class_id   = models.CharField(max_length=20, blank=False, null=False, unique=False)
     batch           = models.ForeignKey(UnitTestBatch, on_delete=models.CASCADE)
     class_name      = models.CharField(max_length=200, blank=False, null=False)
-    branch          = models.ForeignKey(Branch)
+    branch          = models.ForeignKey(Branch, on_delete=models.CASCADE)
     tests           = models.IntegerField(default=0)
     failures        = models.IntegerField(default=0)
     runtime         = models.IntegerField(default=0)
@@ -363,7 +363,7 @@ class UnitTestSchedule(models.Model):
         ('h', 'Hourly'), ('d', 'Daily'), ('w', 'Weeky'),        
     )
     
-    branch =  models.ForeignKey(Branch)
+    branch =  models.ForeignKey(Branch, on_delete=models.CASCADE)
     results_email_address = models.CharField(max_length=500)
     email_only_failures = models.BooleanField(default=True)
     cron_enabled = models.BooleanField(default=True)

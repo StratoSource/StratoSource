@@ -19,7 +19,7 @@
 import logging
 import logging.config
 import os
-from ss2 import settings
+from ss3 import settings
 
 
 ##

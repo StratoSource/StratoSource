@@ -18,7 +18,7 @@
 from stratosource.models import Release, Repo, DeployableObject
 import os
 from lxml import etree
-from pyExcelerator.Workbook import *
+import csv
 
 
 __author__="masmith"
@@ -54,20 +54,16 @@ def generateLabelSpreadsheet(branch, release_id):
                 langmap[langkey] = desc
                 print('label=%s, key=%s, desc=%s' % (labelName, langkey, desc))
 
-        wb = Workbook()
-        ws0 = wb.add_sheet('0')
-        ws0.write(0, 0, 'Key')
-        ws0.write(0, 1, 'en_US')
-        row = 1
-        for labelkey, langmap in labelmap.items():
-            for langkey, value in langmap.items():
-                ws0.write(row, 0, labelkey)
-                if langkey == 'en_US': ws0.write(row, 1, value)
-                row += 1
-        wb.save('/tmp/labels.xls')
-        f = open('/tmp/labels.xls')
+        with open('/tmp/labels.csv', 'w') as csvfile:
+            csvfile.write(['Key','en_US'])
+            for labelkey, langmap in labelmap.items():
+                for langkey, value in langmap.items():
+                    if langkey == 'en_US':
+                        csv.write([labelkey, value])
+                    else:
+                        csv.write([labelkey,''])
+        f = open('/tmp/labels.csv')
         xls = f.read()
-        f.close()
         return xls
 
 

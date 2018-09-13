@@ -21,7 +21,7 @@ from django.shortcuts import redirect, render
 
 from stratosource.management import Utils
 from stratosource.models import Branch, BranchLog, Repo, DeployableObject, Delta, EmailTemplateFolder
-from ss2 import settings
+from ss3 import settings
 from django.core.exceptions import ObjectDoesNotExist
 from crontab import CronTab, CronItem
 from django.db import transaction

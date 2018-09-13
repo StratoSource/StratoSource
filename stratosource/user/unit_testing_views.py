@@ -20,9 +20,9 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect, render
 from django import forms
 from stratosource.models import UnitTestBatch, UnitTestRun, UnitTestRunResult, UnitTestSchedule
-from ss2 import settings
+from ss3 import settings
 from stratosource.management import UnitTestRunUtil
-from crontab import CronTab, CronItem
+from crontab import CronTab
 import logging
 import os
 
@@ -65,19 +65,19 @@ class UnitTestScheduleForm(forms.ModelForm):
 
 
 def create_crontab(uts):
-    ctab = CronTab()
+    ctab = CronTab(user=True)
     if uts.cron_type == 'h':
         if uts.cron_interval > 1:
             interval_list = [str(x) for x in range(0, 23, uts.cron_interval)]
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s runtests %s %s >/tmp/unitTestCronjob%s.out 2>&1" % (
-            uts.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'runmanage.sh'), uts.branch.repo.name,
-            uts.branch.name, uts.id)
+        cronline = f"{uts.cron_start} {interval_str} * * *"
         logger.debug('Creating cron tab with line ' + cronline)
-        item = CronItem(line=cronline + ' #' + ('%s %d' % (CRON_COMMENT, uts.id)))
-        ctab.add(item)
+        item = ctab.new(command = '{} runtests {} {} >/tmp/unitTestCronjob{}.out 2>&1'.format(os.path.join(settings.BASE_DIR, 'runmanage.sh'), uts.branch.repo.name,
+            uts.branch.name, uts.id))
+        item.setall(cronline)
+        item.comment = f'{CRON_COMMENT} {uts.id}'
         ctab.write()
 
 
@@ -88,18 +88,13 @@ def update_crontab(uts):
 
 
 def remove_crontab(uts):
-    ctab = CronTab()
-    comment = CRON_COMMENT + ' %d' % uts.id
+    ctab = CronTab(user = True)
+    comment = f'{CRON_COMMENT} {uts.id}'
     theitem = None
-    for item in ctab:
-        if item.raw_line.find(comment) > -1:
-            theitem = item
-            break
-
-    if theitem:
-        ctab.remove(theitem)
+    item = ctab.find_comment(comment)
+    if item is not None:
+        ctab.remove(item)
         ctab.write()
-
 
 def admin(request):
     schedules = UnitTestSchedule.objects.all()

@@ -8,10 +8,11 @@ requests = "*"
 suds-jurko = "*"
 django = "*"
 django-humanize = "*"
-"django-bootstrap4" = "*"
 pyral = "*"
 lxml = "*"
 "psycopg2" = "*"
+"django-bootstrap3" = "*"
+python-crontab = "*"
 
 [dev-packages]
 

@@ -117,6 +117,7 @@ class BranchForm(forms.ModelForm):
         ('EntitlementTemplate', 'Entitlement templates'),
     )
 
+    repo = forms.ModelChoiceField(queryset=Repo.objects.all(), to_field_name='name', empty_label='(select a repo)')
     api_env = forms.ChoiceField(choices=SFENVCHOICES)
     api_assets = forms.MultipleChoiceField(choices=SFAPIASSETS, required=False)
     #    api_pass = forms.CharField(max_length=100, widget=forms.PasswordInput)

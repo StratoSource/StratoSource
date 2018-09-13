@@ -33,7 +33,7 @@ typeMap = {'fields': 'CustomField', 'validationRules': 'ValidationRule',
            'triggers': 'ApexTrigger', 'layouts': 'Layout',
            'pages': 'ApexPage', 'weblinks': 'CustomPageWebLink',
            'webLinks': 'WebLink', 'fieldSets': 'FieldSet',
-           'components': 'ApexComponent', 'email': 'EmailTemplate' }
+           'components': 'ApexComponent', 'email': 'EmailTemplate'}
 SF_NAMESPACE = '{http://soap.sforce.com/2006/04/metadata}'
 _API_VERSION = "37.0"
 
@@ -123,7 +123,7 @@ def find_changes(filename, cache, objects):
 
         if not xml:
             logging.getLogger('deploy').info("Did not find XML node for %s.%s.%s.%s" % (
-            anobject.filename, anobject.el_type, anobject.el_name, anobject.el_subtype))
+                anobject.filename, anobject.el_type, anobject.el_name, anobject.el_subtype))
             return None
         buf += xml
 
@@ -163,9 +163,11 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
     # create map and group by type
     object_map = {}
     for object in object_list:
-        if object.type not in object_map: object_map[object.type] = []
+        if object.type not in object_map:
+            object_map[object.type] = []
         olist = object_map[object.type]
-        if not has_duplicate(olist, object): olist.append(object)
+        if not has_duplicate(olist, object):
+            olist.append(object)
     cache = create_file_cache(object_map)
 
     # objectPkgMap = {}   # holds all nodes to be added/updated, keyed by object/file name
@@ -180,7 +182,8 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
 
         if eltype == 'objects':
             existing_sobjects = sfagent.get_custom_objects()
-            register_object_changes(packagedoc, cache, itemlist, myzip, [so.fullName + '.object' for so in existing_sobjects])
+            register_object_changes(packagedoc, cache, itemlist, myzip,
+                                    [so.fullName + '.object' for so in existing_sobjects])
         elif eltype == 'labels':
             register_label_changes(packagedoc, cache, itemlist, myzip)
         elif eltype in ['pages', 'classes', 'triggers']:
@@ -203,6 +206,7 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
     myzip.close()
     cache = {}
     return output_name
+
 
 def register_email_changes(packagedoc, filetype, filecache, filelist, zipfile):
     names_for_package = []
@@ -245,7 +249,7 @@ def register_object_changes(packagedoc, cache, members, zipfile, existing_sobjec
 
     objectPkgMap = {}  # holds all nodes to be added/updated, keyed by object/file name
 
-    newdocs = {}
+    packagedocs = {}
 
     #
     # build a map by object
@@ -271,8 +275,7 @@ def register_object_changes(packagedoc, cache, members, zipfile, existing_sobjec
     weblinks_map = {}
     fieldsets_map = {}
     for filename, items in objectPkgMap.items():
-        newdoc = etree.XML(cache[filename]) if filename not in newdocs else newdocs[filename]
-        newdocs[filename] = newdoc
+        packagedocs[filename] = cache[filename]
 
         if filename not in existing_sobjects:
             # this ia a new sobject, handle it differently
@@ -285,81 +288,68 @@ def register_object_changes(packagedoc, cache, members, zipfile, existing_sobjec
         m = [item for item in items if item.el_type == 'fields']
         if len(m) > 0:
             field_map[filename] = m
-        else:
-            remove_all_elements(newdoc, 'fields')
         # ------------------------------------------------------------
         m = [item for item in items if item.el_type == 'listViews']
         if len(m) > 0:
             listview_map[filename] = m
-        else:
-            remove_all_elements(newdoc, 'listViews')
         # ------------------------------------------------------------
         m = [item for item in items if item.el_type == 'validationRules']
         if len(m) > 0:
             validationrule_map[filename] = m
-        else:
-            remove_all_elements(newdoc, 'validationRules')
         # ------------------------------------------------------------
         m = [item for item in items if item.el_type == 'recordTypes']
         if len(m) > 0:
             recordtypes_map[filename] = m
-        else:
-            remove_all_elements(newdoc, 'recordTypes')
         # ------------------------------------------------------------
         m = [item for item in items if item.el_type == 'webLinks']
         if len(m) > 0:
             weblinks_map[filename] = m
-        else:
-            remove_all_elements(newdoc, 'webLinks')
         # ------------------------------------------------------------
         m = [item for item in items if item.el_type == 'fieldSets']
         if len(m) > 0:
             fieldsets_map[filename] = m
-        else:
-            remove_all_elements(newdoc, 'fieldSets')
-            # ------------------------------------------------------------
+        # ------------------------------------------------------------
 
     #
     # FIELDS
     #
-    slice_and_dice(packagedoc, field_map, 'fields', newdocs)
+    slice_and_dice(packagedoc, field_map, 'fields')
 
     #
     # LISTVIEWS
     #
-    slice_and_dice(packagedoc, listview_map, 'listViews', newdocs)
+    slice_and_dice(packagedoc, listview_map, 'listViews')
 
     #
     # VALIDATION RULES
     #
-    slice_and_dice(packagedoc, validationrule_map, 'validationRules', newdocs)
+    slice_and_dice(packagedoc, validationrule_map, 'validationRules')
 
     #
     # RECORD TYPES
     #
-    slice_and_dice(packagedoc, recordtypes_map, 'recordTypes', newdocs)
+    slice_and_dice(packagedoc, recordtypes_map, 'recordTypes')
 
     #
     # WEB LINKS
     #
-    slice_and_dice(packagedoc, weblinks_map, 'webLinks', newdocs)
+    slice_and_dice(packagedoc, weblinks_map, 'webLinks')
 
     #
     # FIELD SETS
     #
-    slice_and_dice(packagedoc, fieldsets_map, 'fieldSets', newdocs)
+    slice_and_dice(packagedoc, fieldsets_map, 'fieldSets')
 
-    for filename, newdoc in newdocs.items():
+    for filename, newdoc in packagedocs.items():
         write_object_definition(filename, newdoc, zipfile)
 
 
-def slice_and_dice(packagedoc, maps, element_name, newdocs):
+def slice_and_dice(packagedoc, maps, element_name):
     types_el = etree.SubElement(packagedoc, 'types')
     etree.SubElement(types_el, 'name').text = typeMap[element_name]
     for filename, items in maps.items():
         if len(items) == 0:
-            # no elements of this type to deploy, so remove all
-            remove_all_elements(newdocs[filename], element_name)
+            # no elements of this type to deploy
             continue
 
         object_name = filename[0:filename.find('.')]
@@ -368,27 +358,6 @@ def slice_and_dice(packagedoc, maps, element_name, newdocs):
         #
         for item in items:
             etree.SubElement(types_el, 'members').text = object_name + '.' + item.el_name
-
-        #
-        # now dice up the object definition by removing all fields we are not deploying
-        #
-        newdoc = newdocs[filename]
-        remove_inapplicable_elements(newdoc, items, element_name)
-
-
-def remove_inapplicable_elements(newdoc, items, element_name):
-    to_deploy = [item.el_name for item in items]
-    nsname = SF_NAMESPACE + 'fullName'
-    for child in newdoc.findall(SF_NAMESPACE + element_name):
-        node = child.find(nsname)
-        if node is not None and node.text not in to_deploy:
-            newdoc.remove(child)
-
-
-def remove_all_elements(newdoc, element_name):
-    for child in newdoc.findall(SF_NAMESPACE + element_name):
-        newdoc.remove(child)
-
 
 def register_change(doc, member, filetype):
     logger = logging.getLogger('deploy')
@@ -473,15 +442,17 @@ def resetLocalRepo(branch_name):
 #    subprocess.check_call(["git","reset","--hard","{0}".format(branch_name)])
 
 def deploy(objectList, from_branch, to_branch, testOnly=False, retain_package=False, packagedir='/tmp'):
-    if packagedir == None: packagedir = '/tmp'
+    if packagedir == None:
+        packagedir = '/tmp'
     agent = Utils.getAgentForBranch(to_branch, logger=logging.getLogger('deploy'))
     os.chdir(from_branch.repo.location)
     resetLocalRepo(from_branch.name)
-#    for object in objectList:
-#        print(object.status, object.filename, object.type, object.el_name, object.el_subtype)
+    #    for object in objectList:
+    #        print(object.status, object.filename, object.type, object.el_name, object.el_subtype)
     output_name = generate_package(agent, objectList, from_branch, to_branch, retain_package, packagedir)
     results = agent.deploy(output_name, testOnly)
-    if not retain_package: os.unlink(output_name)
+    if not retain_package:
+        os.unlink(output_name)
     return results
 
 

@@ -15,8 +15,8 @@
     <div id="content" class="container">
 
         <div id="content-main">
-        {% if branches|length == 1 %}
-            <h3>One or more additional branches must be defined in order to perform a deployment</h3>
+        {% if branches|length < 2 %}
+            <h3>At least 2 branches must be defined in order to perform a deployment - a source and a destination</h3>
         {% else %}
             <form class="form-horizontal form-condensed form-hover" id="releaseDeploy" name="releaseDeploy" method="POST">{% csrf_token %}
                 <div class="form-group">

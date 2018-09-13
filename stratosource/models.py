@@ -61,6 +61,9 @@ class Repo(models.Model):
     def __unicode__(self):
         return self.name + " - " + self.location
 
+    def __str__(self):
+        return self.name + " - " + self.location
+
 class Branch(models.Model):
     class Meta:
         db_table = 'branch'

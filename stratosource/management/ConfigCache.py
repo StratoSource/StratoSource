@@ -44,11 +44,11 @@ def get_uuid():
     return theid
 
 def get_config_value(key):
-    if not session.has_key('settings'):
+    if not 'settings' in session:
         #logger.debug('Refreshing cache')
         refresh()
     settings = session['settings']
-    if settings.has_key(key):
+    if key in settings:
         logger.debug('Returning ' + key)
         return settings[key]
     else:

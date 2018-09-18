@@ -37,7 +37,7 @@ class Command(BaseCommand):
     def parse_commits(self, branch, start_date):
         cwd = os.getcwd()
         try:
-            os.chdir(branch.repo.location)
+            os.chdir(os.path.join(branch.repo.location, branch.name))
             subprocess.check_call(["git","checkout",branch.name])
             subprocess.check_call(["git","reset","--hard","{0}".format(branch.name)])
             p = subprocess.Popen(['git', 'log'], stdout=subprocess.PIPE)
@@ -47,6 +47,7 @@ class Command(BaseCommand):
             commitdate = ""
             comment = ""
             for line in p.stdout:
+                line = line.decode('utf-8')
                 line = line.rstrip()
                 if line.startswith("commit "):
                     if len(hash) > 0:

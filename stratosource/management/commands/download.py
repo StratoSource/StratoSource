@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         if not downloadOnly:
             from stratosource.management.checkin import perform_checkin, save_objectchanges
-            perform_checkin(br.repo.location, filename, br)
+            perform_checkin(os.path.join(br.repo.location, br.name), filename, br)
             batch_time = timezone.now()
             logger.debug('saving audit...')
             save_objectchanges(br, batch_time, chgmap, options['type'])

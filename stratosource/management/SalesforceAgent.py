@@ -389,7 +389,7 @@ class SalesforceAgent:
         #        raise Exception('Retrieval error: ' + result.messages[0].problem)
 
         zip = binascii.a2b_base64(result.zipFile)
-        out = open(outputname, 'w')
+        out = open(outputname, 'wb')
         out.write(zip)
         out.close()
 

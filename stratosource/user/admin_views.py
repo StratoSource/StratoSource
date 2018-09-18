@@ -44,7 +44,7 @@ class RepoForm(forms.ModelForm):
         cleaned_data = self.cleaned_data
 #        path = cleaned_data.get("location")
         name = cleaned_data.get("name")
-        path = os.path.join('/var/sfrepo', name, 'code')
+        path = os.path.join('/var/sfrepo', name) #, 'code')
  #       cleaned_data['location'] = path
 
         if not os.path.isdir(path):
@@ -195,6 +195,11 @@ def newbranch(request):
                 #
                 # initialize the git repo
                 #
+                subprocess.check_output(['git','init',row.name])
+                os.chdir(os.path.join(repo.location, row.name))
+                subprocess.check_output(['touch','.gitignore'])
+                subprocess.check_output(['git','add','.gitignore'])
+                subprocess.check_output(['git','commit','-m','initial commit'])
                 subprocess.check_output(['git', 'checkout', '-b', row.name, 'master'])
             except Exception as ex:
                 removeCGitEntry(row)

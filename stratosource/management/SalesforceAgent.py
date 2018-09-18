@@ -39,6 +39,8 @@ _METADATA_POLL_SLEEP = 10
 _DEPLOY_TIMEOUT = 6 * 10 * 60  # 1 hour
 _DEPLOY_POLL_SLEEP = 10
 
+CODE_TYPES = ['ApexClass', 'ApexTrigger', 'ApexPage', 'ApexComponent']
+
 
 class LoginError(Exception):
     def __init__(self, value):

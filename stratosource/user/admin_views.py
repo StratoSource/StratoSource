@@ -360,8 +360,8 @@ def createCrontab(branch):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/var/sftmp/config_cronjob.out 2>&1" % (
-            branch.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'config_cronjob.sh'), branch.repo.name,
+        cronline = "%s %s * * * %s %s %s >/var/sftmp/config_pipeline.out 2>&1" % (
+            branch.cron_start, interval_str, os.path.join(settings.BASE_DIR, 'config_pipeline.sh'), branch.repo.name,
             branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
@@ -373,8 +373,8 @@ def createCrontab(branch):
             interval_str = ','.join(interval_list)
         else:
             interval_str = '*'
-        cronline = "%s %s * * * %s %s %s >/var/sftmp/code_cronjob.out 2>&1" % (
-            branch.code_cron_start, interval_str, os.path.join(settings.BASE_DIR, 'code_cronjob.sh'), branch.repo.name,
+        cronline = "%s %s * * * %s %s %s >/var/sftmp/code_pipeline.out 2>&1" % (
+            branch.code_cron_start, interval_str, os.path.join(settings.BASE_DIR, 'code_pipeline.sh'), branch.repo.name,
             branch.name)
         logger.debug('Creating cron tab with line ' + cronline)
         item = CronItem(line=cronline + ' #' + (CRON_COMMENT + ' %d' % branch.id))
@@ -421,7 +421,7 @@ def adminMenu(request):
             repo_name = branch.repo.name
             branch_name = branch.name
             pr = subprocess.Popen(os.path.join(settings.BASE_DIR,
-                                  'config_cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
+                                  'config_pipeline.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
                                   shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
@@ -442,7 +442,7 @@ def adminMenu(request):
             repo_name = branch.repo.name
             branch_name = branch.name
             pr = subprocess.Popen(os.path.join(settings.BASE_DIR,
-                                    'code_cronjob.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
+                                    'code_pipeline.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
                                     shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
@@ -524,7 +524,7 @@ def newrepo(request):
             row = Repo()
             cleaned_data = form.cleaned_data
             row.name = cleaned_data.get('name')
-            row.location = os.path.join('/var/sfrepo', row.name, 'code')
+            row.location = os.path.join('/var/sfrepo', row.name) #, 'code')
             row.save()
 #            form.save()
             return adminMenu(request)
@@ -541,7 +541,7 @@ def editrepo(request, repo_id):
             cleaned_data = form.cleaned_data
             row.name = cleaned_data.get('name')
             #row.location = cleaned_data.get('location')
-            row.location = os.path.join('/var/sfrepo', row.name, 'code')
+            row.location = os.path.join('/var/sfrepo', row.name) #, 'code')
             row.save()
             return adminMenu(request)
     else:

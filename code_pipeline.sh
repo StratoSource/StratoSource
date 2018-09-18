@@ -27,10 +27,10 @@ function onexit()
     if [ $SUCCESS == "true" ]
 #    if [ $exit_status -eq "99" ]
         then
-        python manage.py storelog $REPO $BRANCH $LOG_NAME code d
+        python3 manage.py storelog $REPO $BRANCH $LOG_NAME code d
         exit 0
     fi
-    python manage.py storelog $REPO $BRANCH $LOG_NAME code e
+    python3 manage.py storelog $REPO $BRANCH $LOG_NAME code e
     exit $exit_status
     
     
@@ -42,16 +42,16 @@ cd "$BASEDIR" >>$LOG_NAME 2>&1
 echo Starting pre-cronjob.sh >>$LOG_NAME 2>&1
 ./pre-cronjob.sh $REPO $BRANCH code >>$LOG_NAME 2>&1
 
-python manage.py storelog $REPO $BRANCH $LOG_NAME code r
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
-python manage.py download $REPO $BRANCH code >>$LOG_NAME 2>&1
-python manage.py storelog $REPO $BRANCH $LOG_NAME code r
+python3 manage.py download $REPO $BRANCH code >>$LOG_NAME 2>&1
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
-python manage.py commit  $REPO $BRANCH >>$LOG_NAME 2>&1
-python manage.py storelog $REPO $BRANCH $LOG_NAME code r
+python3 manage.py commit  $REPO $BRANCH >>$LOG_NAME 2>&1
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
-python manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1
-python manage.py storelog $REPO $BRANCH $LOG_NAME code r
+python3 manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME code r
 
 cd "$BASEDIR" >>$LOG_NAME 2>&1
 ./post-cronjob.sh $REPO $BRANCH code >>$LOG_NAME 2>&1
@@ -61,6 +61,6 @@ cd "$BASEDIR" >>$LOG_NAME 2>&1
 SUCCESS='true'
 
 cd $BASEDIR
-python manage.py stats
+python3 manage.py stats
 
 onexit 99

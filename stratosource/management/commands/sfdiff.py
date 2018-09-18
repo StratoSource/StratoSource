@@ -59,7 +59,8 @@ def resetLocalRepo(branch_name):
 def branchExists(branchname):
     proc = subprocess.Popen(['git', 'branch', '-a'], shell=False, stdout=subprocess.PIPE)
     input, error = proc.communicate()
-    for br in input.split('\n'):
+    lines = input.decode('utf-8').split('\n')
+    for br in lines:
         br = br.rstrip()
         if len(br) > 0 and br[2:] == branchname: return True
     return False
@@ -75,8 +76,8 @@ def getCurrentTag():
 def getCurrentBranch():
     proc = subprocess.Popen(['git', 'branch'], shell=False, stdout=subprocess.PIPE)
     input, error = proc.communicate()
-    for br in input.split('\n'):
-        br = br.decode('utf-8')
+    lines = input.decode('utf-8').split('\n')
+    for br in lines:
         br = br.rstrip()
         if len(br) > 0 and br[0:2] == "* ":
             return br[2:]
@@ -99,8 +100,8 @@ def getDiffNames(left, right):
     changedList = []
     all = 0
     map = {}
-    for entry in input.split('\n'):
-        entry = entry.decode('utf-8')
+    lines = input.decode('utf-8').split('\n')
+    for entry in lines:
         all = all + 1
         entry = entry.rstrip()
         if entry == '.gitignore': continue
@@ -269,7 +270,7 @@ def createFileCache(hash, map, branch_name):
                 for objectName in list:
                     try:
                         path = os.path.join(CODE_BASE, type, objectName)
-                        f = open(path)
+                        f = open(path, 'rb')
                         cache[objectName] = f.read()
                         f.close()
                     except IOError:

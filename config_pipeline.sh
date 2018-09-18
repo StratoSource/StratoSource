@@ -24,10 +24,10 @@ function onexit()
 
     if [ $exit_status -eq "99" ]
         then
-        python manage.py storelog $REPO $BRANCH $LOG_NAME config d
+        python3 manage.py storelog $REPO $BRANCH $LOG_NAME config d
         exit 0
     fi
-    python manage.py storelog $REPO $BRANCH $LOG_NAME config e
+    python3 manage.py storelog $REPO $BRANCH $LOG_NAME config e
     exit $exit_status
     
     
@@ -38,16 +38,16 @@ echo Starting Code Snapshot of $REPO $BRANCH >>$LOG_NAME 2>&1
 cd $BASEDIR >>$LOG_NAME 2>&1
 ./pre-cronjob.sh $REPO $BRANCH config >>$LOG_NAME 2>&1
 
-python manage.py storelog $REPO $BRANCH $LOG_NAME config r
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME config r
 
-python manage.py download $REPO $BRANCH config >>$LOG_NAME 2>&1
-python manage.py storelog $REPO $BRANCH $LOG_NAME config r
+python3 manage.py download $REPO $BRANCH config >>$LOG_NAME 2>&1
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME config r
 
-python manage.py commit  $REPO $BRANCH >>$LOG_NAME 2>&1
-python manage.py storelog $REPO $BRANCH $LOG_NAME config r
+python3 manage.py commit  $REPO $BRANCH >>$LOG_NAME 2>&1
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME config r
 
-python manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1
-python manage.py storelog $REPO $BRANCH $LOG_NAME config r
+python3 manage.py sfdiff $REPO $BRANCH >>$LOG_NAME 2>&1
+python3 manage.py storelog $REPO $BRANCH $LOG_NAME config r
 
 cd $BASEDIR >>$LOG_NAME 2>&1
 ./post-cronjob.sh $REPO $BRANCH config >>$LOG_NAME 2>&1

@@ -20,6 +20,8 @@ import logging.config
 import os
 import datetime
 from django.db import transaction
+
+from stratosource.management import SalesforceAgent
 from stratosource.models import UserChange, SalesforceUser
 
 __author__ = "mark"
@@ -145,10 +147,10 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
     for aType in chgmap.keys():
         logger.debug('Type: %s' % aType)
         if fetchtype == 'code':
-            if not aType in ['ApexClass', 'ApexTrigger', 'ApexPage', 'ApexComponent']:
+            if aType not in SalesforceAgent.CODE_TYPES:
                 continue
         elif fetchtype == 'config':
-            if aType in ['ApexClass', 'ApexTrigger', 'ApexPage', 'ApexComponent']:
+            if aType in SalesforceAgent.CODE_TYPES:
                 continue
 
         thirty_days = datetime.timedelta(days = 30)
@@ -165,7 +167,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 the_user = userdict[change.lastModifiedByName]
                 #logger.debug(change)
                 lastactive = the_user.lastActive  # .replace(tzinfo=pytz.utc)
-                if the_user.lastActive == None or lastactive < chdate_tz:
+                if the_user.lastActive is None or lastactive < chdate_tz:
                     the_user.lastActive = chdate_tz
                     the_user.save()
             else:
@@ -199,11 +201,11 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
-                logger.debug('Not found, inserting %s' % fullName)
+#                logger.debug('Not found, inserting %s' % fullName)
 
             #logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
             if recent.last_update is None or recent.last_update < chdate_tz:
-                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (the_user.userid, recent.last_update, chdate_tz))
+#                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (the_user.userid, recent.last_update, chdate_tz))
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id
@@ -214,7 +216,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
-                logger.debug('Changed, updating %s' % fullName)
+#                logger.debug('Changed, updating %s' % fullName)
 
     logger.info('Audited objects inserted: %d' % inserted)
 

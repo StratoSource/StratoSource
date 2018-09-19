@@ -319,10 +319,10 @@ def createCGitEntry(branch):
     verifyCgit()
     removeCGitEntry(branch)
     f = open(os.path.join(settings.CONFIG_DIR, 'cgitrepo'), 'a')
-    f.write('#ID=%d\n' % branch.id)
-    f.write('repo.url=%s\n' % branch.name)
-    f.write('repo.path=%s/.git\n' % branch.repo.location)
-    f.write('repo.desc=%s\n' % branch.name)
+    f.write(f'#ID={branch.id}\n')
+    f.write(f'repo.url={branch.name}\n')
+    f.write('repo.path=%s/.git\n' % os.path.join(branch.repo.location, branch.name))
+    f.write(f'repo.desc={branch.name}\n')
     f.close()
 
 
@@ -336,9 +336,9 @@ def removeCGitEntry(branch):
     f.close()
     linecount = 0
     found = False
-    prefix = '#ID=%d' % branch.id
+    prefix = f'#ID={branch.id}\n'
     for line in lines:
-        if line.startswith(prefix):
+        if line == prefix:
             found = True
             break
         linecount += 1

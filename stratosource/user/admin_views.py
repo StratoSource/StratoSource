@@ -43,17 +43,17 @@ class RepoForm(forms.ModelForm):
     def clean(self):
 
         cleaned_data = self.cleaned_data
-#        path = cleaned_data.get("location")
+        #        path = cleaned_data.get("location")
         name = cleaned_data.get("name")
-        path = os.path.join('/var/sfrepo', name) #, 'code')
- #       cleaned_data['location'] = path
+        path = os.path.join('/var/sfrepo', name)  # , 'code')
+        #       cleaned_data['location'] = path
 
         if not os.path.isdir(path):
             try:
                 os.makedirs(path)
             except Exception as ex:
                 self.errors['__all__'] = self.error_class([str(ex)])
-#                self._errors["location"] = self.error_class(['Path does not exist and unable to create'])
+                #                self._errors["location"] = self.error_class(['Path does not exist and unable to create'])
                 return cleaned_data
 
             if os.path.isdir(path):
@@ -63,14 +63,14 @@ class RepoForm(forms.ModelForm):
                     #
                     # initialize the git repo
                     #
-                    output = subprocess.check_output(['/usr/bin/git','init'])
-                    subprocess.check_output(['touch','.gitignore'])
+                    output = subprocess.check_output(['/usr/bin/git', 'init'])
+                    subprocess.check_output(['touch', '.gitignore'])
                     subprocess.check_output(['/usr/bin/git', 'config', 'user.email', '"me@example.com"'])
                     subprocess.check_output(['/usr/bin/git', 'config', 'user.name', '"me"'])
-                    subprocess.check_output(['/usr/bin/git', 'add','.gitignore'])
-                    subprocess.check_output(['/usr/bin/git','commit','-m','"initial commit"'])
+                    subprocess.check_output(['/usr/bin/git', 'add', '.gitignore'])
+                    subprocess.check_output(['/usr/bin/git', 'commit', '-m', '"initial commit"'])
                 except Exception as ex:
-#                    self._errors["name"] = self.error_class(['Unable to create git repository in ' + path])
+                    #                    self._errors["name"] = self.error_class(['Unable to create git repository in ' + path])
                     self._errors["name"] = self.error_class(['Unable to create git repository in ' + path, str(ex)])
                 finally:
                     os.chdir(curdir)
@@ -102,10 +102,10 @@ class BranchForm(forms.ModelForm):
         ('RemoteSiteSetting', 'Remote site settings'),
         ('HomePageComponent', 'Home page components'),
         ('ArticleType', 'Article types'),
-        #('ApexPage', 'Pages'),
-        #('ApexClass', 'Classes'),
-        #('ApexTrigger', 'Triggers'),
-        #('ApexComponent', 'Apex Components'),
+        # ('ApexPage', 'Pages'),
+        # ('ApexClass', 'Classes'),
+        # ('ApexTrigger', 'Triggers'),
+        # ('ApexComponent', 'Apex Components'),
         ('ReportType', 'Report types'),
         ('Scontrol', 'S-Controls'),
         ('ConnectedApp', 'Connected Apps'),
@@ -196,11 +196,11 @@ def newbranch(request):
                 #
                 # initialize the git repo
                 #
-                subprocess.check_output(['git','init',row.name])
+                subprocess.check_output(['git', 'init', row.name])
                 os.chdir(os.path.join(repo.location, row.name))
-                subprocess.check_output(['touch','.gitignore'])
-                subprocess.check_output(['git','add','.gitignore'])
-                subprocess.check_output(['git','commit','-m', COMMENT_MARKER + ' initial commit'])
+                subprocess.check_output(['touch', '.gitignore'])
+                subprocess.check_output(['git', 'add', '.gitignore'])
+                subprocess.check_output(['git', 'commit', '-m', COMMENT_MARKER + ' initial commit'])
                 subprocess.check_output(['git', 'checkout', '-b', row.name, 'master'])
             except Exception as ex:
                 removeCGitEntry(row)
@@ -264,9 +264,9 @@ def editbranch(request, branch_id):
         form = BranchForm(instance=row)
     return render(request, 'editbranch.html', {'form': form, 'type': 'Edit', 'action': 'editbranch/' + branch_id})
 
-@transaction.atomic
-def edit_branch_details(request, branch_id, from_edit = False):
 
+@transaction.atomic
+def edit_branch_details(request, branch_id, from_edit=False):
     branch = Branch.objects.get(id=branch_id)
     selected = EmailTemplateFolder.objects.filter(branch=branch).order_by('name')
 
@@ -284,7 +284,7 @@ def edit_branch_details(request, branch_id, from_edit = False):
         agent = Utils.getAgentForBranch(branch)
         folders = agent.getSalesforceEmailTemplateFolders()
     except Exception as ex:
-        return render(request, 'error.html', {'error_message': str(ex) })
+        return render(request, 'error.html', {'error_message': str(ex)})
 
     folders.sort()
     for select in selected:
@@ -306,6 +306,7 @@ def last_log(request, branch_id, logtype):
     data = {'branch': branch, 'log': log}
     return render(request, 'last_log.html', data)
 
+
 #
 # just-in-time setup of cgit config, to support Docker
 #
@@ -314,6 +315,7 @@ def verifyCgit():
         os.mkdir(settings.CONFIG_DIR)
     if not os.path.isfile(os.path.join(settings.CONFIG_DIR, 'cgitrepo')):
         subprocess.check_output(['cp', os.path.join(settings.BASE_DIR, 'resources', 'cgitrepo'), settings.CONFIG_DIR])
+
 
 def createCGitEntry(branch):
     verifyCgit()
@@ -422,7 +424,7 @@ def adminMenu(request):
             repo_name = branch.repo.name
             branch_name = branch.name
             pr = subprocess.Popen(os.path.join(settings.BASE_DIR,
-                                  'config_pipeline.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
+                                               'config_pipeline.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
                                   shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
@@ -443,8 +445,8 @@ def adminMenu(request):
             repo_name = branch.repo.name
             branch_name = branch.name
             pr = subprocess.Popen(os.path.join(settings.BASE_DIR,
-                                    'code_pipeline.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
-                                    shell=True)
+                                               'code_pipeline.sh') + ' ' + repo_name + ' ' + branch_name + ' >/var/sftmp/ssRun.out 2>&1 &',
+                                  shell=True)
             logger.debug('Started With pid ' + str(pr.pid))
             pr.wait()
             if pr.returncode == 0:
@@ -525,9 +527,9 @@ def newrepo(request):
             row = Repo()
             cleaned_data = form.cleaned_data
             row.name = cleaned_data.get('name')
-            row.location = os.path.join('/var/sfrepo', row.name) #, 'code')
+            row.location = os.path.join('/var/sfrepo', row.name)  # , 'code')
             row.save()
-#            form.save()
+            #            form.save()
             return adminMenu(request)
     else:
         form = RepoForm()
@@ -541,8 +543,8 @@ def editrepo(request, repo_id):
             row = Repo.objects.get(id=repo_id)
             cleaned_data = form.cleaned_data
             row.name = cleaned_data.get('name')
-            #row.location = cleaned_data.get('location')
-            row.location = os.path.join('/var/sfrepo', row.name) #, 'code')
+            # row.location = cleaned_data.get('location')
+            row.location = os.path.join('/var/sfrepo', row.name)  # , 'code')
             row.save()
             return adminMenu(request)
     else:

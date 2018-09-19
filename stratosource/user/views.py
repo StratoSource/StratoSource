@@ -96,7 +96,7 @@ def configs(request):
 def verify_configuration():
     from django.db import connections
     import os
-    conn = connections['ss']
+    conn = connections['default']
     try:
         c = conn.cursor()
         # test that a few tables exist

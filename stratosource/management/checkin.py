@@ -28,7 +28,6 @@ from stratosource.models import UserChange, SalesforceUser
 __author__ = "mark"
 __date__ = "$Oct 6, 2010 8:41:36 PM$"
 
-
 SFAPIAssetMap = {
     'CustomLabels': 'label:',
     'CustomObject': 'object:',
@@ -46,7 +45,6 @@ logger = logging.getLogger('console')
 
 
 def perform_checkin(repodir, zipfile, branch):
-
     cmdlog = repodir + '/../checkin.log'
 
     os.chdir(repodir)
@@ -79,11 +77,11 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
             if aType in SalesforceAgent.CODE_TYPES:
                 continue
 
-        thirty_days = datetime.timedelta(days = 30)
+        thirty_days = datetime.timedelta(days=30)
         thirty_days_ago = datetime.datetime.now() - thirty_days
         logger.debug('time window=' + thirty_days_ago.isoformat())
         for change in chgmap[aType]:
-            #chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
+            # chdate_tz = change.lastModifiedDate.replace(tzinfo=pytz.utc)
             chdate_tz = change.lastModifiedDate.replace(tzinfo=None)
             if chdate_tz < thirty_days_ago:
                 # not interested in old changes, just slows down the process
@@ -91,7 +89,7 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
 
             if change.lastModifiedByName in userdict:
                 the_user = userdict[change.lastModifiedByName]
-                #logger.debug(change)
+                # logger.debug(change)
                 lastactive = the_user.lastActive  # .replace(tzinfo=pytz.utc)
                 if the_user.lastActive is None or lastactive < chdate_tz:
                     the_user.lastActive = chdate_tz
@@ -127,11 +125,11 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
-#                logger.debug('Not found, inserting %s' % fullName)
+            #                logger.debug('Not found, inserting %s' % fullName)
 
-            #logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
+            # logger.debug('file=%s, previous change=%s, current change=%s' % (fullName, recent.last_update.isoformat(), change.lastModifiedDate.isoformat()))
             if recent.last_update is None or recent.last_update < chdate_tz:
-#                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (the_user.userid, recent.last_update, chdate_tz))
+                #                logger.debug('changed: userid=%s  last_update=%s lastModified=%s' % (the_user.userid, recent.last_update, chdate_tz))
                 recent = UserChange()
                 recent.branch = branch
                 recent.apex_id = change.id
@@ -142,8 +140,6 @@ def save_objectchanges(branch, batch_time, chgmap, fetchtype):
                 recent.object_type = aType
                 recent.save()
                 inserted += 1
-#                logger.debug('Changed, updating %s' % fullName)
+    #                logger.debug('Changed, updating %s' % fullName)
 
     logger.info('Audited objects inserted: %d' % inserted)
-
-

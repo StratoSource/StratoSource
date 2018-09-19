@@ -5,20 +5,22 @@
 editingTask = '';
 lastValue = '';
 
-function refreshTasks(){
-    id = 'r' + release_id;
-    if (release_id == null){
-        id = 's' + story_id;
+function refreshTasks() {
+    reltype = 'r';
+    id = release_id;
+    if (id == null){
+        id = story_id;
+        reltype = 's';
     }
     if (cancelEdit()){
-        jQuery('#taskList').load('/ajax/releasetasks/' + id);
+        jQuery('#taskList').load('/ajax/releasetasks/' + reltype + '/' + id);
         editingTask = '';
         lastValue = '';
     }
 }
 
 function loadTaskListReadOnly(){
-    jQuery('#taskList').load('/ajax/releasetasks/r' + release_id + '?readonly=true');
+    jQuery('#taskList').load('/ajax/releasetasks/r/' + release_id + '?readonly=true');
 }
 
 function addTask(){

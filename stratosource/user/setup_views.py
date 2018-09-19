@@ -4,8 +4,6 @@ from django.shortcuts import render, render_to_response
 import os
 import errno
 
-from stratosource.models import ConfigSetting
-
 
 def setup_createdb(username = None, password = None):
     from django.db import connections

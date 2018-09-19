@@ -26,7 +26,6 @@ import logging
 from datetime import datetime
 import os
 
-
 __author__ = "masmith"
 __date__ = "$Sep 22, 2010 2:11:52 PM$"
 
@@ -35,13 +34,12 @@ logger = logging.getLogger('console')
 
 class Command(BaseCommand):
 
-
     def parse_commits(self, branch, start_date):
         cwd = os.getcwd()
         try:
             os.chdir(os.path.join(branch.repo.location, branch.name))
-            subprocess.check_call(["git","checkout",branch.name])
-            subprocess.check_call(["git","reset","--hard","{0}".format(branch.name)])
+            subprocess.check_call(["git", "checkout", branch.name])
+            subprocess.check_call(["git", "reset", "--hard", "{0}".format(branch.name)])
             p = subprocess.Popen(['git', 'log'], stdout=subprocess.PIPE)
             commits = []
             hash = ""
@@ -54,9 +52,9 @@ class Command(BaseCommand):
                 if line.startswith("commit "):
                     if len(hash) > 0:
                         if commitdate >= start_date:
-                            map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
+                            map = {'hash': hash, 'author': author, 'date': commitdate, 'comment': comment}
                             commits.append(map)
-                            if len(map) >= 10: break # no need to do more than 10 really
+                            if len(map) >= 10: break  # no need to do more than 10 really
                         hash = ""
                         author = ""
                         commitdate = ""
@@ -65,19 +63,18 @@ class Command(BaseCommand):
                 elif line.startswith("Author: "):
                     author = line[8:]
                 elif line.startswith("Date:  "):
-                    #logger.debug('parsing date from ' + line[8:-6])
+                    # logger.debug('parsing date from ' + line[8:-6])
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
                 elif len(line) > 4:
                     comment += line.strip()
             if len(hash) > 0 and COMMENT_MARKER in comment:
-                map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
+                map = {'hash': hash, 'author': author, 'date': commitdate, 'comment': comment}
                 commits.append(map)
             p.stdout.close()
             logger.info('commits = ' + str(len(commits)))
             return commits
         finally:
             os.chdir(cwd)
-
 
     def add_arguments(self, parser):
         parser.add_argument('repo', help='repository name')
@@ -88,19 +85,19 @@ class Command(BaseCommand):
         br = Branch.objects.get(repo__name__exact=options['repo'], name__exact=options['branch'])
         if not br: raise CommandError("invalid repo/branch")
 
-        #start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
+        # start_date = datetime(2000, 1, 1, 0, 0, tzinfo=here_tz)
         start_date = datetime(2000, 1, 1, 0, 0)
 
         commits = self.parse_commits(br, start_date)
-        commits.reverse()       # !! must be in reverse chronological order from oldest to newest
+        commits.reverse()  # !! must be in reverse chronological order from oldest to newest
         prev_commit = None
         for acommit in commits:
- #           logger.debug('processing commit ' + acommit['hash'])
+            #           logger.debug('processing commit ' + acommit['hash'])
             try:
                 existing = Commit.objects.get(hash__exact=acommit['hash'])
                 if existing:
                     prev_commit = acommit
-#                    logger.debug('hash exists')
+                    #                    logger.debug('hash exists')
                     continue
             except ObjectDoesNotExist:
                 logger.debug('new hash')
@@ -113,6 +110,6 @@ class Command(BaseCommand):
             newcommit.hash = acommit['hash']
             if prev_commit: newcommit.prev_hash = prev_commit['hash']
             newcommit.comment = acommit['comment']
-            newcommit.date_added = acommit['date'] # datetime.strptime(acommit['date'][:-6], '%a %b %d %H:%M:%S %Y')
+            newcommit.date_added = acommit['date']  # datetime.strptime(acommit['date'][:-6], '%a %b %d %H:%M:%S %Y')
             newcommit.save()
             prev_commit = acommit

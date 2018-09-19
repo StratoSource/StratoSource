@@ -19,16 +19,11 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from stratosource.management.labels import generateLabelSpreadsheet
-from stratosource.models import Release, Repo, DeployableObject
-from pyExcelerator.Workbook import *
-
+from stratosource.models import Release, Repo
 
 
 __author__="masmith"
 __date__ ="$Nov 8, 2012 11:14:00 AM$"
-
-SF_NAMESPACE='{http://soap.sforce.com/2006/04/metadata}'
-CODE_BASE = 'unpackaged'
 
 
 class Command(BaseCommand):

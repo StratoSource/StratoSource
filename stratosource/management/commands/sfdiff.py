@@ -104,7 +104,8 @@ def getDiffNames(left, right):
     for entry in lines:
         all = all + 1
         entry = entry.rstrip()
-        if entry == '.gitignore': continue
+        if entry == '.gitignore':
+            continue
         if len(entry) > 1 and not entry.endswith('.xml'):
             # logger.debug('  entry={0}'.format(entry))
             parts = entry.split('/')
@@ -733,7 +734,8 @@ def generate_analysis(branch, start_date):
                                                         date_added__gte=start_date).order_by('-date_added')
 
     for commit in commits:
-        if commit.prev_hash is None or len(commit.prev_hash) == 0: continue
+        if commit.prev_hash is None or len(commit.prev_hash) == 0:
+            continue
         analyze_commit(branch, commit)
 
 
@@ -757,15 +759,7 @@ class Command(BaseCommand):
 
         repo = stratosource.models.Repo.objects.get(name__exact=options['repo'])
         branch = stratosource.models.Branch.objects.get(repo=repo, name__exact=options['branch'])
-
-        #        mqclient = MQClient(exch='delta')
-
-        #        if len(args) == 3:
-        #            start_date = datetime.strptime(args[2], '%m-%d-%Y')
-        #        else:
-
         start_date = datetime(2000, 1, 1, 0, 0)  # , tzinfo=pytz.utc)
-
         os.chdir(os.path.join(repo.location, branch.name))
 
         ##

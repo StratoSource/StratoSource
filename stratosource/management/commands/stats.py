@@ -17,20 +17,14 @@
 #
 import json
 import subprocess
-from string import lower
 
-from django.core.management.base import BaseCommand, CommandError
-#from django.utils.log import getLogger
+from django.core.management.base import BaseCommand
 import logging
 import time
-import datetime
 import os
 
 from stratosource.management.Utils import doGrep
 from stratosource.models import Branch, BranchStats
-from stratosource.management import Utils
-from ss2.settings import LOGGING
-from ss2.settings import USE_TZ
 
 logger = logging.getLogger('console')
 
@@ -73,9 +67,10 @@ class Command(BaseCommand):
                 continue
             subprocess.check_call(["git", "checkout", branch.name])
             stats = {}
-            stats['cls_files'], stats['cls_lines'], stats['cls_bytes'] =  code_stats(os.path.join(branch.repo.location, 'unpackaged/classes'), '.cls')
-            stats['page_files'], stats['page_lines'], stats['page_bytes'] = code_stats(os.path.join(branch.repo.location, 'unpackaged/pages'), '.page')
-            stats['trigger_files'], stats['trigger_lines'], stats['trigger_bytes'] = code_stats(os.path.join(branch.repo.location, 'unpackaged/triggers'), '.trigger')
+            basedir = os.path.join(branch.repo.location, branch.name, 'unpackaged')
+            stats['cls_files'], stats['cls_lines'], stats['cls_bytes'] =  code_stats(os.path.join(basedir, 'classes'), '.cls')
+            stats['page_files'], stats['page_lines'], stats['page_bytes'] = code_stats(os.path.join(basedir, 'pages'), '.page')
+            stats['trigger_files'], stats['trigger_lines'], stats['trigger_bytes'] = code_stats(os.path.join(basedir, 'triggers'), '.trigger')
 
             try:
                 bs = BranchStats.objects.get(branch=branch)
@@ -99,7 +94,7 @@ class Command(BaseCommand):
             #
             # process anotations
             #
-            root = os.path.join(branch.repo.location, 'unpackaged')
+            root = os.path.join(branch.repo.location, branch.name, 'unpackaged')
             output = []
             outer = { 'annotations': output}
             output.extend(doGrep(os.path.join(root, 'classes'), 'cls', '@todo\|todo[: ]'))
@@ -107,7 +102,7 @@ class Command(BaseCommand):
             output.extend(doGrep(os.path.join(root, 'pages'), 'page', '@todo\|todo[: ]'))
             for item in output:
                 match = item['match']
-                item['match'] =  match[lower(match).find('todo'):].strip()
-            with open(os.path.join(branch.repo.location, '..', 'annotations_' + branch.name + '.txt'), 'w+') as f:
+                item['match'] =  match[match.lower().find('todo'):].strip()
+            with open(os.path.join(branch.repo.location, 'annotations_' + branch.name + '.txt'), 'w+') as f:
                 f.write(json.dumps(outer, indent=4))
 

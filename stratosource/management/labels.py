@@ -47,7 +47,8 @@ def generateLabelSpreadsheet(branch, release_id):
         for child in children:
             labelName = child.find(SF_NAMESPACE + 'fullName').text
             if labelName in release_labels:
-                if not labelmap.has_key(labelName): labelmap[labelName] = {}
+                if labelName not in labelmap:
+                    labelmap[labelName] = {}
                 langmap = labelmap[labelName]
                 langkey = child.find(SF_NAMESPACE + 'language').text
                 desc = child.find(SF_NAMESPACE + 'value').text

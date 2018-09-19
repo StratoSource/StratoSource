@@ -28,7 +28,7 @@ from ss3 import settings
 _CSHOME=settings.BASE_DIR
 CSCONF_DIR=os.path.join(_CSHOME, 'stratosource', 'conf')
 CS_SF_API_VERSION = '35.0'
-
+COMMENT_MARKER = 'StratosourceV3'
 
 
 def loadFile(name):

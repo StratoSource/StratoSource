@@ -20,6 +20,7 @@ from django import forms
 from django.shortcuts import redirect, render
 
 from stratosource.management import Utils
+from stratosource.management.CSBase import COMMENT_MARKER
 from stratosource.models import Branch, BranchLog, Repo, DeployableObject, Delta, EmailTemplateFolder
 from ss3 import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -199,7 +200,7 @@ def newbranch(request):
                 os.chdir(os.path.join(repo.location, row.name))
                 subprocess.check_output(['touch','.gitignore'])
                 subprocess.check_output(['git','add','.gitignore'])
-                subprocess.check_output(['git','commit','-m','initial commit'])
+                subprocess.check_output(['git','commit','-m', COMMENT_MARKER + ' initial commit'])
                 subprocess.check_output(['git', 'checkout', '-b', row.name, 'master'])
             except Exception as ex:
                 removeCGitEntry(row)

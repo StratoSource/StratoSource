@@ -18,6 +18,8 @@
 
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
+
+from stratosource.management.CSBase import COMMENT_MARKER
 from stratosource.models import Branch, Commit
 import subprocess
 import logging
@@ -67,7 +69,7 @@ class Command(BaseCommand):
                     commitdate = datetime.strptime(line[8:-6], '%a %b %d %H:%M:%S %Y')
                 elif len(line) > 4:
                     comment += line.strip()
-            if len(hash) > 0 and 'Stratosource' in comment:
+            if len(hash) > 0 and COMMENT_MARKER in comment:
                 map = {'hash':hash,'author':author,'date':commitdate,'comment':comment}
                 commits.append(map)
             p.stdout.close()

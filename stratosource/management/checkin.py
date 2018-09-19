@@ -22,6 +22,7 @@ import datetime
 from django.db import transaction
 
 from stratosource.management import SalesforceAgent
+from stratosource.management.CSBase import COMMENT_MARKER
 from stratosource.models import UserChange, SalesforceUser
 
 __author__ = "mark"
@@ -55,87 +56,12 @@ def perform_checkin(repodir, zipfile, branch):
     logger.info("zipfile " + zipfile)
     logger.info("branch " + branch.name)
 
-
     logger.debug('checkout')
-    os.system('git reset --hard ' + branch.name + ' >>' + cmdlog)
-
-#    logger.debug('checking deletes')
-#    logger.info("Getting list of deleted files")
-#    os.system('git reset --hard %s >> %s' % (branch.name, CMDLOG))
-#    os.system('rm -rf %s/*' % repodir)
-
-    os.system('unzip -o -qq %s >> %s' % (zipfile, cmdlog))
-
-#    p = Popen(['git','status'], stdin=PIPE, stdout=PIPE)
-#    (r, w) = (p.stdin, p.stdout)
-#    rm_list = []
-#    for line in r:
-#        line = line.rstrip()
-#        if 'deleted:' in line:
-#            ix = string.find(line, 'deleted:') + 10
-#            path = line[ix:].strip()
-#            rm_list.append(path)
-#    r.close()
-#    w.close()
-#    log.info("found %d file(s) to remove" % len(rm_list))
-
-#    log.info("Resetting repo back to HEAD")
-#    os.system('git reset --hard %s >> %s' % (branch.name,CMDLOG))
-#    os.system('unzip -o -qq %s >> %s' % (zipfile,CMDLOG))
-
-#    for name in rm_list:
-#        os.system('git rm "%s"' % name)
-#        log.info("Deleted " + name)
-
-#    logger.info("Laying down changes")
-
-    os.system('git add * >> %s' % cmdlog)
-    os.system('git commit -m "Stratosource incremental snapshot for %s on `date`" >> %s' % (branch.name, cmdlog))
-
-
+    os.system(f'git reset --hard {branch.name} >> {cmdlog}')
+    os.system(f'unzip -o -qq {zipfile} >> {cmdlog}')
+    os.system(f'git add * >> {cmdlog}')
+    os.system(f'git commit -m "{COMMENT_MARKER} incremental snapshot for {branch.name} on `date`" >> {cmdlog}')
     logger.info("Completed checkin")
-
-
-##### DEFUNCT #####
-"""
-@transaction.atomic
-def save_userchanges(branch, classes, triggers, pages):
-    allchanges = classes + triggers + pages
-    batch_time = datetime.datetime.now()
-    userdict = dict([(user.user_id, user) for user in SalesforceUser.objects.all()])
-
-    for change in allchanges:
-        lastModId = change['LastModifiedById']
-        if userdict.has_key(lastModId):
-            theUser = userdict[lastModId]
-        else:
-            theUser = SalesforceUser()
-            theUser.user_id = lastModId
-            theUser.name = change['LastModifiedBy']['Name']
-            theUser.email = change['LastModifiedBy']['Email']
-            theUser.save()
-
-        recents = list(UserChange.objects.filter(apex_id__exact=change['Id'], branch=branch).order_by('last_update').reverse()[:1])
-        if len(recents) == 0:
-            recent = UserChange()
-            recent.branch = branch
-            recent.apex_id = change['Id']
-            recent.apex_name = change['Name']
-            recent.sfuser = theUser
-            lu = change['LastModifiedDate'][0:-9]
-            recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
-            recent.batch_time = batch_time
-        else:
-            recent = recents[0]
-
-
-        if recent.sfuser == None or recent.sfuser.user_id != change['LastModifiedById']:
-            lu = change['LastModifiedDate'][0:-9]
-            recent.last_update = datetime.datetime.strptime(lu, '%Y-%m-%dT%H:%M:%S')
-            recent.batch_time = batch_time
-            recent.save()
-    return batch_time
- """
 
 
 @transaction.atomic

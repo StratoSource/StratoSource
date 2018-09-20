@@ -8,9 +8,9 @@ RUN dnf install -y httpd python-memcached mod_wsgi MySQL-python wget git cgit un
     cp /usr/django/resources/httpd.conf /etc/httpd/conf.d/stratosource.conf
 
 VOLUME /var/sfrepo
-#VOLUME /var/sftmp
+VOLUME /var/sftmp
 
-RUN mkdir /var/sftmp && chmod 777 /var/sfrepo /var/sftmp && usermod -a -G root apache
+#RUN mkdir /var/sftmp && chmod 777 /var/sfrepo /var/sftmp && usermod -a -G root apache
 
 ENV CONTAINERIZED=docker
 

@@ -42,11 +42,16 @@
                             <td>{{ra.target_environment.repo.name|capfirst}} - {{ra.target_environment.name|capfirst}}</td>
                             <td>
                             {% if ra.result == 'n' %}New{% endif %}
-                            {% if ra.result == 'i' %}In Progress{% endif %}
-                            {% if ra.result == 's' %}Successful{% endif %}
-                            {% if ra.result == 'f' %}Failed{% endif %}
+                            {% if ra.result == 'p' %}Pushed{% endif %}
+                            {% if ra.result == 'e' %}Failed{% endif %}
                             </td>
                             <td><a href="/release_push_status/{{ra.id}}">View</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td span="3">
+                                <strong>No attempts made yet</strong>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

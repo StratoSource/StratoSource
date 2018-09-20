@@ -144,7 +144,7 @@ def has_duplicate(objectlist, obj):
     return False
 
 
-def generate_package(sfagent, object_list, from_branch, to_branch, retain_package, packagedir):
+def generate_package(object_list, output_name):
     global cache
 
     logger = logging.getLogger('deploy')
@@ -153,10 +153,6 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
     packagedoc = etree.Element('Package', nsmap=default_ns)
     etree.SubElement(packagedoc, 'version').text = "{0}".format(_API_VERSION)
 
-    if retain_package:
-        output_name = os.path.join(packagedir, 'deploy_%s_%s.zip' % (from_branch.name, to_branch.name))
-    else:
-        output_name = '/tmp/deploy_%s_%s.zip' % (from_branch.name, to_branch.name)
     myzip = ZipFile(output_name, 'w', compression=ZIP_DEFLATED)
 
     logger.info('building %s', output_name)
@@ -181,9 +177,7 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
         logger.info('PROCESSING TYPE %s', eltype)
 
         if eltype == 'objects':
-            existing_sobjects = sfagent.get_custom_objects()
-            register_object_changes(packagedoc, cache, itemlist, myzip,
-                                    [so.fullName + '.object' for so in existing_sobjects])
+            register_object_changes(packagedoc, cache, itemlist, myzip)
         elif eltype == 'labels':
             register_label_changes(packagedoc, cache, itemlist, myzip)
         elif eltype in ['pages', 'classes', 'triggers']:
@@ -193,7 +187,7 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
         elif eltype == 'email':
             register_email_changes(packagedoc, eltype, cache, itemlist, myzip)
         else:
-            logger.warn('Type not supported: %s' % eltype)
+            logger.warning('Type not supported: %s' % eltype)
 
             # if len(labelchanges) > 0:
             # writeLabelDefinitions(obj.filename, labelchanges, myzip)
@@ -205,7 +199,7 @@ def generate_package(sfagent, object_list, from_branch, to_branch, retain_packag
 
     myzip.close()
     cache = {}
-    return output_name
+    return True
 
 
 def register_email_changes(packagedoc, filetype, filecache, filelist, zipfile):
@@ -244,7 +238,7 @@ def register_label_changes(packagedoc, filecache, members, zipfile):
         etree.SubElement(el, 'members').text = member.el_name
 
 
-def register_object_changes(packagedoc, cache, members, zipfile, existing_sobjects):
+def register_object_changes(packagedoc, cache, members, zipfile):
     logger = logging.getLogger('deploy')
 
     objectPkgMap = {}  # holds all nodes to be added/updated, keyed by object/file name
@@ -268,77 +262,12 @@ def register_object_changes(packagedoc, cache, members, zipfile, existing_sobjec
     #
     # Separate out the types into individual maps
     #
-    field_map = {}
-    listview_map = {}
-    validationrule_map = {}
-    recordtypes_map = {}
-    weblinks_map = {}
-    fieldsets_map = {}
     for filename, items in objectPkgMap.items():
         packagedocs[filename] = cache[filename]
 
-        if filename not in existing_sobjects:
-            # this ia a new sobject, handle it differently
-            types_el = etree.SubElement(packagedoc, 'types')
-            etree.SubElement(types_el, 'name').text = typeMap['objects']
-            etree.SubElement(types_el, 'members').text = filename[0:filename.find('.')]
-            continue
-
-        # ------------------------------------------------------------
-        m = [item for item in items if item.el_type == 'fields']
-        if len(m) > 0:
-            field_map[filename] = m
-        # ------------------------------------------------------------
-        m = [item for item in items if item.el_type == 'listViews']
-        if len(m) > 0:
-            listview_map[filename] = m
-        # ------------------------------------------------------------
-        m = [item for item in items if item.el_type == 'validationRules']
-        if len(m) > 0:
-            validationrule_map[filename] = m
-        # ------------------------------------------------------------
-        m = [item for item in items if item.el_type == 'recordTypes']
-        if len(m) > 0:
-            recordtypes_map[filename] = m
-        # ------------------------------------------------------------
-        m = [item for item in items if item.el_type == 'webLinks']
-        if len(m) > 0:
-            weblinks_map[filename] = m
-        # ------------------------------------------------------------
-        m = [item for item in items if item.el_type == 'fieldSets']
-        if len(m) > 0:
-            fieldsets_map[filename] = m
-        # ------------------------------------------------------------
-
-    #
-    # FIELDS
-    #
-    slice_and_dice(packagedoc, field_map, 'fields')
-
-    #
-    # LISTVIEWS
-    #
-    slice_and_dice(packagedoc, listview_map, 'listViews')
-
-    #
-    # VALIDATION RULES
-    #
-    slice_and_dice(packagedoc, validationrule_map, 'validationRules')
-
-    #
-    # RECORD TYPES
-    #
-    slice_and_dice(packagedoc, recordtypes_map, 'recordTypes')
-
-    #
-    # WEB LINKS
-    #
-    slice_and_dice(packagedoc, weblinks_map, 'webLinks')
-
-    #
-    # FIELD SETS
-    #
-    slice_and_dice(packagedoc, fieldsets_map, 'fieldSets')
+        types_el = etree.SubElement(packagedoc, 'types')
+        etree.SubElement(types_el, 'name').text = typeMap['objects']
+        etree.SubElement(types_el, 'members').text = filename[0:filename.find('.')]
 
     for filename, newdoc in packagedocs.items():
         write_object_definition(filename, newdoc, zipfile)
@@ -441,25 +370,46 @@ def resetLocalRepo(branch_name):
 
 #    subprocess.check_call(["git","reset","--hard","{0}".format(branch_name)])
 
-def deploy(objectList, from_branch, to_branch, testOnly=False, retain_package=False, packagedir='/tmp'):
+def build_package_file(release_id, objectList, from_branch, packagedir='/var/sftmp'):
     if packagedir == None:
-        packagedir = '/tmp'
-    agent = Utils.getAgentForBranch(to_branch, logger=logging.getLogger('deploy'))
+        packagedir = '/var/sftmp'
     os.chdir(from_branch.repo.location)
     resetLocalRepo(from_branch.name)
-    #    for object in objectList:
-    #        print(object.status, object.filename, object.type, object.el_name, object.el_subtype)
-    output_name = generate_package(agent, objectList, from_branch, to_branch, retain_package, packagedir)
-    results = agent.deploy(output_name, testOnly)
-    if not retain_package:
+    output_name = os.path.join(packagedir, f'deploy_{from_branch.name}_{release_id}.zip')
+    r = generate_package(objectList, output_name)
+    if r:
+        return output_name
+    else:
         os.unlink(output_name)
-    return results
+        return None
 
+# needs work
+def deploy(filename, to_branch, testOnly = True, retain_package=False):
+    agent = Utils.getAgentForBranch(to_branch, logger=logging.getLogger('deploy'))
+    results = agent.deploy(filename, testOnly)
+    if not retain_package:
+        os.unlink(filename)
+    return results
 
 #
 # External entry point
 #
 
+def make_package(deployPkg) -> (bool, str):
+
+    package_name = build_package_file(deployPkg.release.id, deployPkg.deployable_objects.all(),
+                     deployPkg.source_environment)
+    if package_name is None:
+        deployPkg.package_location = None
+        deployPkg.save()
+        return False, 'Package build failed'
+
+    deployPkg.package_location = package_name
+    deployPkg.save()
+    return True, None
+
+
+#needs work
 def deploy_package(pkgStatus):
     deployPkg = pkgStatus.package
     to_branch = pkgStatus.target_environment

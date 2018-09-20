@@ -180,13 +180,13 @@ def deployment_dashboard(request):
     return render(request, 'deployment.html', {'packages': packages, 'attempts': attempts})
 
 
-def release_package(request, release_package_id):
+def deployment_package(request, release_package_id):
     release_package = DeploymentPackage.objects.get(id=release_package_id)
 
     release_attempts = DeploymentPushStatus.objects.filter(package=release_package)
 
     data = {'release_package': release_package, 'release_attempts': release_attempts}
-    return render(request, 'release_package.html', data)
+    return render(request, 'deployment_package.html', data)
 
 
 def delete_release_package(request, release_package_id):
@@ -205,7 +205,7 @@ def push_release_package(request, release_package_id):
         push_package = DeploymentPushStatus()
         push_package.package = release_package
         push_package.keep_package = request.POST.get('keep_generated') == '1'
-        push_package.package_location = '/tmp'
+        push_package.package_location = '/var/sftmp'
         push_package.test_only = False
         push_package.target_environment = branch
         push_package.save()
@@ -223,18 +223,10 @@ def push_release_package(request, release_package_id):
 
 
 def release_push_status(request, release_package_push_id):
-    push_package = DeploymentPushStatus.objects.get(id=release_package_push_id)
-    data = {'push_package': push_package}
+    push_status = DeploymentPushStatus.objects.get(id=release_package_push_id)
+    data = {'push_package': push_status}
 
     return render(request, 'release_push_status.html', data)
-
-
-# def export_labels(request, release_id, selectionError=False):
-#    data = {'repos': Repo.objects.all()}
-#    data['release'] = Release.objects.get(id=release_id)
-#    data['release_id'] = release_id
-#    d#ata['repoSelectionError'] = selectionError
-#    return render(request,'export_labels_form.html', data)
 
 
 def export_labels_form(request):
